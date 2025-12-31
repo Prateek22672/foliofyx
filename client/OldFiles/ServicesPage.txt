@@ -1,0 +1,514 @@
+import React, { useRef, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { 
+  motion, 
+  useScroll, 
+  useTransform, 
+  useSpring, 
+  useMotionValue, 
+  useMotionTemplate,
+  useVelocity, 
+  useAnimationFrame,
+  AnimatePresence
+} from "framer-motion";
+import { 
+  ArrowRight, 
+  Code, 
+  Cpu, 
+  Palette, 
+  Rocket, 
+  Check, 
+  X, 
+  Sparkles,
+  Crown,
+  Tag,
+  Layout,
+  Zap,
+  Clock,
+  GraduationCap,
+  Lock,
+  Unlock,
+  Loader2,
+  School,
+  Mail
+} from "lucide-react";
+
+// === CONSTANTS & STYLES ===
+const GOLD_TEXT_GRADIENT = "bg-[linear-gradient(to_right,#BF953F,#FCF6BA,#B38728,#FBF5B7,#AA771C)]";
+const GOLD_BUTTON_GRADIENT = "bg-[linear-gradient(to_bottom,#BF953F,#AA771C)]";
+const GOLD_BORDER = "border-[#D4AF37]/50";
+
+const TEMPLATES_DATA = [
+  { id: 1, name: "Neo-Brutalism", tag: "Creative", color: "bg-pink-500" },
+  { id: 2, name: "Minimalist Dev", tag: "Clean", color: "bg-blue-500" },
+  { id: 3, name: "3D Portfolio", tag: "Interactive", color: "bg-purple-500" },
+  { id: 4, name: "Agency Grid", tag: "Business", color: "bg-emerald-500" },
+  { id: 5, name: "Dark Mode CV", tag: "Professional", color: "bg-neutral-500" },
+  { id: 6, name: "Artist Gallery", tag: "Visual", color: "bg-orange-500" },
+];
+
+// === 1. PARALLAX TEXT ===
+const ParallaxText = ({ children, baseVelocity = 100 }) => {
+  const baseX = useMotionValue(0);
+  const { scrollY } = useScroll();
+  const scrollVelocity = useVelocity(scrollY);
+  const smoothVelocity = useSpring(scrollVelocity, { damping: 50, stiffness: 400 });
+  const velocityFactor = useTransform(smoothVelocity, [0, 1000], [0, 5], { clamp: false });
+  const x = useTransform(baseX, (v) => `${parseFloat(v) % 100}%`);
+  const directionFactor = useRef(1);
+  useAnimationFrame((t, delta) => {
+    let moveBy = directionFactor.current * baseVelocity * (delta / 1000);
+    if (velocityFactor.get() < 0) directionFactor.current = -1;
+    else if (velocityFactor.get() > 0) directionFactor.current = 1;
+    moveBy += directionFactor.current * moveBy * velocityFactor.get();
+    baseX.set(baseX.get() + moveBy);
+  });
+  return (
+    <div className="overflow-hidden whitespace-nowrap flex flex-nowrap m-0 select-none">
+       <motion.div className="flex flex-nowrap text-6xl md:text-9xl font-black uppercase" style={{ x, color: 'transparent', WebkitTextFillColor: 'transparent', backgroundImage: 'linear-gradient(to right, #333333, #D4AF37, #8b5cf6, #333333)', WebkitBackgroundClip: 'text', backgroundClip: 'text', backgroundSize: '200% auto' }}>
+        <span className="block mr-10">{children} </span>
+        <span className="block mr-10">{children} </span>
+        <span className="block mr-10">{children} </span>
+        <span className="block mr-10">{children} </span>
+      </motion.div>
+    </div>
+  );
+};
+
+// === 2. BENTO ITEM ===
+const BentoItem = ({ title, sub, icon: Icon, colSpan, rowSpan, children, tags = [] }) => {
+  return (
+    <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, ease: "easeOut" }} className={`group relative overflow-hidden rounded-3xl bg-[#0a0a0a] border border-white/10 hover:border-[#D4AF37]/40 hover:shadow-2xl hover:shadow-[#D4AF37]/5 transition-all duration-500 flex flex-col justify-between ${colSpan || "col-span-1"} ${rowSpan || "row-span-1"}`}>
+      <div className="relative z-10 p-8 h-full flex flex-col">
+        <div className="flex justify-between items-start mb-6">
+          <div className="p-3 rounded-xl bg-white/5 border border-white/10 text-neutral-400 group-hover:text-[#D4AF37] group-hover:bg-[#D4AF37]/10 transition-all"><Icon size={24} /></div>
+        </div>
+        <div className="mb-4"><h3 className="text-2xl font-bold text-white mb-2">{title}</h3><p className="text-neutral-400 text-sm">{sub}</p></div>
+        {tags.length > 0 && <div className="flex flex-wrap gap-2 mb-6">{tags.map((tag, i) => (<span key={i} className="px-2 py-1 rounded-md bg-white/5 border border-white/5 text-[10px] text-neutral-400">#{tag}</span>))}</div>}
+        {children && <div className="flex-grow relative mt-2 rounded-xl overflow-hidden border border-white/5 bg-black/20">{children}</div>}
+      </div>
+    </motion.div>
+  );
+};
+
+// === 3. PRICING CARD ===
+const PricingCard = ({ 
+  title, price, standardPrice, description, features, variant = "default", onButtonClick, buttonText, period, duration, isStudent 
+}) => {
+    const isPro = variant === "pro"; 
+    const isPlus = variant === "plus"; 
+    const isFree = variant === "free";
+
+    let containerClasses = "bg-neutral-950/50 border-white/10";
+    if (isPlus) containerClasses = `bg-neutral-900/80 border-white/20 shadow-lg`;
+    
+    // Student Mode Styles
+    if (isStudent && (isPlus || isPro)) containerClasses = `bg-neutral-900 border-indigo-500/40 shadow-[0_0_30px_-5px_rgba(99,102,241,0.2)] scale-[1.02] ring-1 ring-blue-500/30`;
+    if (isPro && !isStudent) containerClasses = `bg-neutral-900 border-[#8b5cf6]/30 shadow-[0_0_40px_-10px_rgba(139,92,246,0.15)] scale-[1.05] z-10`;
+
+    let titleClass = "text-white";
+    if (isPlus) titleClass = "text-neutral-200";
+    if (isPro) titleClass = "text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-white to-indigo-300";
+
+    return (
+      <motion.div layout initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className={`relative flex flex-col p-8 rounded-3xl border transition-all duration-300 group ${containerClasses}`}>
+        {isPro && !isStudent && <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-gradient-to-r from-indigo-500 to-purple-500 text-white text-[10px] font-bold uppercase tracking-widest rounded-full shadow-lg border border-white/20">Best Value</div>}
+        {isStudent && !isFree && <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-blue-600 text-white text-[10px] font-bold uppercase tracking-widest rounded-full shadow-lg border border-blue-400/50 flex items-center gap-1"><GraduationCap size={12}/> Student Deal Active</div>}
+  
+        <div className="mb-6">
+          <h3 className={`text-xl font-bold mb-2 ${titleClass}`}>{title}</h3>
+          <p className="text-neutral-400 text-sm h-10">{description}</p>
+        </div>
+        <div className="mb-8">
+            <div className="flex flex-col">
+              {/* STRIKETHROUGH PRICE */}
+              {isStudent && standardPrice && (
+                  <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="text-neutral-500 text-sm font-bold line-through decoration-red-500/50 decoration-2">₹{standardPrice}</motion.div>
+              )}
+              <div className="flex items-baseline gap-1">
+                 <span className={`text-4xl font-bold tracking-tight transition-colors duration-300 ${isStudent && !isFree ? "text-blue-400" : "text-white"}`}>₹{price}</span>
+                 <span className="text-sm font-medium text-neutral-500">{period}</span>
+              </div>
+            </div>
+            {!isFree && (
+                <div className="flex flex-col mt-2">
+                    <p className="text-[10px] text-neutral-400 font-medium">One-time payment. No subscription.</p>
+                    <p className="text-[10px] text-white/60">{duration}.</p>
+                </div>
+            )}
+        </div>
+        <ul className="space-y-4 mb-8 flex-1">
+          {features.map((feat, i) => {
+             const isExcluded = feat.startsWith("-");
+             return (
+                <li key={i} className={`flex items-start gap-3 text-sm ${isExcluded ? "text-neutral-600 line-through" : "text-neutral-300"}`}>
+                  <div className={`mt-0.5 p-0.5 rounded-full ${isExcluded ? "bg-neutral-800 text-neutral-600" : isStudent ? "bg-blue-500/20 text-blue-300" : isPro ? "bg-indigo-500/20 text-indigo-300" : "bg-white/10 text-white"}`}>
+                    {isExcluded ? <X size={12} strokeWidth={3} /> : <Check size={12} strokeWidth={3} />}
+                  </div>
+                  {isExcluded ? feat.substring(1).trim() : feat}
+                </li>
+             );
+          })}
+        </ul>
+        <button onClick={onButtonClick} className={`w-full py-4 rounded-xl text-sm font-bold uppercase tracking-widest transition-all duration-300 flex items-center justify-center gap-2 border ${isStudent && !isFree ? "bg-blue-600 border-blue-400 text-white hover:bg-blue-500 shadow-lg shadow-blue-900/20" : isPro ? "bg-gradient-to-r from-indigo-600 to-violet-600 border-white/20 text-white hover:brightness-110 shadow-lg" : isPlus ? "bg-white text-black border-white hover:bg-neutral-200" : "bg-neutral-800 text-white hover:bg-neutral-700 border-white/5"}`}>
+          {buttonText} {isPro && <Zap size={16} />}
+        </button>
+      </motion.div>
+    );
+};
+
+// === 4. NEW PREMIUM POPUP COMPONENT ===
+const StudentDiscountPopup = ({ isOpen, onClose, onVerifySuccess }) => {
+    const [email, setEmail] = useState("");
+    const [status, setStatus] = useState("idle"); 
+    const [collageName, setCollageName] = useState("");
+
+    const handleVerify = () => {
+        setStatus("loading");
+        setTimeout(() => {
+            const lowerEmail = email.toLowerCase();
+            const validDomains = ['gitam', 'srm', 'vit', 'iit', 'nit', 'bits', 'edu', 'ac.in', 'college', 'university'];
+            const domainPart = lowerEmail.split('@')[1] || "";
+            const isValid = validDomains.some(keyword => domainPart.includes(keyword));
+
+            if (isValid && email.includes('@')) {
+                let detectedName = domainPart.split('.')[0].toUpperCase();
+                if(detectedName === 'AC') detectedName = "YOUR UNIVERSITY";
+                setCollageName(detectedName);
+                setStatus("success");
+                
+                // Close modal after success animation
+                setTimeout(() => {
+                    onVerifySuccess(true);
+                    onClose();
+                }, 2000);
+            } else {
+                setStatus("error");
+            }
+        }, 1500);
+    };
+
+    return (
+        <AnimatePresence>
+            {isOpen && (
+                <>
+                    {/* Backdrop */}
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="fixed inset-0 bg-black/80 backdrop-blur-md z-[100]" />
+                    
+                    {/* Modal */}
+                    <motion.div 
+                        initial={{ opacity: 0, scale: 0.9, y: 20 }} 
+                        animate={{ opacity: 1, scale: 1, y: 0 }} 
+                        exit={{ opacity: 0, scale: 0.9, y: 20 }} 
+                        className="fixed inset-0 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 z-[101] w-full md:w-[480px] p-1 h-auto"
+                    >
+                        {/* Gold/Blue Gradient Border Glow */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-[#D4AF37] via-blue-900 to-[#D4AF37] rounded-3xl opacity-50 blur-sm animate-pulse" />
+                        
+                        <div className="relative bg-[#0a0a0a] border border-[#D4AF37]/30 rounded-3xl p-8 overflow-hidden">
+                            <button onClick={onClose} className="absolute top-4 right-4 text-neutral-500 hover:text-white transition-colors"><X size={20} /></button>
+
+                            {status === 'success' ? (
+                                <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="py-8 flex flex-col items-center">
+                                    <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mb-6 shadow-[0_0_40px_rgba(34,197,94,0.4)]">
+                                        <Check size={40} className="text-white" strokeWidth={3} />
+                                    </div>
+                                    <h3 className="text-2xl font-bold text-white mb-2">Offer Unlocked!</h3>
+                                    <p className="text-neutral-400 text-center">Pricing updated for <span className="text-white font-bold">{collageName}</span>.</p>
+                                </motion.div>
+                            ) : (
+                                <div className="flex flex-col items-center text-center">
+                                    <div className="w-16 h-16 bg-blue-900/30 rounded-full flex items-center justify-center mb-6 border border-blue-500/30 shadow-[0_0_30px_rgba(59,130,246,0.3)]">
+                                        <GraduationCap size={32} className="text-blue-400" />
+                                    </div>
+
+                                    <h3 className="text-3xl font-bold text-white mb-2">Student Exclusive</h3>
+                                    <p className="text-neutral-400 text-sm mb-6 px-4">
+                                        Verify your university email and unlock the complete <span className="text-[#D4AF37]">Gold Studio</span> experience at a massive discount.
+                                    </p>
+
+                                    {/* === EFFECTIVE PRICE CUTOUT === */}
+                                    <div className="w-full bg-white/5 rounded-2xl p-4 border border-white/10 mb-6 relative overflow-hidden group">
+                                        <div className="absolute top-0 right-0 bg-red-600 text-white text-[10px] font-bold px-3 py-1 rounded-bl-xl shadow-lg z-20">70% OFF</div>
+                                        <div className="flex justify-between items-center relative z-10 px-2">
+                                            <div className="text-left opacity-60">
+                                                <p className="text-[10px] text-neutral-400 uppercase tracking-widest font-bold">Standard</p>
+                                                <p className="text-lg text-neutral-300 line-through decoration-red-500/70 decoration-2">₹99</p>
+                                            </div>
+                                            <ArrowRight className="text-neutral-600" size={16}/>
+                                            <div className="text-right">
+                                                <p className="text-[10px] text-blue-400 uppercase tracking-widest font-bold">Student Deal</p>
+                                                <div className="flex items-baseline gap-1 justify-end">
+                                                    <span className="text-4xl font-black text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">₹29</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="w-full relative mb-4">
+                                        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-500"><Mail size={16} /></div>
+                                        <input 
+                                            type="email" 
+                                            value={email}
+                                            onChange={(e) => setEmail(e.target.value)}
+                                            placeholder="yourname@university.edu" 
+                                            className="w-full bg-black border border-white/10 rounded-xl py-3 pl-10 pr-4 text-white text-sm placeholder:text-neutral-600 focus:outline-none focus:border-blue-500 transition-colors"
+                                        />
+                                    </div>
+                                    
+                                    {status === 'error' && <p className="text-red-500 text-xs mb-4">Please enter a valid university email address.</p>}
+
+                                    <button 
+                                        onClick={handleVerify}
+                                        disabled={status === 'loading' || !email}
+                                        className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-blue-900/40 flex items-center justify-center gap-2"
+                                    >
+                                        {status === 'loading' ? <Loader2 size={18} className="animate-spin" /> : "Verify & Unlock"}
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    </motion.div>
+                </>
+            )}
+        </AnimatePresence>
+    );
+};
+
+// === 5. TEMPLATE SELECTION MODAL ===
+const TemplateSelectionModal = ({ isOpen, onClose, onConfirm }) => {
+    const [selected, setSelected] = useState([]);
+    const toggleTemplate = (id) => {
+        if (selected.includes(id)) setSelected(selected.filter(i => i !== id));
+        else if (selected.length < 2) setSelected([...selected, id]);
+    };
+
+    return (
+        <AnimatePresence>
+            {isOpen && (
+                <>
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50" />
+                    <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} className="fixed inset-0 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 z-50 w-full md:w-[800px] md:h-auto h-full bg-neutral-900 border border-white/10 md:rounded-3xl shadow-2xl flex flex-col overflow-hidden">
+                        <div className="p-6 border-b border-white/5 bg-neutral-900 flex justify-between items-center">
+                            <div><h3 className="text-xl font-bold text-white flex items-center gap-2"><Layout size={20} className="text-white" /> Configure Your Plus Plan</h3><p className="text-neutral-400 text-xs mt-1">Select any 2 templates to unlock immediately.</p></div>
+                            <div className="text-right"><span className={`text-sm font-bold ${selected.length === 2 ? "text-green-400" : "text-neutral-500"}`}>{selected.length}/2 Selected</span></div>
+                        </div>
+                        <div className="p-6 overflow-y-auto max-h-[60vh] bg-black/20">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                {TEMPLATES_DATA.map((t) => {
+                                    const isSelected = selected.includes(t.id);
+                                    const isDisabled = !isSelected && selected.length >= 2;
+                                    return (
+                                        <div key={t.id} onClick={() => !isDisabled && toggleTemplate(t.id)} className={`relative aspect-[4/5] rounded-xl border-2 cursor-pointer transition-all duration-200 overflow-hidden group ${isSelected ? "border-white bg-white/5" : "border-white/5 bg-neutral-950 hover:border-white/20"} ${isDisabled ? "opacity-30 cursor-not-allowed" : ""}`}>
+                                            <div className={`absolute top-0 left-0 w-full h-32 ${t.color} opacity-20`} />
+                                            <div className="absolute inset-0 p-4 flex flex-col justify-end">
+                                                <div className="flex justify-between items-end">
+                                                    <div><span className="text-[10px] font-mono text-neutral-400 uppercase">{t.tag}</span><p className="text-white font-bold">{t.name}</p></div>
+                                                    <div className={`w-6 h-6 rounded-full flex items-center justify-center border transition-colors ${isSelected ? "bg-white border-white text-black" : "border-white/30 text-transparent"}`}><Check size={14} strokeWidth={3} /></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )
+                                })}
+                            </div>
+                        </div>
+                        <div className="p-6 border-t border-white/5 bg-neutral-900 flex justify-between items-center">
+                            <button onClick={onClose} className="text-neutral-400 text-sm hover:text-white">Cancel</button>
+                            <button disabled={selected.length !== 2} onClick={() => onConfirm(selected)} className={`px-6 py-3 rounded-xl font-bold text-sm transition-all flex items-center gap-2 ${selected.length === 2 ? "bg-white text-black hover:bg-neutral-200" : "bg-neutral-800 text-neutral-500 cursor-not-allowed"}`}>Continue to Checkout <ArrowRight size={16} /></button>
+                        </div>
+                    </motion.div>
+                </>
+            )}
+        </AnimatePresence>
+    );
+};
+
+// === MAIN COMPONENT ===
+const FolioHub = () => {
+  const navigate = useNavigate();
+  const [isTemplateModalOpen, setTemplateModalOpen] = useState(false);
+  const [isStudentModalOpen, setStudentModalOpen] = useState(false);
+  const [isStudent, setIsStudent] = useState(false);
+
+  // === TIMER LOGIC FOR POPUP ===
+  useEffect(() => {
+    // Only set timer if user is not already a student
+    if (!isStudent) {
+        const timer = setTimeout(() => {
+            setStudentModalOpen(true);
+        }, 7000); // 7 seconds (Sweet spot between 5-10)
+        return () => clearTimeout(timer);
+    }
+  }, [isStudent]);
+
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+  const handleMouseMove = ({ clientX, clientY, currentTarget }) => {
+    const { left, top } = currentTarget.getBoundingClientRect();
+    mouseX.set(clientX - left);
+    mouseY.set(clientY - top);
+  };
+  const maskImage = useMotionTemplate`radial-gradient(600px circle at ${mouseX}px ${mouseY}px, black, transparent)`;
+  const scrollToPricing = () => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' });
+  
+  const handlePlusClick = () => setTemplateModalOpen(true);
+  const handleModalConfirm = (selectedTemplates) => { setTemplateModalOpen(false); navigate('/checkout/starter'); };
+
+  return (
+    <div className="bg-black min-h-screen text-white overflow-x-hidden" onMouseMove={handleMouseMove}>
+      
+      {/* MODALS */}
+      <TemplateSelectionModal isOpen={isTemplateModalOpen} onClose={() => setTemplateModalOpen(false)} onConfirm={handleModalConfirm} />
+      <StudentDiscountPopup isOpen={isStudentModalOpen} onClose={() => setStudentModalOpen(false)} onVerifySuccess={setIsStudent} />
+
+      {/* HERO */}
+      <section className="relative h-screen flex flex-col items-center justify-center overflow-hidden">
+         <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:40px_40px] opacity-20"></div>
+         <motion.div className="absolute inset-0 pointer-events-none bg-[#D4AF37]/5 z-0" style={{ maskImage, WebkitMaskImage: maskImage }} />
+         
+         {/* STICKY STUDENT BADGE */}
+         <motion.div 
+            initial={{ y: -100 }} animate={{ y: 0 }} 
+            onClick={() => !isStudent && setStudentModalOpen(true)}
+            className={`absolute top-0 w-full backdrop-blur-md z-50 py-2 flex justify-center items-center gap-2 cursor-pointer transition-colors
+                ${isStudent ? 'bg-green-600/20 border-b border-green-500/20' : 'bg-blue-600/20 border-b border-blue-500/20 hover:bg-blue-600/30'}`}
+         >
+            <span className="relative flex h-2 w-2">
+              <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${isStudent ? 'bg-green-400' : 'bg-blue-400'}`}></span>
+              <span className={`relative inline-flex rounded-full h-2 w-2 ${isStudent ? 'bg-green-500' : 'bg-blue-500'}`}></span>
+            </span>
+            <span className={`text-[10px] md:text-xs font-bold uppercase tracking-widest ${isStudent ? 'text-green-200' : 'text-blue-200'}`}>
+                {isStudent ? "Student Discount Unlocked" : "Student? Click here to unlock 70% Off"}
+            </span>
+         </motion.div>
+
+         <div className="relative z-10 text-center px-4 max-w-5xl mx-auto mt-10">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="inline-flex items-center gap-2 border border-white/20 bg-white/5 rounded-full px-4 py-1.5 text-xs font-medium tracking-widest uppercase mb-8 backdrop-blur-md">
+              <Sparkles size={12} className="text-[#D4AF37]" /> FolioFYX Production
+            </motion.div>
+            <h1 className="text-5xl md:text-8xl font-black tracking-tighter mb-8 leading-[0.9]">WORK IS OUR <br /><span className={`text-transparent bg-clip-text ${GOLD_TEXT_GRADIENT}`}>PRIORITY.</span></h1>
+            <div className="flex flex-col md:flex-row gap-6 justify-center">
+                <button onClick={scrollToPricing} className="px-8 py-4 bg-neutral-900 border border-white/20 text-white rounded-full font-bold hover:bg-neutral-800 transition-colors">See Plans</button>
+                <button onClick={() => navigate('/studio')} className="px-8 py-4 bg-black border border-[#D4AF37] rounded-full font-bold transition-all flex items-center gap-2 group"><Crown size={18} className="text-[#D4AF37]" /><span className={`bg-clip-text text-transparent ${GOLD_TEXT_GRADIENT}`}>Gold Agency</span></button>
+            </div>
+         </div>
+      </section>
+
+      {/* BENTO GRID (Condensed) */}
+      <section className="py-20 px-6 relative">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-6 h-auto md:h-[600px]">
+            <BentoItem colSpan="md:col-span-2" rowSpan="md:row-span-2" title="Clean Architecture" sub="Pure performance React code." icon={Code} tags={["React", "Next.js"]}>
+               <div className="w-full h-48 bg-neutral-950 rounded-xl border border-white/5 overflow-hidden relative"><div className="mt-10 px-4 font-mono text-xs text-[#D4AF37] opacity-70 leading-relaxed">&lt;Performance score="100" /&gt;</div></div>
+            </BentoItem>
+            <BentoItem title="Rapid Launch" sub="Go from zero to live in minutes." icon={Rocket} tags={["Vercel", "Docker"]} />
+            <BentoItem title="Identity" sub="Stand out with studio-grade branding." icon={Palette} tags={["Figma", "Tailwind"]} />
+            <BentoItem colSpan="md:col-span-2" title="Scalable Strategy" sub="Systems designed to scale." icon={Cpu} tags={["Analytics", "Growth"]} />
+          </div>
+        </div>
+      </section>
+
+      {/* === TIME VS SKILLS SECTION === */}
+      <section className="py-24 px-6 border-t border-white/10 bg-[#0a0a0a]">
+        <div className="max-w-4xl mx-auto text-center">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-neutral-400 text-[10px] font-bold uppercase tracking-widest mb-6">
+                <Clock size={12} /> Time vs Skills
+            </div>
+            <h2 className="text-3xl md:text-5xl font-bold mb-6 leading-tight">
+                Stop wasting time building your portfolio website.
+            </h2>
+            <p className="text-xl md:text-2xl text-neutral-400 leading-relaxed">
+                Invest that time to <span className="text-white font-bold underline decoration-[#D4AF37] decoration-2 underline-offset-4">gain the skills</span> you want to put <em>on</em> the website.
+            </p>
+            
+        </div>
+      </section>
+
+      {/* PRICING SECTION */}
+      <section id="pricing" className="py-32 px-6 border-t border-white/10 bg-[#080808]">
+        <div className="max-w-7xl mx-auto">
+            <div className="text-center mb-12">
+                <h2 className="text-4xl md:text-5xl font-bold mb-6">Choose Your Loadout</h2>
+                <p className="text-neutral-400 max-w-2xl mx-auto mb-8">
+                    Simple pricing. <span className="text-white font-bold">No subscriptions to worry about.</span>
+                </p>
+                
+                {/* Manual Trigger for Modal if they missed the top bar */}
+                {!isStudent && (
+                    <button 
+                        onClick={() => setStudentModalOpen(true)}
+                        className="inline-flex items-center gap-2 text-blue-400 text-sm font-bold hover:text-blue-300 transition-colors border-b border-blue-500/30 pb-0.5"
+                    >
+                        <GraduationCap size={16} /> Are you a student? Click to verify.
+                    </button>
+                )}
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-center mb-20">
+                {/* 1. FREE */}
+                <PricingCard 
+                    title="Folio Free"
+                    price="0"
+                    variant="free"
+                    isStudent={isStudent}
+                    description="Basic portfolio for students."
+                    buttonText="Get Started"
+                    onButtonClick={() => navigate('/auth/signup')}
+                    features={["1 Basic Template", "Public Link", "- Remove Branding", "- Premium Templates"]}
+                />
+
+                {/* 2. PLUS (STARTER) - Dynamic Pricing */}
+                <PricingCard 
+                    title="Folio Plus"
+                    // IF STUDENT: ₹29, ELSE: ₹99 (Anchor Price)
+                    price={isStudent ? "29" : "99"}
+                    standardPrice={isStudent ? "99" : null}
+                    variant="plus"
+                    isStudent={isStudent}
+                    description="The smart choice to get hired."
+                    buttonText={isStudent ? "Claim Student Offer" : "Configure Loadout"}
+                    period="/ 3 months"
+                    duration="3 Months Access"
+                    onButtonClick={handlePlusClick} 
+                    features={["Unlock ANY 2 Templates", "Remove Branding", "Basic Customization", "3 Months Access", "- Full Access", "- Priority Support"]}
+                />
+
+                {/* 3. MAX (PRO) - Dynamic Pricing */}
+                <PricingCard 
+                    title="Folio Max"
+                    // IF STUDENT: ₹59, ELSE: ₹159 (Anchor Price)
+                    price={isStudent ? "59" : "159"}
+                    standardPrice={isStudent ? "159" : null}
+                    variant="pro"
+                    isStudent={isStudent}
+                    description="Full access to the ecosystem."
+                    buttonText={isStudent ? "Claim Max Pass" : "Get Max Pass"}
+                    period="/ 6 months"
+                    duration="6 Months Access"
+                    onButtonClick={() => navigate('/checkout/pro')}
+                    features={["All 6 Premium Templates", "Future Templates Included", "Remove Branding", "Advanced Customization", "6 Months Access", "Priority Support"]}
+                />
+            </div>
+
+            {/* GOLD STUDIO */}
+            <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className={`relative rounded-3xl p-8 md:p-12 overflow-hidden border ${GOLD_BORDER} bg-gradient-to-br from-[#1a160a] via-[#0f0d06] to-black`}>
+                <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-12">
+                    <div className="flex-1 text-center lg:text-left">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#D4AF37]/10 border border-[#D4AF37]/30 text-[#D4AF37] text-xs font-bold uppercase tracking-widest mb-6"><Crown size={12} strokeWidth={3} /> Agency Service</div>
+                        <h3 className={`text-4xl md:text-5xl font-black mb-6 ${GOLD_TEXT_GRADIENT} bg-clip-text text-transparent`}>Gold Studio Agency.</h3>
+                        <p className="text-[#d3c69c] text-lg mb-8 max-w-xl">Fully custom React applications, e-commerce stores, and complex animations.</p>
+                    </div>
+                    <div className="w-full lg:w-auto bg-[#D4AF37]/5 rounded-2xl p-8 border border-[#D4AF37]/20 backdrop-blur-sm min-w-[300px]">
+                        <p className="text-center text-[#FCF6BA] text-xs font-bold uppercase tracking-widest mb-2">Projects Starting At</p>
+                        <div className="text-center text-5xl font-bold text-white mb-2">₹1,999</div>
+                        <button onClick={() => navigate('/studio')} className={`w-full py-4 rounded-xl text-sm font-bold uppercase tracking-widest transition-all ${GOLD_BUTTON_GRADIENT} text-[#3b2c12] hover:brightness-110 shadow-lg shadow-[#B38728]/20 flex items-center justify-center gap-2 mt-4`}>Book Consultation <ArrowRight size={16} /></button>
+                    </div>
+                </div>
+            </motion.div>
+        </div>
+      </section>
+    </div>
+  );
+};
+
+export default FolioHub;

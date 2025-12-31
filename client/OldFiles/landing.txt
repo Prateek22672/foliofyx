@@ -1,0 +1,400 @@
+import React, { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import Footer from "../components/Footer";
+
+
+const Landing = () => {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const [message, setMessage] = useState("");
+  const containerRef = useRef(null);
+  const [vh, setVh] = useState(window.innerHeight);
+
+  // ✅ Update viewport height on resize
+  useEffect(() => {
+    const onResize = () => setVh(window.innerHeight);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
+  // ✅ Scroll logic
+  useEffect(() => {
+    const onScroll = () => {
+      const scrollY = window.scrollY || window.pageYOffset;
+      const progress = scrollY / vh; // section progress
+      if (containerRef.current) {
+        containerRef.current.style.setProperty("--scroll", progress);
+      }
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [vh]);
+
+  const handleNavigation = (path) => {
+    if (!user) {
+      setMessage("Please log in to continue");
+      setTimeout(() => {
+        setMessage("");
+        navigate("/login");
+      }, 1500);
+    } else {
+      navigate(path);
+    }
+  };
+
+  return (
+    <div
+      ref={containerRef}
+      className="relative w-full bg-transparent overflow-x-hidden font-['Wix_Madefor_Text']"
+style={{ height: "450vh" }} // adds room to scroll into the footer
+    >
+
+      
+      {/* ============================
+          1️⃣ FIRST SECTION - Hero (Stays Fixed)
+      ============================ */}
+      <section
+        className="fixed inset-0 flex flex-col items-center justify-center text-center text-white z-[1]"
+        style={{
+          transform: "translateY(0)", // stays fixed
+        }}
+      >
+        {/* Background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-black via-[#150028] to-[#3b0085] animate-gradient-move"></div>
+        <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]"></div>
+
+        {/* Message */}
+        {message && (
+          <div className="absolute top-6 bg-purple-700/30 border border-purple-500 text-purple-300 px-6 py-3 rounded-3xl text-xs sm:text-sm shadow-lg backdrop-blur-md animate-fade-in">
+            {message}
+          </div>
+        )}
+
+        {/* Content */}
+        <div className="relative z-10 px-6 max-w-3xl">
+          <h1 className="text-3xl sm:text-5xl md:text-6xl font-semibold mb-4 sm:mb-6 leading-tight">
+            Create Your Portfolio with{" "}
+            <span className="bg-gradient-to-r from-purple-400 via-fuchsia-500 to-indigo-400 bg-clip-text text-transparent">
+              Foliofy
+            </span>{" "}
+            Simplified by AI.
+          </h1>
+          <p className="text-gray-300 mb-8 text-sm sm:text-base leading-relaxed">
+            Build your personal portfolio in seconds — no code required. Choose
+            between a quick AI-assisted setup or create one manually for full
+            control.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center">
+            <button
+              onClick={() => handleNavigation("/create")}
+              className="flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 via-fuchsia-500 to-indigo-600 hover:opacity-95 text-white px-6 py-3 rounded-full text-sm sm:text-base shadow-lg transition-transform duration-300 hover:scale-105"
+            >
+              Create Quick with AI
+            </button>
+            <button
+              onClick={() => handleNavigation("/dashboard")}
+              className="border border-purple-500 text-purple-300 hover:bg-purple-600 hover:text-white px-6 py-3 rounded-full text-sm sm:text-base shadow-md transition"
+            >
+              View Your Portfolios
+            </button>
+          </div>
+          <p className="mt-10 text-[10px] sm:text-xs text-gray-300 uppercase tracking-[0.25em]">
+            A Prateek™ Product — Where ideas meet passion.
+          </p>
+        </div>
+      </section>
+
+      {/* ============================
+    3️⃣ SECOND SECTION - White Layer (Slides and Stops)
+============================ */}
+
+
+      <section
+
+
+
+        className="fixed inset-0 flex flex-col items-center justify-start pt-0 text-black bg-[#f5f5f5] z-[3] rounded-t-[60px]"
+        style={{
+          height: "200vh", // Increased from 100vh to 180vh
+          transform: `
+      translateY(
+        calc(
+          max(0px, (1 - var(--scroll, 011)) * 100vh)
+        )
+      )
+    `,
+          transition: "transform 0s linear",
+        }} uu
+      >
+
+
+        {/* Message */}
+        {message && (
+          <div className="absolute top-6 bg-purple-700/30 border border-purple-500 text-purple-300 px-6 py-3 rounded-3xl text-xs sm:text-sm shadow-lg backdrop-blur-md animate-fade-in">
+            {message}
+          </div>
+        )}
+
+
+        <div className="max-w-[90%] md:max-w-7xl mx-auto flex flex-col md:flex-row items-start justify-between px-6 md:px-12 mt-20 md:gap-0 gap-12">
+          {/* Left Side — Heading */}
+          <div className="flex-1 text-left md:pr-40">
+            <h2
+              className="font-normal text-black leading-[1.1]"
+              style={{
+                fontSize: "clamp(1.8rem, 3.5vw + 1rem, 2.5rem)",
+                maxWidth: "500px",
+              }}
+            >
+              Showcase your work on a world-class portfolio.<br></br>— no code, no limits.
+            </h2>
+          </div>
+
+          {/* Right Side — Paragraph + Button */}
+          <div className="flex-1 flex flex-col items-start text-left md:pl-12">
+            <p className="text-[17px] sm:text-[16px] md:text-[14px] text-black mb-8 max-w-sm leading-relaxed">
+              Set your site up for success on the powerful infrastructure that supports
+              millions of websites worldwide.
+            </p>
+            <button
+              onClick={() => handleNavigation("/create")} className="bg-black text-white px-7 py-3 rounded-full text-base md:text-2sm hover:scale-105 transition-transform duration-300"
+            >
+              Create Your Portfolio
+            </button>
+          </div>
+        </div>
+
+
+
+
+        {/* Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-24 px-6 max-w-6xl w-full pb-20">
+          <div className="bg-[#003843] text-white p-8 rounded-3xl h-64 flex flex-col justify-end">
+            <h3 className="text-lg font-semibold mb-2">Fast & Seamless Portfolios</h3>
+            <p className="text-sm opacity-90">
+              Your portfolio loads instantly, ensuring your work gets the attention it deserves.
+              Speed built for creators who value perfection.
+            </p>
+          </div>
+
+          <div className="bg-[#fbc8ff] text-black p-8 rounded-3xl h-64 flex flex-col justify-end">
+            <h3 className="text-lg font-semibold mb-2">Accessible on Every Device</h3>
+            <p className="text-sm opacity-80">
+              Looks stunning across phones, tablets, and desktops.
+              Foliofy makes your portfolio universal and effortless to explore.
+            </p>
+          </div>
+
+          <div className="bg-[#d9f0df] text-black p-8 rounded-3xl h-64 flex flex-col justify-end">
+            <h3 className="text-lg font-semibold mb-2">Free & Hassle-Free Deployment</h3>
+            <p className="text-sm opacity-80">
+              Deploy your portfolio in seconds — no setup, no tension as Foliofy hosts your site for free, forever.      </p>
+          </div>
+
+          <div className="bg-[#7c2e1b] text-white p-8 rounded-3xl h-64 flex flex-col justify-end">
+            <h3 className="text-lg font-semibold mb-2">No-Code, Full Creativity, Simplified  by AI</h3>
+            <p className="text-sm opacity-90">
+              Design freely with AI — no coding needed.
+              Build and publish your portfolio in minutes. Simplified  by AI
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* ============================
+          2️⃣ THIRD  SECTION - Blue Layer (Slides and Stops)
+      ============================ */}
+      <section
+        className="fixed inset-0 flex flex-col items-center justify-center text-[#0d0d82] pt-10 bg-[#9aa9ff] z-[4] rounded-t-[60px]"
+        style={{
+          transform: `
+            translateY(
+              calc(
+                max(0px, (2 - var(--scroll, 0)) * 150vh)
+              )
+            )
+          `,
+          transition: "transform 0s linear",
+        }}
+      >
+        <img className="absolute top-15 w-[100px] m-auto block" src="ai.svg" />
+        <h2 className="text-5xl sm:text-7xl text-center mt-5 mb-6 leading-tight m-auto justify-center" >
+          Dream it. Design it.<br /> Foliofy it.
+        </h2>
+
+
+
+        <button
+          onClick={() => handleNavigation("/create")} className="bg-[#0d0d82] text-white px-8 py-3 rounded-full text-lg hover:scale-105 transition-transform duration-300"
+        >
+          Create Your Portfolio
+        </button>
+
+
+
+
+        <div className="absolute flex items-center justify-center bottom-10">
+          <p
+            className="text-sm sm:text-base relative bg-gradient-to-r from-[#0d0d82] via-[#1a1a1a] to-black bg-clip-text text-transparent animate-gradient-shine"
+          >
+            Simplified by AI
+            <img
+              src="/ai.svg"
+              alt="AI Icon"
+              className="absolute -top-2 -right-4 w-4 h-4 sm:w-5 sm:h-5 opacity-90  "
+            />
+          </p>
+
+        </div>
+        <img className=" bottom-10 absolute right-10 w-[100px] rounded-4xl bg-black p-4 " src="logo.png" />
+
+
+      </section>
+
+{/* ============================
+    4️⃣ FOURTH SECTION - Theme Showcase
+============================ */}
+<section
+  className="fixed inset-0 flex bg-[#E5DCFF] flex-col text-[#0d0d82] items-center justify-center z-[4] rounded-t-[60px] overflow-hidden"
+  style={{
+    height: "100vh",
+    transform: `
+      translateY(
+        calc(
+          max(0px, (3 - var(--scroll, 0)) * 200vh)
+        )
+      )
+    `,
+    transition: "transform 0s linear",
+  }}
+>
+  <div className="relative z-10 w-full max-w-6xl px-8 py-16 text-center">
+    <h2 className="text-4xl sm:text-6xl mb-12">
+      Choose Your Perfect <br className="hidden sm:block" /> Website Theme
+    </h2>
+
+    {/* Theme Cards */}
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
+      {/* Theme 1 */}
+      <div className="bg-white shadow-lg rounded-3xl overflow-hidden hover:scale-105 transition-transform duration-300">
+        <img src="car.png" alt="Theme 1" className="w-full h-56 object-cover" />
+        <div className="p-6">
+          <h3 className="text-lg font-semibold mb-2">Creative Theme</h3>
+          <p className="text-gray-600 text-sm">
+            Ideal for artists, designers, and visual storytellers.
+          </p>
+        </div>
+      </div>
+
+      {/* Theme 2 */}
+      <div className="bg-white shadow-lg rounded-3xl overflow-hidden hover:scale-105 transition-transform duration-300">
+        <img src="business.png" alt="Theme 2" className="w-full h-56 object-cover" />
+        <div className="p-6">
+          <h3 className="text-lg font-semibold mb-2">Business Theme</h3>
+          <p className="text-gray-600 text-sm">
+            Perfect for startups, agencies, and professionals.
+          </p>
+        </div>
+      </div>
+
+      {/* Theme 3 */}
+      <div className="bg-white shadow-lg rounded-3xl overflow-hidden hover:scale-105 transition-transform duration-300">
+        <img src="minimal.png" alt="Theme 3" className="w-full h-56 object-cover" />
+        <div className="p-6">
+          <h3 className="text-lg font-semibold mb-2">Minimal Theme</h3>
+          <p className="text-gray-600 text-sm">
+            Sleek, elegant, and perfect for showcasing portfolios.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{/* ============================
+    5️⃣ FIFTH SECTION - Footer / Outro (Normal Scroll)
+============================ */}
+<section
+  className="relative flex flex-col bg-[#0d0d82] text-white items-center justify-center rounded-t-[60px] z-[6] overflow-hidden"
+  style={{
+    transform: `
+      translateY(
+        calc(
+          max(0px, (5 - var(--scroll, 0)) * 100vh)
+        )
+      )
+    `,
+    transition: "transform 0s linear",
+  }}
+>
+  <div className="relative z-10 w-full text-center px-8 py-20">
+    <h2 className="text-4xl sm:text-6xl font-semibold mb-8">
+      Your Portfolio Journey Ends Here ✨
+    </h2>
+    <p className="text-base sm:text-lg mb-12 max-w-xl mx-auto text-gray-200 leading-relaxed">
+      You’ve seen the possibilities — now it’s time to bring your story online.  
+      Crafted by creators, powered by AI, built by{" "}
+      <span className="font-bold text-fuchsia-400">Foliofy</span>.
+    </p>
+    <button
+      onClick={() => handleNavigation("/create")}
+      className="bg-white text-[#0d0d82] px-8 py-3 rounded-full text-lg font-medium hover:scale-105 transition-transform duration-300"
+    >
+      Build Now
+    </button>
+  </div>
+
+  {/* Footer (Static at bottom) */}
+  <div className="relative z-20 bg-black w-full mt-12">
+    <Footer />
+  </div>
+</section>
+
+
+
+
+
+
+
+      {/* ============================
+          🔮 Animations
+      ============================ */}
+      <style>{`
+        :root {
+          --scroll: 0;
+        }
+
+        @keyframes gradient-move {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+        .animate-gradient-move {
+          background-size: 200% 200%;
+          animation: gradient-move 10s ease infinite;
+        }
+
+        @keyframes fade-in {
+          from { opacity: 0; transform: translateY(-10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+          animation: fade-in 0.4s ease-in-out;
+        }
+
+        @media (max-width: 640px) {
+          .rounded-t-[60px] {
+            border-top-left-radius: 30px !important;
+            border-top-right-radius: 30px !important;
+          }
+        }
+      `}</style>
+      
+    </div>
+    
+  );
+};
+
+export default Landing;

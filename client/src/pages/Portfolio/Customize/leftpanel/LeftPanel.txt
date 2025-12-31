@@ -1,0 +1,412 @@
+import React from "react";
+import SearchSuggestion from "../../../../components/SearchSuggestion";
+
+const LeftPanel = ({
+  // Core Data
+  portfolioData,
+  setPortfolioData,
+  handleChange,
+  handleGenerateBio,
+  handleSave,
+  handlePreview,
+  
+  // Skills Logic
+  toggleSkill,
+  removeSkillByName,
+  skillLevel,
+  setSkillLevel,
+  
+  // Projects Logic
+  toggleProjectTech,
+  addProjectManual,
+  removeProject,
+  projectTitle,
+  setProjectTitle,
+  projectGithub,
+  setProjectGithub,
+  projectDemo,
+  setProjectDemo,
+  projectTechs,
+  
+  // Theme Logic
+  themeBg,
+  setThemeBg,
+  themeFont,
+  setThemeFont,
+}) => {
+
+  return (
+    <div className="bg-gray-100 p-6 sm:p-8 min-h-screen">
+      <div className="space-y-10 pb-20">
+        
+        {/* ========================== */}
+        {/* 🧍 Personal Information */}
+        {/* ========================== */}
+        <section className="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-gray-200">
+          <h2 className="text-lg font-semibold text-gray-800 mb-4">
+            Personal Information
+          </h2>
+
+          <div className="space-y-6">
+            {/* Name */}
+            <div>
+              <label className="block text-gray-700 font-medium mb-2">
+                Full Name
+              </label>
+              <input
+                name="name"
+                value={portfolioData.name || ""}
+                onChange={handleChange}
+                placeholder="Enter your full name..."
+                className="w-full p-3 rounded-xl bg-gray-50 border border-gray-300 focus:ring-2 focus:ring-purple-500 outline-none transition"
+              />
+            </div>
+
+            {/* Role */}
+            <div>
+              <label className="block text-gray-700 font-medium mb-2">
+                Professional Title / Role
+              </label>
+              <SearchSuggestion
+                dataFile="roles.txt"
+                multiple={false}
+                selected={portfolioData.role}
+                onSelect={(v) => setPortfolioData({ ...portfolioData, role: v })}
+                placeholder="e.g., Web Developer | AI Engineer"
+              />
+            </div>
+
+            {/* CV */}
+            <div>
+              <label className="block text-gray-700 font-medium mb-2">
+                CV / Resume Link
+              </label>
+              <input
+                name="cvLink"
+                value={portfolioData.cvLink || ""}
+                onChange={handleChange}
+                placeholder="Paste your Google Drive link..."
+                className="w-full p-3 rounded-xl bg-gray-50 border border-gray-300 focus:ring-2 focus:ring-purple-500 outline-none transition"
+              />
+            </div>
+
+            {/* Experience */}
+            <div>
+              <label className="block text-gray-700 font-medium mb-2">
+                Experience
+              </label>
+              <input
+                name="experience"
+                value={portfolioData.experience || ""}
+                onChange={handleChange}
+                placeholder="e.g., 2 years in full-stack development"
+                className="w-full p-3 rounded-xl bg-gray-50 border border-gray-300 focus:ring-2 focus:ring-purple-500 outline-none transition"
+              />
+            </div>
+
+            {/* Education */}
+            <div>
+              <label className="block text-gray-700 font-medium mb-2">
+                Highest Qualification
+              </label>
+              <SearchSuggestion
+                dataFile="qualifications.txt"
+                multiple={false}
+                selected={portfolioData.education}
+                onSelect={(v) =>
+                  setPortfolioData({ ...portfolioData, education: v })
+                }
+                placeholder="e.g., B.Tech in Computer Science"
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* ========================== */}
+        {/* 🖼️ Profile Image Upload */}
+        {/* ========================== */}
+        <section className="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-gray-200">
+          <h2 className="text-lg font-semibold text-gray-800 mb-4">Profile Image</h2>
+
+          <div className="flex flex-col sm:flex-row items-center gap-6">
+            <img
+              src={portfolioData.image || "/default-profile.jpg"}
+              alt="Profile Preview"
+              className="w-28 h-28 object-cover rounded-full border border-gray-300 shadow-sm"
+            />
+            <div className="flex flex-col">
+              <label className="text-sm font-medium text-gray-700 mb-2">
+                Upload New Image
+              </label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files[0];
+                  if (file) {
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                      setPortfolioData({ ...portfolioData, image: reader.result });
+                    };
+                    reader.readAsDataURL(file);
+                  }
+                }}
+                className="text-sm text-gray-600 border border-gray-300 rounded-lg cursor-pointer p-2"
+              />
+            </div>
+          </div>
+        </section>
+
+
+        {/* ========================== */}
+        {/* 🧠 Skills Section */}
+        {/* ========================== */}
+        <section className="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-gray-200">
+          <h2 className="text-lg font-semibold text-gray-800 mb-4">Skills</h2>
+
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col w-full sm:w-1/3">
+              <p className="text-xs text-gray-500 mb-1">Level</p>
+              <select
+                value={skillLevel}
+                onChange={(e) => setSkillLevel(e.target.value)}
+                className="bg-white border border-purple-300 text-gray-900 px-4 py-3 rounded-xl focus:ring-2 focus:ring-purple-400 outline-none"
+              >
+                <option>Basic</option>
+                <option>Intermediate</option>
+                <option>Expert</option>
+              </select>
+            </div>
+
+            <div className="flex flex-col w-full sm:flex-1">
+              <p className="text-xs text-gray-500 mb-1">Search for a skill</p>
+              <SearchSuggestion
+                dataFile="skills.txt"
+                multiple={false}
+                onSelect={(v) => toggleSkill(v)}
+                placeholder="Enter or choose a skill..."
+              />
+            </div>
+          </div>
+
+          <div className="mt-6">
+            <p className="text-sm font-medium text-gray-700 mb-3">
+              Selected Skills
+            </p>
+            {Array.isArray(portfolioData.skills) && portfolioData.skills.length > 0 ? (
+              <div className="flex flex-wrap gap-3">
+                {portfolioData.skills.map((s, idx) => (
+                  <div
+                    key={`${s.name}-${idx}`}
+                    className="flex items-center bg-gray-50 border border-gray-300 px-4 py-2 rounded-full text-sm"
+                  >
+                    <span className="font-medium text-gray-800">{s.name}</span>
+                    <span className="ml-2 text-purple-600 text-xs">({s.level})</span>
+                    <button
+                      onClick={() => removeSkillByName(s.name)}
+                      className="ml-3 text-red-500 hover:text-red-600"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-500 text-sm italic">No skills selected yet</p>
+            )}
+          </div>
+        </section>
+
+        {/* ========================== */}
+        {/* ✍️ Bio Section */}
+        {/* ========================== */}
+        <section className="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-gray-200">
+          <h2 className="text-lg font-semibold text-gray-800 mb-4">Short Bio</h2>
+
+          <textarea
+            name="bio"
+            rows={4}
+            value={portfolioData.bio || ""}
+            onChange={handleChange}
+            placeholder="Type or generate your bio..."
+            className="w-full p-3 rounded-xl bg-gray-50 border border-gray-300 text-gray-900 resize-none focus:ring-2 focus:ring-purple-500 outline-none"
+          />
+
+          <button
+            onClick={handleGenerateBio}
+            className="mt-5 bg-gradient-to-r from-pink-500 via-purple-600 to-black text-white px-6 py-3 rounded-full shadow-md hover:opacity-90 transition"
+          >
+            Generate Bio with AI
+          </button>
+        </section>
+
+        {/* ========================== */}
+        {/* 💼 Projects Section */}
+        {/* ========================== */}
+        <section className="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-gray-200">
+          <h2 className="text-lg font-semibold text-gray-800 mb-4">Projects</h2>
+
+          <div className="space-y-3">
+            <input
+              value={projectTitle}
+              onChange={(e) => setProjectTitle(e.target.value)}
+              placeholder="Project title..."
+              className="w-full p-3 bg-gray-50 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none"
+            />
+            <input
+              type="url"
+              value={projectGithub}
+              onChange={(e) => setProjectGithub(e.target.value)}
+              placeholder="GitHub link (optional)"
+              className="w-full p-3 bg-gray-50 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none"
+            />
+            <input
+              type="url"
+              value={projectDemo}
+              onChange={(e) => setProjectDemo(e.target.value)}
+              placeholder="Live demo link (optional)"
+              className="w-full p-3 bg-gray-50 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none"
+            />
+
+            {/* Pass projectTechs (Array) to SearchSuggestion */}
+            <SearchSuggestion
+              dataFile="technologies.txt"
+              multiple={true}
+              selected={projectTechs} 
+              onToggle={toggleProjectTech}
+              placeholder="Search or select technology"
+            />
+
+            <button
+              onClick={addProjectManual}
+              className="mt-3 w-full sm:w-auto bg-black text-white px-6 py-3 rounded-full hover:opacity-90 transition"
+            >
+              + Add Project To Page
+            </button>
+          </div>
+
+          <div className="mt-4 space-y-2">
+            {portfolioData.projects?.map((p, i) => (
+              <div
+                key={i}
+                className="flex flex-col sm:flex-row sm:items-center sm:justify-between bg-gray-50 border border-gray-200 p-3 rounded-xl text-sm gap-2"
+              >
+                <span>
+                  <strong>{p.title}</strong> —{" "}
+                  <span className="text-purple-600">{p.tech}</span>
+                </span>
+                <div className="flex gap-3 text-xs text-purple-500">
+                  {p.github && <a href={p.github} target="_blank" rel="noopener noreferrer" className="hover:underline">GitHub</a>}
+                  {p.demo && <a href={p.demo} target="_blank" rel="noopener noreferrer" className="hover:underline">Live Demo</a>}
+                </div>
+                <button onClick={() => removeProject(i)} className="text-red-500 hover:text-red-600">
+                  ✕
+                </button>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ========================== */}
+        {/* 🔗 Links Section */}
+        {/* ========================== */}
+        <section className="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-gray-200">
+          <h2 className="text-lg font-semibold text-gray-800 mb-4">Social Links</h2>
+          {["LinkedIn", "GitHub", "Email"].map((label, idx) => {
+            const key = label.toLowerCase();
+            return (
+              <div key={idx} className="mb-4">
+                <label className="block text-gray-700 font-medium mb-1">{label}</label>
+                <input
+                  name={key}
+                  value={portfolioData[key] || ""}
+                  onChange={handleChange}
+                  placeholder={label}
+                  className="w-full p-3 rounded-xl bg-gray-50 border border-gray-300 focus:ring-2 focus:ring-purple-500 outline-none"
+                />
+              </div>
+            );
+          })}
+        </section>
+
+        {/* ========================== */}
+        {/* 🎨 Theme Customization */}
+        {/* ========================== */}
+        <section className="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-gray-200">
+          <h2 className="text-lg font-semibold text-gray-800 mb-4">Theme Customization</h2>
+          <div className="flex flex-col sm:flex-row gap-8">
+            {/* BG */}
+            <div className="flex flex-col">
+              <label className="text-sm font-medium text-gray-700 mb-1">Background Color</label>
+              <div className="flex items-center gap-3">
+                <input
+                  type="color"
+                  value={themeBg}
+                  onChange={(e) => {
+                    setThemeBg(e.target.value);
+                    setPortfolioData({ ...portfolioData, themeBg: e.target.value });
+                  }}
+                  className="w-10 h-10 rounded-md border border-gray-300 cursor-pointer"
+                />
+                <input
+                  type="text"
+                  value={themeBg}
+                  readOnly
+                  className="w-28 p-2 rounded-lg bg-gray-50 border border-gray-300 text-sm"
+                />
+              </div>
+            </div>
+
+            {/* Font */}
+            <div className="flex flex-col">
+              <label className="text-sm font-medium text-gray-700 mb-1">Font Color</label>
+              <div className="flex items-center gap-3">
+                <input
+                  type="color"
+                  value={themeFont}
+                  onChange={(e) => {
+                    setThemeFont(e.target.value);
+                    setPortfolioData({ ...portfolioData, themeFont: e.target.value });
+                  }}
+                  className="w-10 h-10 rounded-md border border-gray-300 cursor-pointer"
+                />
+                <input
+                  type="text"
+                  value={themeFont}
+                  readOnly
+                  className="w-28 p-2 rounded-lg bg-gray-50 border border-gray-300 text-sm"
+                />
+              </div>
+            </div>
+          </div>
+          <div
+            className="mt-5 w-full sm:w-1/2 mx-auto h-10 rounded-xl border border-gray-300 flex items-center justify-center text-sm font-medium shadow-inner"
+            style={{ backgroundColor: themeBg, color: themeFont }}
+          >
+            Example Text and Background
+          </div>
+        </section>
+
+        {/* ========================== */}
+        {/* 🖤 Action Buttons */}
+        {/* ========================== */}
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mt-10">
+          <button
+            onClick={handlePreview}
+            className="rounded-full px-8 py-3 font-semibold text-white bg-black hover:opacity-90 transition w-full sm:w-auto"
+          >
+            Deploy
+          </button>
+          <button
+            onClick={handleSave}
+            className="rounded-full px-8 py-3 font-semibold text-black bg-white border border-gray-400 hover:bg-gray-100 transition w-full sm:w-auto"
+          >
+            Save Changes
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default LeftPanel;

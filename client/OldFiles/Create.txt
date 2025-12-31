@@ -1,0 +1,297 @@
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import SearchSuggestion from "../components/SearchSuggestion";
+import { savePortfolio } from "../api/portfolioAPI";
+import PopupMessage from "../components/PopupMessage";
+import { useSplash } from "../context/SplashContext";
+import { useAuth } from "../context/AuthContext";
+import ThemePopup from "../../components/ThemePopup";
+
+// 🟢 PREDEFINED DATA (For "Full Control" / Template Mode)
+const DUMMY_DATA = {
+  name: "John Doe",
+  role: "Creative Developer",
+  bio: "I build digital experiences that blend design and technology. Focused on creating intuitive and scalable applications.",
+  experience: "3+ Years",
+  skills: [
+    { name: "React", level: "Expert" },
+    { name: "Tailwind CSS", level: "Expert" },
+    { name: "Node.js", level: "Intermediate" }
+  ],
+  education: "B.Tech in Computer Science",
+  projects: [
+    { title: "E-Commerce Dash", tech: "React, Redux", github: "#", demo: "#" },
+    { title: "AI Chatbot", tech: "OpenAI API, Python", github: "#", demo: "#" }
+  ],
+  linkedin: "https://linkedin.com",
+  github: "https://github.com",
+  email: "john@example.com",
+  cvLink: "#",
+  template: "modern" // Default fallback
+};
+
+const Create = () => {
+  const navigate = useNavigate();
+  const { showSplash } = useSplash();
+  const { user, loading } = useAuth();
+  const location = useLocation();
+
+  // Mode: 'selection' | 'wizard'
+  const [viewMode, setViewMode] = useState("selection");
+  const [showThemePopup, setShowThemePopup] = useState(false);
+
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate("/login");
+    }
+  }, [user, loading, navigate]);
+
+  // ------------------- WIZARD LOGIC (Existing) -------------------
+  const steps = [
+    { name: "name", question: "What’s your full name?", suggestion: "e.g., Prateek Koratala" },
+    { name: "role", question: "What’s your professional title or role?", suggestion: "e.g., Web Developer | AI Engineer" },
+    { name: "experience", question: "How many years of experience do you have?", suggestion: "e.g., 2 years in full-stack development" },
+    { name: "skills", question: "Let's add your skills one by one.", special: "skills" },
+    { name: "education", question: "What’s your highest qualification?", special: "education" },
+    { name: "projects", question: "Add your projects one by one.", special: "projects" },
+    { name: "bio", question: "Write a short bio about yourself.", suggestion: "e.g., Passionate about building intelligent systems and scalable apps." },
+    { name: "linkedin", question: "Your LinkedIn profile link?", suggestion: "e.g., https://linkedin.com/in/yourname" },
+    { name: "github", question: "Your GitHub profile link?", suggestion: "e.g., https://github.com/yourusername" },
+    { name: "cvLink", question: "Do you have a CV or Resume link?", suggestion: "Paste your Google Drive link..." },
+    { name: "email", question: "Your professional email address?", suggestion: "e.g., you@example.com" },
+  ];
+
+  const [currentStep, setCurrentStep] = useState(0); // Start at 0 for wizard
+  const [message, setMessage] = useState("");
+  const [formData, setFormData] = useState({
+    name: "", role: "", bio: "", experience: "", skills: [], education: "", projects: [], linkedin: "", github: "", email: "", cvLink: ""
+  });
+
+  // UI States for Wizard
+  const [skillLevel, setSkillLevel] = useState("Intermediate");
+  const [skillQuery, setSkillQuery] = useState("");
+  const [projectTitle, setProjectTitle] = useState("");
+  const [projectTechs, setProjectTechs] = useState([]);
+  const [projectGithub, setProjectGithub] = useState("");
+  const [projectDemo, setProjectDemo] = useState("");
+
+  const nextStep = () => { if (currentStep < steps.length) setCurrentStep((s) => s + 1); };
+  const prevStep = () => setCurrentStep((s) => Math.max(0, s - 1));
+  const updateField = (field, value) => setFormData((p) => ({ ...p, [field]: value }));
+  const progress = ((currentStep + 1) / (steps.length + 1)) * 100;
+
+  // Handlers for Skills/Projects (Same as before)
+  const toggleSkill = (name) => {
+    const exists = formData.skills.find((s) => s.name === name);
+    if (exists) setFormData({ ...formData, skills: formData.skills.filter((s) => s.name !== name) });
+    else setFormData({ ...formData, skills: [...formData.skills, { name, level: skillLevel }] });
+  };
+  const removeSkillByName = (name) => setFormData({ ...formData, skills: formData.skills.filter((s) => s.name !== name) });
+  
+  const toggleProjectTech = (tech) => setProjectTechs((prev) => prev.includes(tech) ? prev.filter((t) => t !== tech) : [...prev, tech]);
+  const addProjectManual = () => {
+    if (!projectTitle.trim()) return;
+    setFormData({ ...formData, projects: [...formData.projects, { title: projectTitle, tech: projectTechs.join(", "), github: projectGithub, demo: projectDemo }] });
+    setProjectTitle(""); setProjectTechs([]); setProjectGithub(""); setProjectDemo("");
+  };
+  const removeProject = (idx) => setFormData({ ...formData, projects: formData.projects.filter((_, i) => i !== idx) });
+
+  // ------------------- ACTION HANDLERS -------------------
+
+  // 1. AI Wizard Save
+  const handleWizardSave = async () => {
+    try {
+      const selectedTheme = location.state?.selectedTheme || "modern";
+      const dataToSave = { ...formData, template: selectedTheme };
+      await savePortfolio(dataToSave);
+      setMessage("✅ Data saved! Generating...");
+      showSplash(2000, () => navigate(`/customize/${selectedTheme}`, { state: dataToSave }));
+    } catch (err) {
+      console.error(err);
+      setMessage("❌ Error saving.");
+    }
+  };
+
+  // 2. Template Selection (Full Control)
+  const handleTemplateSelect = (themeKey) => {
+    // Navigate immediately with Dummy Data
+    const dataToUse = { ...DUMMY_DATA, template: themeKey };
+    navigate(`/customize/${themeKey}`, { state: dataToUse });
+  };
+
+  return (
+    <div className="relative min-h-screen flex flex-col items-center justify-center text-white px-4 overflow-hidden font-['Wix_Madefor_Text']">
+      
+      {/* Background Video */}
+      <video className="absolute top-0 left-0 w-full h-full object-cover z-0 opacity-40 blur-sm" src="/themes/newtempDemo.mp4" autoPlay loop muted playsInline />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/95 to-black/70 z-0"></div>
+
+      {/* Floating Message */}
+      {message && (
+        <div className="absolute top-6 bg-purple-700/30 border border-purple-500 text-purple-300 px-6 py-3 rounded-full text-sm shadow-lg backdrop-blur-md z-50">
+          {message}
+        </div>
+      )}
+
+      {/* ==================== VIEW 1: SELECTION SCREEN ==================== */}
+      <AnimatePresence mode="wait">
+        {viewMode === "selection" && (
+          <motion.div 
+            key="selection"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 1.05 }}
+            className="z-10 w-full max-w-4xl text-center flex flex-col items-center"
+          >
+            <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-2">
+              Never start <br/> from scratch
+            </h1>
+            
+            {/* Input Visual (Just visual trigger) */}
+            <div className="relative mt-8 w-full max-w-xl group cursor-pointer" onClick={() => setViewMode("wizard")}>
+              <div className="w-full p-4 bg-gray-900/80 border border-gray-700 rounded-2xl text-left text-gray-400 flex justify-between items-center hover:border-purple-500 transition-colors">
+                <span>Create a landing page for...</span>
+                <div className="bg-green-600 p-1.5 rounded-md">
+                    <img src="/ai.svg" className="w-4 h-4" alt="AI" />
+                </div>
+              </div>
+            </div>
+
+            {/* Quick Chips - requested exclusive options */}
+            <div className="flex gap-3 mt-4 justify-center flex-wrap">
+              <button 
+                onClick={() => setShowThemePopup(true)} // Goes to templates
+                className="px-5 py-2 rounded-full border border-gray-700 bg-black/40 hover:bg-white hover:text-black transition-all text-sm font-medium"
+              >
+                Portfolio
+              </button>
+              <button 
+                 onClick={() => setShowThemePopup(true)} // Goes to templates
+                 className="px-5 py-2 rounded-full border border-gray-700 bg-black/40 hover:bg-white hover:text-black transition-all text-sm font-medium"
+              >
+                Personal Page
+              </button>
+            </div>
+
+            {/* Main Action Area */}
+            <div className="mt-16 grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-3xl">
+              
+              {/* Option A: Build with AI */}
+              <div 
+                onClick={() => setViewMode("wizard")}
+                className="bg-white/5 hover:bg-white/10 border border-white/10 hover:border-purple-500/50 p-8 rounded-3xl cursor-pointer transition-all group text-left"
+              >
+                <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-blue-600 rounded-xl mb-4 flex items-center justify-center">
+                   <img src="/ai.svg" className="w-6 h-6 invert" />
+                </div>
+                <h3 className="text-2xl font-bold mb-2">Build with AI</h3>
+                <p className="text-gray-400 text-sm">Answer a few questions and let our AI generate the perfect structure and content for you.</p>
+              </div>
+
+              {/* Option B: Full Control */}
+              <div 
+                onClick={() => setShowThemePopup(true)}
+                className="bg-white/5 hover:bg-white/10 border border-white/10 hover:border-pink-500/50 p-8 rounded-3xl cursor-pointer transition-all group text-left"
+              >
+                <div className="w-12 h-12 bg-gradient-to-br from-pink-600 to-orange-600 rounded-xl mb-4 flex items-center justify-center text-xl font-bold">
+                   ❖
+                </div>
+                <h3 className="text-2xl font-bold mb-2">Build with Control</h3>
+                <p className="text-gray-400 text-sm">Choose a professionally designed template and customize every detail with pre-filled data.</p>
+              </div>
+
+            </div>
+          </motion.div>
+        )}
+
+        {/* ==================== VIEW 2: AI WIZARD ==================== */}
+        {viewMode === "wizard" && (
+            <motion.div 
+                key="wizard"
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="z-10 w-full max-w-lg flex flex-col items-center"
+            >
+                 {/* Progress Bar */}
+                {currentStep < steps.length && (
+                    <div className="w-full z-10 mb-8">
+                    <div className="w-full bg-gray-800/60 rounded-full h-2 backdrop-blur-sm">
+                        <div className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full transition-all duration-500" style={{ width: `${progress}%` }} />
+                    </div>
+                    <div className="flex justify-between items-center mt-2">
+                        <p className="text-xs text-gray-400">Step {currentStep + 1} of {steps.length + 1}</p>
+                        <button onClick={() => setViewMode("selection")} className="text-xs text-gray-500 hover:text-white">Exit</button>
+                    </div>
+                    </div>
+                )}
+
+                {/* Wizard Form Container */}
+                <form onSubmit={(e) => e.preventDefault()} className="bg-black/40 backdrop-blur-xl p-8 rounded-4xl shadow-2xl w-full border border-white/10 relative">
+                    
+                    {currentStep < steps.length ? (
+                        <AnimatePresence mode="wait">
+                            <motion.div key={currentStep} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.3 }}>
+                                <h2 className="text-2xl font-semibold mb-6">{steps[currentStep].question}</h2>
+                                
+                                {/* --- INPUT LOGIC (Condensed for brevity, same as your code) --- */}
+                                {steps[currentStep].name === "role" ? (
+                                    <SearchSuggestion dataFile="roles.txt" placeholder={steps[currentStep].suggestion} multiple={false} selected={formData.role} onSelect={(v) => updateField("role", v)} />
+                                ) : steps[currentStep].special === "skills" ? (
+                                    <>
+                                        <div className="flex gap-2 mb-3">
+                                            <select value={skillLevel} onChange={(e) => setSkillLevel(e.target.value)} className="bg-gray-800 rounded-lg px-2 py-2 text-sm border border-gray-700 outline-none"><option>Basic</option><option>Intermediate</option><option>Expert</option></select>
+                                            <SearchSuggestion dataFile="skills.txt" placeholder="Add skill..." multiple={false} onSelect={toggleSkill} />
+                                        </div>
+                                        <div className="flex flex-wrap gap-2">{formData.skills.map(s => (<span key={s.name} className="bg-purple-900/50 px-3 py-1 rounded-full text-xs border border-purple-500/30 flex items-center gap-2">{s.name} <button onClick={()=>removeSkillByName(s.name)}>×</button></span>))}</div>
+                                    </>
+                                ) : steps[currentStep].special === "projects" ? (
+                                    <>
+                                        <input value={projectTitle} onChange={(e)=>setProjectTitle(e.target.value)} placeholder="Title" className="w-full bg-gray-800 p-3 rounded-xl mb-2 outline-none border border-gray-700 focus:border-purple-500"/>
+                                        <div className="flex gap-2 mb-2">
+                                            <input value={projectGithub} onChange={(e)=>setProjectGithub(e.target.value)} placeholder="GitHub URL" className="w-1/2 bg-gray-800 p-2 rounded-xl text-sm outline-none border border-gray-700"/>
+                                            <input value={projectDemo} onChange={(e)=>setProjectDemo(e.target.value)} placeholder="Demo URL" className="w-1/2 bg-gray-800 p-2 rounded-xl text-sm outline-none border border-gray-700"/>
+                                        </div>
+                                        <SearchSuggestion dataFile="technologies.txt" placeholder="Tech Stack..." multiple={true} selected={projectTechs} onToggle={toggleProjectTech} />
+                                        <button onClick={addProjectManual} className="mt-3 w-full py-2 bg-white/10 hover:bg-white/20 rounded-xl text-sm transition">+ Add Project</button>
+                                        <div className="mt-4 space-y-2">{formData.projects.map((p,i)=>(<div key={i} className="bg-gray-800/50 p-2 rounded-lg text-sm flex justify-between">{p.title} <button onClick={()=>removeProject(i)} className="text-red-400">×</button></div>))}</div>
+                                    </>
+                                ) : steps[currentStep].special === "education" ? (
+                                    <SearchSuggestion dataFile="qualifications.txt" placeholder={steps[currentStep].suggestion} multiple={false} selected={formData.education} onSelect={(v) => updateField("education", v)} />
+                                ) : (
+                                    <input value={formData[steps[currentStep].name]} onChange={(e) => updateField(steps[currentStep].name, e.target.value)} placeholder={steps[currentStep].suggestion} className="w-full bg-transparent border-b-2 border-gray-600 focus:border-purple-500 py-2 text-xl outline-none transition-colors" autoFocus />
+                                )}
+                            </motion.div>
+                        </AnimatePresence>
+                    ) : (
+                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center">
+                            <h2 className="text-2xl font-bold mb-4">Ready to Build?</h2>
+                            <p className="text-gray-400 mb-8">We have gathered your details. Click below to generate your site.</p>
+                            <button onClick={handleWizardSave} className="w-full py-4 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 hover:scale-[1.02] transition font-bold text-lg shadow-xl shadow-purple-900/20">Generate Portfolio ✨</button>
+                        </motion.div>
+                    )}
+
+                    {/* Nav Buttons */}
+                    <div className="flex justify-between mt-10">
+                        {currentStep > 0 && <button onClick={prevStep} className="text-gray-400 hover:text-white transition">Back</button>}
+                        {currentStep < steps.length && <button onClick={nextStep} className="ml-auto bg-white text-black px-8 py-2 rounded-full font-bold hover:bg-gray-200 transition">Next</button>}
+                    </div>
+
+                </form>
+            </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ==================== THEME POPUP (FULL CONTROL) ==================== */}
+      {showThemePopup && (
+        <ThemePopup 
+            onSelect={handleTemplateSelect} 
+            onClose={() => setShowThemePopup(false)} 
+        />
+      )}
+
+    </div>
+  );
+};
+
+export default Create;

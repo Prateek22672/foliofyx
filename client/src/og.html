@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>We Create Animation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@900&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            overflow: hidden; /* Prevent scrolling during animation */
+            background-color: #000; /* Start black */
+        }
+
+        /* Navigation Styles (Initially Hidden) */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 50px;
+            z-index: 100;
+            opacity: 0; /* Hidden start */
+            color: #000;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 40px;
+            list-style: none;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .cta-btn {
+            padding: 10px 20px;
+            border: 1px solid #000;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .cta-btn::before {
+            content: '●';
+            color: #bcdfa3; /* Green dot color */
+            margin-right: 8px;
+        }
+
+        /* The Hero/Animation Container */
+        .container {
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        /* The Main Text */
+        h1 {
+            font-size: 8vw; /* Responsive font size */
+            line-height: 1;
+            white-space: nowrap;
+            text-transform: uppercase;
+            font-weight: 900;
+            color: #ffc2c2; /* The initial Pink color */
+            transform-origin: center center;
+            /* We start massive to simulate the zoom-in */
+            transform: scale(60); 
+        }
+
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="logo"></div> <ul class="nav-links">
+            <li>Home</li>
+            <li>About</li>
+            <li>Works</li>
+            <li>Contact us</li>
+        </ul>
+        <div class="cta-btn">Let's Talk!</div>
+    </nav>
+
+    <div class="container">
+        <h1 class="main-text">WE CREATE</h1>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+    <script>
+        // Initialize Timeline
+        const tl = gsap.timeline({
+            defaults: { ease: "power2.inOut" } // Smooth easing
+        });
+
+        tl
+        // Step 1: Animate the Text Zoom Out
+        .to(".main-text", {
+            scale: 1,       // Shrink to normal size
+            duration: 2.5,  // Duration in seconds
+            ease: "power4.out" // Use power4 for that snappy "slow down at the end" feel
+        })
+        
+        // Step 2: Simultaneously change colors (Pink/Black -> Black/White)
+        .to("body", {
+            backgroundColor: "#ffffff",
+            duration: 2
+        }, "<") // "<" tells GSAP to start this at the same time as the previous animation
+        
+        .to(".main-text", {
+            color: "#000000",
+            duration: 2
+        }, "<")
+
+        // Step 3: Fade in the Navbar at the end
+        .to("nav", {
+            opacity: 1,
+            y: 0,
+            duration: 1
+        }, "-=1"); // Start 1 second before the zoom finishes
+        
+    </script>
+</body>
+</html>

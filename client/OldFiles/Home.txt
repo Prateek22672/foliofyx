@@ -1,0 +1,99 @@
+import React from "react";
+import { useNavigate } from "react-router-dom";
+
+@font-face {
+  font-family: 'Switzer';
+  src: url('/fonts/Switzer-Regular.woff2') format('woff2'), /* Example path */
+       url('/fonts/Switzer-Regular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Switzer';
+  src: url('/fonts/Switzer-Medium.woff2') format('woff2'),
+       url('/fonts/Switzer-Medium.woff') format('woff');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Switzer';
+  src: url('/fonts/Switzer-Light.woff2') format('woff2'),
+       url('/fonts/Switzer-Light.woff') format('woff');
+  font-weight: 200; /* Matching your font-thin class */
+  font-style: normal;
+  font-display: swap;
+}
+
+const Home = () => {
+  const navigate = useNavigate();
+
+  const themes = [
+    {
+      name: "modern",
+      image: "/themes/modern.png",
+      desc: "Clean, bold, and futuristic — perfect for developers & designers.",
+    },
+    {
+      name: "classic",
+      image: "/themes/classic.png",
+      desc: "A timeless portfolio look with structured layouts and elegance.",
+    },
+    {
+      name: "minimal",
+      image: "/themes/minimal.png",
+      desc: "Simple and distraction-free — your work speaks for itself.",
+    },
+  ];
+
+  const handleSelectTheme = (theme) => {
+    navigate(`/customize/${theme}`);
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex flex-col items-center text-white p-8">
+      {/* Header */}
+      <h1 className="text-4xl md:text-5xl font-extrabold mb-10 text-center">
+        Choose Your <span className="text-purple-400">Portfolio Theme</span>
+      </h1>
+
+      {/* Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 w-full max-w-6xl">
+        {themes.map((t) => (
+          <div
+            key={t.name}
+            onClick={() => handleSelectTheme(t.name)}
+            className="bg-white/10 backdrop-blur-md p-6 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer hover:scale-105 border border-white/20 flex flex-col justify-between"
+          >
+            <img
+              src={t.image}
+              alt={t.name}
+              className="w-full h-56 object-cover rounded-xl mb-5 border border-white/20"
+            />
+            <div>
+              <h3 className="text-2xl font-semibold capitalize mb-2 text-center">
+                {t.name}
+              </h3>
+              <p className="text-gray-300 text-sm text-center">{t.desc}</p>
+            </div>
+
+            <button
+              className="mt-6 w-full bg-purple-600 hover:bg-purple-700 transition py-2 rounded-xl text-white font-medium"
+              onClick={(e) => {
+                e.stopPropagation(); // prevent parent onClick conflict
+                handleSelectTheme(t.name);
+              }}
+            >
+              Select Theme
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default Home;

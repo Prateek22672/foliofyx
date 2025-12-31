@@ -1,0 +1,32 @@
+/* SectionOutro.css */
+
+/* --- 1. Fade-In Animation for Foreground Text --- */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* --- 2. Scrolling Animation for Background Text --- */
+@keyframes scrollText {
+  from {
+    transform: translateX(0%);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.textScroll {
+  animation: scrollText 15s linear infinite;
+}
+
+.textScroll {
+  will-change: transform;
+  transition: transform 0.15s linear;
+}

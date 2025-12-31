@@ -1,0 +1,90 @@
+import React from "react";
+import { Palette, LayoutTemplate, Type, PaintBucket } from "lucide-react";
+
+const PanelDesign = ({ portfolioData, setPortfolioData, onOpenThemeModal }) => {
+  
+  return (
+    <div className="p-5 h-full overflow-y-auto pb-20">
+      <h2 className="text-lg font-bold text-gray-900 mb-6">Design & Appearance</h2>
+
+      {/* 1. TEMPLATE SELECTOR */}
+      <section className="mb-8 p-4 bg-gray-50 rounded-2xl border border-gray-200">
+         <div className="flex items-center gap-2 mb-3 text-purple-600">
+            <LayoutTemplate size={18} />
+            <h3 className="text-sm font-bold uppercase tracking-wide">Template</h3>
+         </div>
+         
+         <div className="bg-white p-3 rounded-xl border border-gray-200 mb-4">
+            <span className="text-xs text-gray-400 font-bold uppercase">Current</span>
+            <div className="text-lg font-bold text-gray-900 capitalize">
+                {portfolioData.template || "Modern"}
+            </div>
+         </div>
+
+         <button 
+            onClick={onOpenThemeModal}
+            className="w-full py-3 bg-black text-white rounded-xl font-bold text-xs flex items-center justify-center gap-2 hover:bg-gray-800 transition shadow-lg"
+         >
+            <Palette size={14} /> Change Template
+         </button>
+      </section>
+
+      <hr className="border-gray-100 my-6" />
+
+      {/* 2. COLORS */}
+      <section>
+         <div className="flex items-center gap-2 mb-4 text-gray-900">
+            <PaintBucket size={18} />
+            <h3 className="text-sm font-bold uppercase tracking-wide">Global Colors</h3>
+         </div>
+
+         <div className="space-y-4">
+            {/* Background Color */}
+            <div className="flex items-center justify-between p-3 bg-white rounded-xl border border-gray-200 shadow-sm">
+               <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full border border-gray-200 shadow-inner" style={{ backgroundColor: portfolioData.themeBg || "#ffffff" }}></div>
+                  <span className="text-sm font-semibold text-gray-700">Background</span>
+               </div>
+               <div className="relative">
+                  <label htmlFor="bgColor" className="text-xs font-bold text-blue-600 cursor-pointer hover:underline">Change</label>
+                  <input 
+                    id="bgColor"
+                    type="color" 
+                    value={portfolioData.themeBg || "#ffffff"}
+                    onChange={(e) => setPortfolioData({...portfolioData, themeBg: e.target.value})}
+                    className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                  />
+               </div>
+            </div>
+
+            {/* Font Color */}
+            <div className="flex items-center justify-between p-3 bg-white rounded-xl border border-gray-200 shadow-sm">
+               <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full border border-gray-200 shadow-inner flex items-center justify-center bg-gray-50">
+                     <Type size={16} style={{ color: portfolioData.themeFont || "#000000" }} />
+                  </div>
+                  <span className="text-sm font-semibold text-gray-700">Text Color</span>
+               </div>
+               <div className="relative">
+                  <label htmlFor="textColor" className="text-xs font-bold text-blue-600 cursor-pointer hover:underline">Change</label>
+                  <input 
+                    id="textColor"
+                    type="color" 
+                    value={portfolioData.themeFont || "#000000"}
+                    onChange={(e) => setPortfolioData({...portfolioData, themeFont: e.target.value})}
+                    className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                  />
+               </div>
+            </div>
+         </div>
+      </section>
+
+      <div className="mt-8 p-4 bg-blue-50 rounded-xl border border-blue-100 text-blue-800 text-xs">
+         <strong>Pro Tip:</strong> Ensure your text color has high contrast against your background for better readability.
+      </div>
+
+    </div>
+  );
+};
+
+export default PanelDesign;

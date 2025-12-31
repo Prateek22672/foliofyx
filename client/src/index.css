@@ -1,0 +1,322 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Urbanist:ital,wght@0,100..900;1,100..900&family=Wix+Madefor+Text:ital,wght@0,400..800;1,400..800&display=swap');
+@import "tailwindcss";
+
+/* ===============================
+   🔤 SWITZER FONT DECLARATION
+   (Replace url with your actual font file path if local)
+================================= */
+
+
+/* ===============================
+   🎨 THEME VARIABLES
+================================= */
+:root {
+  --bg-dark: #0a0a0a;
+  --accent: #ad0000;
+  --text-light: #ffffff;
+}
+
+/* ===============================
+   🌐 GLOBAL FONTS & RESET
+================================= */
+body {
+  font-family: "Switzer", sans-serif !important;
+  font-weight: 400;
+  background-color: var(--bg-dark); /* CHANGED: Dark for John Wick Theme */
+  color: var(--text-light);         /* CHANGED: Light text */
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, button {
+  font-family: "Switzer", sans-serif !important; /* Ensure Switzer overrides */
+  font-weight: 500;
+}
+
+.font-thin {
+    font-weight: 200;
+}
+
+/* --- Global Scrollbar Styling ---
+
+
+*/
+
+
+
+/* ===============================
+   💀 JOHN WICK / AURORA SPECIFIC
+================================= */
+
+/* 1. Ghost Text Outline */
+.text-outline {
+  -webkit-text-stroke: 1px rgba(255, 255, 255, 0.4);
+  color: transparent;
+}
+
+/* 2. Aurora Blob Animation */
+@keyframes blob {
+  0% { transform: translate(0px, 0px) scale(1); }
+  33% { transform: translate(30px, -50px) scale(1.1); }
+  66% { transform: translate(-20px, 20px) scale(0.9); }
+  100% { transform: translate(0px, 0px) scale(1); }
+}
+
+.animate-blob {
+  animation: blob 10s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+
+.animation-delay-4000 {
+  animation-delay: 4s;
+}
+
+/* ===============================
+   ✨ YOUR EXISTING ANIMATIONS
+================================= */
+@keyframes gradient-shine {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.animate-gradient-shine {
+  background-size: 200% 200%;
+  animation: gradient-shine 6s linear infinite;
+}
+
+@keyframes gradient-move {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.animate-gradient-move {
+  background-size: 200% 200%;
+  animation: gradient-move 12s ease-in-out infinite;
+}
+
+@keyframes ai-glow {
+  0%, 100% { background-position: 0% 50%; box-shadow: 0 0 15px rgba(236, 72, 153, 0.4); }
+  50% { background-position: 100% 50%; box-shadow: 0 0 35px rgba(168, 85, 247, 0.7); }
+}
+.animate-ai-glow {
+  background-size: 200% 200%;
+  animation: ai-glow 4s ease-in-out infinite;
+}
+
+@keyframes metallic-shine {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.animate-metallic {
+  background-size: 200% 200%;
+  animation: metallic-shine 3s linear infinite;
+}
+
+@keyframes gradient-slow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.animate-gradient-slow {
+  background-size: 200% 200%;
+  animation: gradient-slow 6s ease-in-out infinite;
+}
+
+@keyframes fade-in {
+  0% { opacity: 0; transform: scale(0.95); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out forwards;
+}
+
+.scroll-reveal-section {
+  position: relative;
+  overflow: hidden;
+  clip-path: ellipse(150% 100% at 50% 0%);
+  transition: clip-path 0.6s ease-out;
+}
+.scroll-reveal-section.scrolled {
+  clip-path: ellipse(150% 30% at 50% 0%);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fadeIn {
+  animation: fadeIn 1.2s ease-in-out forwards;
+}
+
+@keyframes fadeInSlow {
+  from { opacity: 0; transform: scale(1.05); }
+  to { opacity: 1; transform: scale(1); }
+}
+.animate-fadeInSlow {
+  animation: fadeInSlow 2.5s ease-in-out forwards;
+}
+
+@keyframes text-shimmer {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+.animate-text-shimmer {
+  background-size: 200% auto;
+  animation: text-shimmer 3s linear infinite;
+}
+
+@keyframes slide-down {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-slide-down {
+  animation: slide-down 0.25s ease-out forwards;
+}
+
+@keyframes dots {
+  0%, 20% { content: "."; }
+  40% { content: ".."; }
+  60%, 100% { content: "..."; }
+}
+.animate-dots::after {
+  content: "";
+  animation: dots 1s infinite steps(1);
+}
+
+@keyframes pulse-slow {
+  0%, 100% { opacity: 0.45; transform: scale(1); }
+  50% { opacity: 0.85; transform: scale(1.15); }
+}
+.animate-pulse-slow {
+  animation: pulse-slow 8s ease-in-out infinite;
+}
+
+@keyframes shinyGradient {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+.animate-gradient {
+  background-size: 300% 300%;
+  animation: shinyGradient 12s ease-in-out infinite;
+}
+
+@keyframes pulse-soft {
+  0%, 100% { box-shadow: 0 0 15px rgba(163,73,255,0.25); transform: scale(1); }
+  50% { box-shadow: 0 0 30px rgba(163,73,255,0.45); transform: scale(1.02); }
+}
+.animate-pulse-soft {
+  animation: pulse-soft 6s ease-in-out infinite;
+}
+
+.hide-on-scroll {
+  opacity: calc(1 - var(--scroll));
+  pointer-events: calc(1 - var(--scroll));
+  transition: opacity 0.3s ease;
+}
+
+.allow-blur { isolation: isolate; }
+
+.glass-card {
+  backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.05); /* ADJUSTED for Dark Theme */
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+  border-radius: 20px; 
+}
+
+/* --------- FADE-UP & REVEAL SYSTEM --------- */
+.fade-up {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.7s ease-out, transform 0.8s ease-out;
+}
+.fade-up.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.slide-left {
+  opacity: 0;
+  transform: translateX(-35px);
+  transition: opacity 0.7s ease-out, transform 0.85s ease-out;
+}
+.slide-left.show {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.slide-right {
+  opacity: 0;
+  transform: translateX(35px);
+  transition: opacity 0.7s ease-out, transform 0.85s ease-out;
+}
+.slide-right.show {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.stagger > * {
+  opacity: 0;
+  transform: translateY(25px);
+  transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+}
+.stagger.show > * {
+  opacity: 1;
+  transform: translateY(0);
+}
+.stagger.show > *:nth-child(1) { transition-delay: 0.12s; }
+.stagger.show > *:nth-child(2) { transition-delay: 0.22s; }
+.stagger.show > *:nth-child(3) { transition-delay: 0.32s; }
+.stagger.show > *:nth-child(4) { transition-delay: 0.42s; }
+.stagger.show > *:nth-child(5) { transition-delay: 0.52s; }
+
+.section-top-rounded {
+  border-top-left-radius: 40px;
+  border-top-right-radius: 40px;
+}
+
+@keyframes scrollText {
+  from { transform: translateX(0%); }
+  to { transform: translateX(-50%); }
+}
+.textScroll {
+  animation: scrollText 15s linear infinite;
+}
+
+@keyframes shine {
+  0% { transform: translateX(-150%); }
+  100% { transform: translateX(150%); }
+}
+.shine-line {
+  position: absolute;
+  top: 0; left: 0; height: 100%; width: 40%;
+  background: linear-gradient(120deg, transparent 0%, rgba(255, 255, 255, 0.4) 50%, transparent 100%);
+  transform: translateX(-150%);
+  pointer-events: none;
+  animation: shine 2.5s infinite linear; 
+}
+
+.animate-fade-up {
+  animation: fade-up 1s ease-out forwards;
+}
+
+/* ✅ FORCE WINDOWS DEFAULT ARROW EVERYWHERE */
+* {
+  cursor: default !important;
+}
+
+a, button, input, textarea, select {
+  cursor: pointer !important;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-150%); }
+  100% { transform: translateX(150%); }
+}
+
+.animate-shimmer {
+  animation: shimmer 2.5s infinite linear;
+}

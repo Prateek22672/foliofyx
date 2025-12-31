@@ -1,0 +1,642 @@
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import SearchSuggestion from "../components/SearchSuggestion";
+import { savePortfolio } from "../api/portfolioAPI";
+import PopupMessage from "../components/PopupMessage";
+import { useSplash } from "../context/SplashContext";
+import { useAuth } from "../context/AuthContext"; // ✅ Add this
+
+
+const Create = () => {
+  const navigate = useNavigate();
+  const { showSplash } = useSplash();
+  const { user, loading } = useAuth();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate("/login"); // or "/login" depending on your routes
+    }
+  }, [user, loading, navigate]);
+
+
+  const steps = [
+    { name: "name", question: "What’s your full name?", suggestion: "e.g., Prateek Koratala" },
+    { name: "role", question: "What’s your professional title or role?", suggestion: "e.g., Web Developer | AI Engineer" },
+    { name: "experience", question: "How many years of experience do you have?", suggestion: "e.g., 2 years in full-stack development" },
+    { name: "skills", question: "Let's add your skills one by one.", special: "skills" },
+    { name: "education", question: "What’s your highest qualification?", special: "education" },
+    { name: "projects", question: "Add your projects one by one.", special: "projects" },
+    { name: "bio", question: "Write a short bio about yourself.", suggestion: "e.g., Passionate about building intelligent systems and scalable apps." },
+    { name: "linkedin", question: "Your LinkedIn profile link?", suggestion: "e.g., https://linkedin.com/in/yourname" },
+    { name: "github", question: "Your GitHub profile link?", suggestion: "e.g., https://github.com/yourusername" },
+    { name: "cvLink", question: "Do you have a CV or Resume link?", suggestion: "Paste your Google Drive link..." },
+    { name: "email", question: "Your professional email address?", suggestion: "e.g., you@example.com" },
+  ];
+
+
+  const [currentStep, setCurrentStep] = useState(-1);
+  const [message, setMessage] = useState("");
+  const [formData, setFormData] = useState({
+    name: "",
+    role: "",
+    bio: "",
+    experience: "",
+    skills: [],
+    education: "",
+    projects: [],
+    linkedin: "",
+    github: "",
+    email: "",
+  });
+
+  // UI states
+  const [skillLevel, setSkillLevel] = useState("Intermediate");
+  const [skillQuery, setSkillQuery] = useState("");
+  const [projectTitle, setProjectTitle] = useState("");
+  const [projectTechs, setProjectTechs] = useState([]);
+  const [projectTechQuery, setProjectTechQuery] = useState("");
+  const [projectGithub, setProjectGithub] = useState("");
+  const [projectDemo, setProjectDemo] = useState("");
+
+  const nextStep = () => {
+    if (currentStep < steps.length) setCurrentStep((s) => s + 1);
+  };
+  const prevStep = () => setCurrentStep((s) => Math.max(0, s - 1));
+
+  const progress = ((currentStep + 1) / (steps.length + 1)) * 100;
+
+  const updateField = (field, value) =>
+    setFormData((p) => ({ ...p, [field]: value }));
+
+  // 💾 Save & Generate
+  const handleSaveAndGenerate = async () => {
+    try {
+      // Save the form data to backend
+      const res = await savePortfolio(formData);
+      setMessage("✅ Portfolio saved! Generating your layout...");
+
+      // 🌀 Show the splash immediately, and navigate after it completes
+      showSplash(2500, () => navigate("/customize/modern", { state: formData }));
+    } catch (err) {
+      console.error("❌ Save error:", err);
+      setMessage("❌ Failed to save portfolio. Try again.");
+      setTimeout(() => setMessage(""), 3000);
+    }
+  };
+
+
+
+  // 🧠 Skills handlers
+  const toggleSkill = (name) => {
+    const exists = formData.skills.find((s) => s.name === name);
+    if (exists) {
+      setFormData({
+        ...formData,
+        skills: formData.skills.filter((s) => s.name !== name),
+      });
+    } else {
+      setFormData({
+        ...formData,
+        skills: [...formData.skills, { name, level: skillLevel }],
+      });
+    }
+    setSkillQuery("");
+  };
+
+  const addSkillManual = () => {
+    const n = skillQuery.trim();
+    if (!n) return;
+    if (!formData.skills.find((s) => s.name.toLowerCase() === n.toLowerCase())) {
+      setFormData({
+        ...formData,
+        skills: [...formData.skills, { name: n, level: skillLevel }],
+      });
+    }
+    setSkillQuery("");
+    setSkillLevel("Intermediate");
+  };
+
+  const removeSkillByName = (name) => {
+    setFormData({
+      ...formData,
+      skills: formData.skills.filter((s) => s.name !== name),
+    });
+  };
+
+  // 🧠 Project handlers
+  const toggleProjectTech = (tech) => {
+    setProjectTechs((prev) =>
+      prev.includes(tech) ? prev.filter((t) => t !== tech) : [...prev, tech]
+    );
+    setProjectTechQuery("");
+  };
+
+  const addProjectManual = () => {
+    const title = projectTitle.trim();
+    const techs = projectTechs.length
+      ? projectTechs.join(", ")
+      : projectTechQuery.trim();
+    if (!title) return;
+
+    setFormData({
+      ...formData,
+      projects: [
+        ...formData.projects,
+        {
+          title,
+          tech: techs,
+          github: projectGithub.trim(),
+          demo: projectDemo.trim(),
+        },
+      ],
+    });
+
+    setProjectTitle("");
+    setProjectTechs([]);
+    setProjectTechQuery("");
+    setProjectGithub("");
+    setProjectDemo("");
+  };
+
+  const removeProject = (idx) => {
+    setFormData({
+      ...formData,
+      projects: formData.projects.filter((_, i) => i !== idx),
+    });
+  };
+
+  return (
+    <div className="relative min-h-screen flex flex-col items-center justify-center text-white px-4 overflow-hidden">
+
+      {/* 🌌 Background Video */}
+      <video
+        className="absolute top-0 left-0 w-full h-full object-cover z-1 opacity-60"
+        src="/v6.mp4" // 🎥 place bg.mp4 in public/videos/
+        autoPlay
+        loop
+        muted
+        playsInline
+      />
+
+      {/* Optional gradient overlay for readability */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-black/80 z-10"></div>
+
+      {/* Floating Message */}
+      {message && (
+        <div className="absolute top-6 bg-purple-700/30 border border-purple-500 text-purple-300 px-6 py-3 rounded-4xl text-sm shadow-lg backdrop-blur-md transition-all duration-500 animate-fade-in">
+          {message}
+        </div>
+      )}
+
+      {/* Progress Bar */}
+      {currentStep > -1 && (
+        <div className="w-full z-10 max-w-lg mb-10">
+          <div className="w-full bg-gray-800/60 rounded-full h-3 backdrop-blur-sm">
+            <div
+              className="bg-purple-600 h-3 rounded-full transition-all duration-500"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+          <p className="text-sm text-gray-300 mt-2 text-center">
+            Step {currentStep + 1} of {steps.length + 1}
+          </p>
+        </div>
+      )}
+
+      {/* Main Form */}
+      <form
+        onSubmit={(e) => e.preventDefault()}
+        className="z-10 bg-gray-900/70 backdrop-blur-md p-8 rounded-4xl shadow-xl w-[90%] max-w-lg text-center space-y-6 border border-gray-800/50"
+      >
+        <AnimatePresence mode="wait">
+          {currentStep === -1 ? (
+            // 🌟 INTRO SCREEN
+            <motion.div
+              key="intro"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.35 }}
+            >
+              <div className="flex relative items-center justify-center">
+                <h2 className="text-2xl font-semibold mb-4 text-center">
+                  Please provide your details to generate your portfolio page
+                </h2>
+                <img
+                  className="w-[30px] absolute -top-20 right-0 animate-pulse opacity-90"
+                  src="/ai.svg"
+                  alt="AI Icon"
+                />
+              </div>
+              <p className="text-gray-400 mb-8 text-sm">
+                This short setup will help us personalize your portfolio layout.
+              </p>
+
+              <button
+                type="button"
+                onClick={() => setCurrentStep(0)}
+                className="relative inline-flex items-center justify-center gap-2 rounded-full px-10 py-3 font-semibold text-white
+              bg-gradient-to-r from-purple-700 via-pink-600 to-fuchsia-600
+              hover:from-purple-800 hover:via-pink-700 hover:to-fuchsia-700
+              shadow-[0_0_25px_rgba(236,72,153,0.6)] hover:shadow-[0_0_45px_rgba(168,85,247,0.8)]
+              transition-all duration-300 ease-in-out backdrop-blur-md border border-transparent hover:border-white
+              transform hover:-translate-y-1"
+              >
+                Get Started →
+              </button>
+            </motion.div>
+          ) : currentStep < steps.length ? (
+            <motion.div
+              key={currentStep}
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -30 }}
+              transition={{ duration: 0.35 }}
+            >
+              <h2 className="text-2xl font-semibold mb-4">
+                {steps[currentStep].question}
+              </h2>
+
+
+              {/* Input Logic */}
+              {steps[currentStep].name === "role" ? (
+                <SearchSuggestion
+                  dataFile="roles.txt"
+                  placeholder={steps[currentStep].suggestion}
+                  multiple={false}
+                  selected={formData.role}
+                  onSelect={(v) => updateField("role", v)}
+                />
+              ) : steps[currentStep].special === "skills" ? (
+                <>
+                  <div className="relative w-full max-w-lg mx-auto">
+
+                    {/* Instruction Text */}
+                    <p className="text-gray-400 text-sm mb-2 text-center">
+                      Select skill level first, then search or toggle the skill below:
+                    </p>
+                    {/* Skill Level Dropdown on Top */}
+                    <div className="flex justify-start mb-3">
+                      <select
+                        value={skillLevel}
+                        onChange={(e) => setSkillLevel(e.target.value)}
+                        className="p-2 sm:p-3 bg-gray-900/80 border border-gray-700 rounded-full text-white text-xs sm:text-sm
+      focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all duration-300
+      shadow-[0_0_8px_rgba(0,0,0,0.3)] hover:border-purple-400 w-[110px] sm:w-[130px] text-center"
+                      >
+                        <option>Basic</option>
+                        <option>Intermediate</option>
+                        <option>Expert</option>
+                      </select>
+                    </div>
+
+
+                    {/* SearchSuggestion Bar */}
+                    <SearchSuggestion
+                      dataFile="skills.txt"
+                      placeholder="Enter a skill or choose below..."
+                      multiple={false}
+                      onSelect={(v) => toggleSkill(v)}
+                    />
+
+                    {/* Display Skills */}
+                    <div className="mt-4 rounded-3xl space-y-2">
+                      {formData.skills.map((s) => (
+                        <div
+                          key={s.name}
+                          className="flex justify-between items-center bg-gray-800 p-2 rounded-md text-sm"
+                        >
+                          <div>
+                            <span className="font-medium">{s.name}</span>
+                            <span className="ml-2 text-purple-400">({s.level})</span>
+                          </div>
+                          <button
+                            onClick={() => removeSkillByName(s.name)}
+                            className="text-red-400 hover:text-red-500"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                </>
+              ) : steps[currentStep].special === "education" ? (
+                <SearchSuggestion
+                  dataFile="qualifications.txt"
+                  placeholder={steps[currentStep].suggestion}
+                  multiple={false}
+                  selected={formData.education}
+                  onSelect={(v) => updateField("education", v)}
+                />
+              ) : steps[currentStep].special === "projects" ? (
+                <>
+                  {/* 🔹 Project Inputs */}
+                  <input
+                    value={projectTitle}
+                    onChange={(e) => setProjectTitle(e.target.value)}
+                    placeholder="Project title..."
+                    className="w-full p-3 bg-gray-800 border border-gray-700 rounded-2xl text-white mb-3"
+                  />
+                  <input
+                    type="url"
+                    value={projectGithub}
+                    onChange={(e) => setProjectGithub(e.target.value)}
+                    placeholder="GitHub link (optional)"
+                    className="w-full p-3 bg-gray-800 border border-gray-700 rounded-2xl text-white mb-3"
+                  />
+                  <input
+                    type="url"
+                    value={projectDemo}
+                    onChange={(e) => setProjectDemo(e.target.value)}
+                    placeholder="Live demo link (optional)"
+                    className="w-full p-3 bg-gray-800 border border-gray-700 rounded-2xl text-white mb-3"
+                  />
+
+                  {/* 🔹 Tech Stack */}
+                  <SearchSuggestion
+                    dataFile="technologies.txt"
+                    placeholder="Search or click to toggle technology"
+                    multiple={true}
+                    selected={projectTechs}
+                    onToggle={toggleProjectTech}
+
+                  />
+
+                  <div className="mt-3 rounded-4xl flex gap-3 justify-center">
+                    <button
+                      type="button"
+                      onClick={addProjectManual}
+                      className="relative inline-block rounded-4xl p-[2px] overflow-hidden 
+               bg-gradient-to-r from-white via-gray-400 to-black animate-gradient-shine
+               shadow-[0_0_10px_rgba(255,255,255,0.1)] hover:shadow-[0_0_20px_rgba(255,255,255,0.3)] transition-all"
+                    >
+                      <span
+                        className="block bg-black text-white rounded-4xl px-6 py-2 font-semibold 
+                 hover:bg-purple-900 hover:text-white transition-all duration-300"
+                      >
+                        + Add Project
+                      </span>
+                    </button>
+                  </div>
+
+                  {/* 🔹 Display Added Projects */}
+                  <div className="mt-4 space-y-2">
+                    {formData.projects.map((p, i) => (
+                      <div
+                        key={i}
+                        className="flex flex-col md:flex-row md:items-center md:justify-between bg-gray-800 p-3 rounded-md text-sm gap-1 md:gap-2"
+                      >
+                        <span>
+                          <strong>{p.title}</strong> —{" "}
+                          <span className="text-purple-400">{p.tech}</span>
+                        </span>
+
+                        <div className="flex gap-3 text-xs text-purple-300">
+                          {p.github && (
+                            <a
+                              href={p.github}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="hover:text-purple-400 underline"
+                            >
+                              GitHub
+                            </a>
+                          )}
+                          {p.demo && (
+                            <a
+                              href={p.demo}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="hover:text-purple-400 underline"
+                            >
+                              Live Demo
+                            </a>
+                          )}
+                        </div>
+
+                        <button
+                          onClick={() => removeProject(i)}
+                          className="text-red-400 hover:text-red-500 text-xs"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </>
+
+
+              ) : steps[currentStep].name === "cvLink" ? (
+                <>
+                  <p className="text-gray-400 text-sm mb-3 italic">
+                    (Ensure link visibility is set to “Anyone with the link can view.”)
+                  </p>
+                  <input
+                    type="url"
+                    value={formData.cvLink}
+                    onChange={(e) => updateField("cvLink", e.target.value)}
+                    placeholder={steps[currentStep].suggestion}
+                    className="w-full p-3 bg-gray-800 border border-gray-700 rounded-2xl text-white 
+        focus:ring-2 focus:ring-purple-500 outline-none transition-all duration-300
+        placeholder-gray-500"
+                    required
+                  />
+                </>
+
+              ) : steps[currentStep].name === "bio" ? (
+                <>
+                  <p className="text-gray-400 text-sm mb-3 italic">
+                    {steps[currentStep].suggestion}
+                  </p>
+                  <textarea
+                    rows={4}
+                    value={formData.bio}
+                    onChange={(e) => updateField("bio", e.target.value)}
+                    placeholder="Type your bio or generate one below..."
+                    className="w-full p-3 bg-gray-900 rounded-2xl text-white resize-none outline-none
+             border-2 border-purple-600
+             focus:border-fuchsia-500
+             shadow-[0_0_10px_rgba(168,85,247,0.4)]
+             focus:shadow-[0_0_20px_rgba(236,72,153,0.6)]
+             transition-all duration-300 ease-in-out"
+                  />
+
+                  <div className="flex justify-center mt-6">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const { name, role, education, experience, skills, projects } = formData;
+                        const skillList = skills.map((s) => s.name).join(", ");
+                        const projectList = projects.map((p) => p.title).join(", ");
+                        const autoBio = `
+I'm ${name || "a passionate individual"}, working as ${role || "a developer"} with ${experience || "some"} of experience.
+I hold a degree in ${education || "Computer Science"} and specialize in ${skillList || "modern technologies"}.
+I've worked on projects like ${projectList || "various web applications"}, focusing on innovation and user-friendly solutions.
+      `.trim();
+                        updateField("bio", autoBio);
+                      }}
+                      className="relative inline-flex items-center justify-center gap-2 rounded-4xl px-8 py-3 font-semibold text-white
+               bg-gradient-to-r from-black via-purple-700 to-pink-600
+               hover:from-gray-900 hover:via-pink-700 hover:to-purple-900
+               shadow-[0_0_20px_rgba(236,72,153,0.6)] hover:shadow-[0_0_40px_rgba(168,85,247,0.9)]
+               transition-all duration-300 ease-in-out backdrop-blur-md border border-transparent hover:border-white
+               transform hover:-translate-y-1 animate-ai-glow"
+                    >
+                      <span className="relative flex items-center gap-1">
+                        Generate Bio With
+                        <span className="relative inline-flex items-center">
+                          AI
+                          <img
+                            src="/ai.svg"
+                            alt="AI Icon"
+                            className="absolute -top-3 -right-4 w-6 h-6 animate-pulse opacity-90"
+                          />
+                        </span>
+                      </span>
+                    </button>
+                  </div>
+
+
+                </>
+
+              ) : (
+                <>
+                  <p className="text-gray-400 text-sm mb-3 italic">
+                    {steps[currentStep].suggestion}
+                  </p>
+                  <textarea
+                    rows={2}
+                    value={formData[steps[currentStep].name]}
+                    onChange={(e) =>
+                      updateField(steps[currentStep].name, e.target.value)
+                    }
+                    placeholder="Type your answer here..."
+                    className="w-full p-3 bg-gray-800 rounded-2xl border border-gray-700 text-white focus:ring-2 focus:ring-purple-500 outline-none resize-none"
+                    required
+                  />
+                </>
+              )}
+            </motion.div>
+          ) : (
+            <motion.div
+              key="review"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.35 }}
+            >
+              <img className="w-[40px] -mt-3  m-auto block" src="/ai.svg" />
+
+              <h2 className="text-xl sm:text-2xl mt-2 mb-6">
+                Review Your Portfolio Details
+              </h2>
+              <div className="text-left bg-gray-800 p-4 rounded-2xl border border-gray-700 space-y-3">
+                {Object.entries(formData).map(([key, value]) => (
+                  <div key={key}>
+                    <p className="capitalize text-gray-400 mb-1">{key}</p>
+                    {Array.isArray(value) ? (
+                      <div className="text-white font-medium space-y-1">
+                        {value.length === 0 ? (
+                          <p className="text-gray-500 italic">No data</p>
+                        ) : (
+                          value.map((v, i) => (
+                            <p key={i}>
+                              {typeof v === "string"
+                                ? v
+                                : v.name
+                                  ? `${v.name} (${v.level})`
+                                  : v.title
+                                    ? `${v.title} — ${v.tech}`
+                                    : JSON.stringify(v)}
+                            </p>
+                          ))
+                        )}
+                      </div>
+                    ) : (
+                      <p className="text-white font-medium">
+                        {value || <span className="text-gray-500 italic">No data</span>}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex justify-center mt-8">
+                <button
+                  type="button"
+                  onClick={handleSaveAndGenerate}
+                  className="relative inline-flex items-center justify-center gap-2 w-full rounded-full px-10 py-3 font-semibold text-white
+bg-gradient-to-r from-black via-purple-700 to-fuchsia-600
+hover:from-gray-900 hover:via-purple-800 hover:to-pink-700
+shadow-[0_0_25px_rgba(168,85,247,0.6)] hover:shadow-[0_0_45px_rgba(236,72,153,0.8)]
+transition-all duration-300 ease-in-out backdrop-blur-md border border-transparent hover:border-white
+transform hover:-translate-y-1"
+                >
+                  <span className="relative flex items-center justify-center gap-2 text-lg">
+                    Save & Generate Portfolio
+                    <span className="relative inline-flex items-center">
+                      <img
+                        src="/ai.svg"
+                        alt="AI Icon"
+                        className="-top-3 -right-3 w-6 h-6 animate-pulse opacity-90"
+                      />
+                    </span>
+                  </span>
+                </button>
+
+              </div>
+
+              <PopupMessage message={message} onClose={() => setMessage("")} />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+
+        {/* Navigation Buttons (unchanged) */}
+        <div className="flex justify-between mt-6">
+          {currentStep > 0 ? (
+            <button
+              type="button"
+              onClick={prevStep}
+              className="relative inline-block rounded-4xl p-[2px] overflow-hidden 
+             bg-gradient-to-r from-fuchsia-600 via-purple-500 to-pink-500 animate-gradient-shine
+             shadow-[0_0_15px_rgba(168,85,247,0.3)] hover:shadow-[0_0_25px_rgba(168,85,247,0.6)] transition-all"
+            >
+              <span
+                className="block bg-black text-white rounded-4xl px-8 py-2 font-semibold 
+               hover:bg-purple-900 hover:text-white transition-all duration-300"
+              >
+                ← Back
+              </span>
+            </button>
+          ) : (
+            <div />
+          )}
+
+          {currentStep < steps.length ? (
+            <button
+              type="button"
+              onClick={nextStep}
+              className="relative inline-block rounded-4xl p-[2px] overflow-hidden 
+             bg-gradient-to-r from-pink-500 via-purple-500 to-fuchsia-600 animate-gradient-shine
+             shadow-[0_0_15px_rgba(236,72,153,0.3)] hover:shadow-[0_0_25px_rgba(236,72,153,0.6)] transition-all"
+            >
+              <span
+                className="block bg-white text-black rounded-4xl px-8 py-2 font-semibold 
+               hover:bg-purple-900 hover:text-white transition-all duration-300"
+              >
+                Next →
+              </span>
+            </button>
+          ) : null}
+        </div>
+      </form>
+    </div>
+  );
+
+};
+
+export default Create;

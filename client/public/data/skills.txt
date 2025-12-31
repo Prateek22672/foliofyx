@@ -1,0 +1,206 @@
+Problem Solving
+Critical Thinking
+Communication
+Team Collaboration
+Leadership
+Project Management
+Agile Methodology
+Scrum
+Kanban
+Time Management
+Adaptability
+Creativity
+Analytical Thinking
+Attention to Detail
+Debugging
+Testing
+Code Review
+Version Control
+UI/UX Design
+Prototyping
+Wireframing
+Frontend Development
+Backend Development
+Full Stack Development
+API Design
+Database Management
+Data Analysis
+Data Visualization
+Data Cleaning
+Machine Learning
+Deep Learning
+Model Evaluation
+Feature Engineering
+Natural Language Processing
+Computer Vision
+Cloud Deployment
+Server Management
+DevOps
+Containerization
+Continuous Integration
+Continuous Delivery
+Automation
+Security Best Practices
+Penetration Testing
+Network Security
+Cryptography
+Mobile App Development
+Android Development
+iOS Development
+Cross-platform Development
+Responsive Design
+Performance Optimization
+Accessibility
+Search Engine Optimization (SEO)
+Digital Marketing
+Content Creation
+Copywriting
+Technical Writing
+Public Speaking
+Mentoring
+Coaching
+Client Relations
+Negotiation
+Presentation Skills
+Research
+Documentation
+Software Architecture
+System Design
+Microservices
+Event-driven Architecture
+API Integration
+Testing Automation
+Unit Testing
+Integration Testing
+End-to-End Testing
+UI Testing
+Versioning Strategies
+Code Optimization
+Memory Management
+Algorithm Design
+Data Structures
+Distributed Computing
+Parallel Processing
+Big Data Analysis
+ETL Development
+Business Intelligence
+Report Generation
+Data Storytelling
+AI Prompt Engineering
+Prompt Optimization
+RAG (Retrieval-Augmented Generation)
+LLM Fine-tuning
+Custom GPT Building
+Ethical AI Practices
+Cloud Security
+Cost Optimization
+SaaS Development
+API Monetization
+Customer Support
+Continuous Learning
+
+React
+Node.js
+Express.js
+Next.js
+Vue.js
+Angular
+Svelte
+TypeScript
+JavaScript
+Python
+Django
+Flask
+FastAPI
+Ruby on Rails
+Spring Boot
+Java
+Kotlin
+C#
+ASP.NET
+C++
+C
+Go
+Rust
+PHP
+Laravel
+Symfony
+CodeIgniter
+MySQL
+PostgreSQL
+SQLite
+MongoDB
+Redis
+Firebase
+Supabase
+GraphQL
+REST API
+Docker
+Kubernetes
+AWS
+Azure
+Google Cloud
+DigitalOcean
+Heroku
+Terraform
+Ansible
+Git
+GitHub Actions
+CI/CD Pipelines
+Linux
+Nginx
+Apache
+Tailwind CSS
+Bootstrap
+Material UI
+Chakra UI
+SASS
+LESS
+HTML5
+CSS3
+Webpack
+Vite
+Babel
+ESLint
+Prettier
+Jest
+Mocha
+Chai
+Cypress
+Playwright
+Selenium
+Pandas
+NumPy
+Matplotlib
+Seaborn
+Scikit-learn
+TensorFlow
+PyTorch
+OpenCV
+Keras
+NLTK
+Hugging Face Transformers
+LangChain
+OpenAI API
+Pinecone
+Elasticsearch
+RabbitMQ
+Kafka
+Celery
+Power BI
+Tableau
+Figma
+Adobe XD
+Unity
+Unreal Engine
+Three.js
+WebGL
+Blender
+Vercel
+Netlify
+Shopify API
+Stripe API
+Twilio API
+OpenWeather API
+Notion API
+Slack API

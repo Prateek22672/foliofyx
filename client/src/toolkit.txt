@@ -1,0 +1,28 @@
+/* For Chrome, Safari, and Edge */
+::-webkit-scrollbar {
+  width: 8px; /* Width of vertical scrollbar (Standard is ~16px) */
+  height: 8px; /* Height of horizontal scrollbar */
+}
+
+/* The track (background) of the scrollbar */
+::-webkit-scrollbar-track {
+  background: #000000; /* Matches your bg-black */
+}
+
+/* The handle (moving part) */
+::-webkit-scrollbar-thumb {
+  background: #333333; /* Dark grey handle */
+  border-radius: 4px; /* Rounded corners */
+  border: 1px solid #000000; /* Puts a tiny border around the handle for contrast */
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555555; /* Lighter grey when you grab it */
+}
+
+/* For Firefox (doesn't support ::-webkit-*) */
+html {
+  scrollbar-width: thin; /* Makes it thinner */
+  scrollbar-color: #333333 #000000; /* thumb color | track color */
+}

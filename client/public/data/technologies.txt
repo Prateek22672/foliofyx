@@ -1,0 +1,105 @@
+React
+Node.js
+Express.js
+Next.js
+Vue.js
+Angular
+Svelte
+TypeScript
+JavaScript
+Python
+Django
+Flask
+FastAPI
+Ruby on Rails
+Spring Boot
+Java
+Kotlin
+C#
+ASP.NET
+C++
+C
+Go
+Rust
+PHP
+Laravel
+Symfony
+CodeIgniter
+MySQL
+PostgreSQL
+SQLite
+MongoDB
+Redis
+Firebase
+Supabase
+GraphQL
+REST API
+Docker
+Kubernetes
+AWS
+Azure
+Google Cloud
+DigitalOcean
+Heroku
+Terraform
+Ansible
+Git
+GitHub Actions
+CI/CD Pipelines
+Linux
+Nginx
+Apache
+Tailwind CSS
+Bootstrap
+Material UI
+Chakra UI
+SASS
+LESS
+HTML5
+CSS3
+Webpack
+Vite
+Babel
+ESLint
+Prettier
+Jest
+Mocha
+Chai
+Cypress
+Playwright
+Selenium
+Pandas
+NumPy
+Matplotlib
+Seaborn
+Scikit-learn
+TensorFlow
+PyTorch
+OpenCV
+Keras
+NLTK
+Hugging Face Transformers
+LangChain
+OpenAI API
+Pinecone
+Elasticsearch
+RabbitMQ
+Kafka
+Celery
+Power BI
+Tableau
+Figma
+Adobe XD
+Unity
+Unreal Engine
+Three.js
+WebGL
+Blender
+Vercel
+Netlify
+Shopify API
+Stripe API
+Twilio API
+OpenWeather API
+Notion API
+Slack API

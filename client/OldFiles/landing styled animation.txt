@@ -1,0 +1,224 @@
+// src/pages/Portfolio/Customize/components/ThemesLandingHero.jsx
+import React, { useState, useEffect } from "react";
+import { motion, useAnimation } from "framer-motion";
+import { Search, RefreshCcw, Filter } from "lucide-react"; 
+import MarqueeRow from "./MarqueeRow";
+
+// Tags that match your theme data for better results
+const themeTags = [
+  "Minimal",
+  "Agency", 
+  "Modern",
+  "Parallax",
+  "Dark Mode",
+  "Creative",
+];
+
+const ThemesLandingHero = ({
+  handleStart,
+  searchTerm,
+  setSearchTerm,
+  filteredThemes,
+}) => {
+  const [showContent, setShowContent] = useState(false);
+
+  const wrapperControls = useAnimation();
+  const centerTextControls = useAnimation();
+
+  const fadeWords = (text) =>
+    text.split(" ").map((word, index) => (
+      <span
+        key={index}
+        className="inline-block opacity-0 animate-wordFade"
+        style={{ animationDelay: `${index * 120}ms` }}
+      >
+        {word}&nbsp;
+      </span>
+    ));
+
+  useEffect(() => {
+    const sequence = async () => {
+      await wrapperControls.set({ scale: 6, rotate: 15, x: 0, y: 0 });
+
+      wrapperControls.start({
+        scale: 1,
+        rotate: 0,
+        transition: { duration: 1.8, ease: [0.16, 1, 0.3, 1] },
+      });
+
+      centerTextControls.start({
+        x: "30vw",
+        y: "35vh",
+        scale: 0.3, 
+        opacity: 0.1,
+        transition: { duration: 2, ease: "easeInOut", delay: 0.2 },
+      });
+
+      setTimeout(() => setShowContent(true), 1000);
+    };
+
+    sequence();
+  }, [wrapperControls, centerTextControls]);
+
+  const rowFadeVariants = {
+    initial: { opacity: 1 },
+    animate: { opacity: 0, transition: { duration: 1.5, delay: 1 } },
+  };
+
+  // ✅ Clean handler for clicking tags
+  const handleTagClick = (tag) => {
+    setSearchTerm(tag);
+  };
+  
+  const handleReload = () => {
+    setSearchTerm("");
+  };
+
+  return (
+    <div
+      className="
+        relative flex flex-col items-center text-center text-black
+        bg-white overflow-hidden rounded-b-4xl
+        rounded-t-none
+        min-h-[50vh]
+        pt-40
+        pb-10
+      "
+    >
+      {/* BG Swarm (We Design) */}
+      <motion.div
+        className="absolute inset-0 flex flex-col text-black justify-center items-center pointer-events-none z-0"
+        initial="initial"
+        animate="animate"
+        variants={{ animate: { transition: { staggerChildren: 0.1 } } }}
+      >
+        <motion.div animate={wrapperControls}>
+          {/* Marquee Rows */}
+          <motion.div variants={rowFadeVariants}>
+            <MarqueeRow direction="left" verticalDir={-1} speed={20} />
+            <MarqueeRow direction="right" verticalDir={1} speed={25} />
+          </motion.div>
+
+          {/* Main text - WE DESIGN */}
+          <div className="relative z-10">
+            <motion.h1
+              animate={centerTextControls}
+              style={{
+                fontSize: "5vw", 
+                fontWeight: 900,
+                textTransform: "uppercase",
+                margin: 0,
+                lineHeight: 1,
+                whiteSpace: "nowrap",
+              }}
+            >
+              WE DESIGN
+            </motion.h1>
+          </div>
+
+          {/* Bottom chaos */}
+          <motion.div variants={rowFadeVariants}>
+            <MarqueeRow direction="right" verticalDir={-1} speed={25} />
+            <MarqueeRow direction="left" verticalDir={1} speed={20} />
+          </motion.div>
+        </motion.div>
+      </motion.div>
+
+      {/* Foreground content */}
+      {showContent && (
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.9, ease: "easeOut" }}
+          className="relative z-20 w-full max-w-5xl mx-auto px-6" 
+        >
+          <h1 className="text-5xl md:text-7xl font-bold text-[#101828] leading-tight mb-4">
+            {fadeWords("Discover Top Designs for Your Website")}
+          </h1>
+
+          <p className="text-lg text-gray-700 max-w-2xl mx-auto mb-10">
+            {fadeWords(
+              "Find the perfect style for your portfolio among our professionally designed templates. Launch your site with our AI builder instantly."
+            )}
+          </p>
+
+          <div className="w-full max-w-4xl px-4 flex flex-col items-center"> 
+            {/* ==================== Search Bar ==================== */}
+            <div className="w-full max-w-4xl pb-10"> 
+              <div className="flex flex-col md:flex-row md:items-center gap-4">
+                <div className="flex-1">
+                  {/* Search Box */}
+                  <div className="flex items-center gap-3 bg-white rounded-full px-4 py-3 shadow-sm border border-gray-100">
+                    <Search size={18} className="text-gray-400" />
+
+                    <input
+                      type="text"
+                      placeholder="Search themes (e.g., Minimal, Modern, Student...)"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="bg-transparent flex-1 outline-none text-gray-700 placeholder-gray-400 text-sm"
+                    />
+
+                    {/* Right icons (Desktop only) */}
+                    <div className="hidden sm:flex items-center gap-2">
+                      <button
+                        onClick={handleReload}
+                        className="p-2 rounded-full bg-gray-50 hover:bg-gray-100 transition"
+                      >
+                        <RefreshCcw size={16} />
+                      </button>
+
+                      <button className="p-2 rounded-full bg-gray-50 hover:bg-gray-100 transition">
+                        <Filter size={16} />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Tags (Using handleTagClick) */}
+                  <div className="flex gap-3 flex-wrap mt-3 justify-center md:justify-start">
+                    {themeTags.map((tag) => (
+                      <button
+                        key={tag}
+                        onClick={() => handleTagClick(tag)} /* ✅ Fixed: Using Handler */
+                        className="px-3 py-1.5 bg-white border border-gray-100 rounded-full text-xs shadow-sm hover:bg-gray-50 transition active:scale-95"
+                      >
+                        {tag}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Mobile-only icon buttons */}
+                <div className="flex items-center gap-3 ml-auto sm:hidden">
+                  <button
+                    onClick={handleReload}
+                    className="p-2 rounded-full bg-white border border-gray-100 shadow-sm"
+                  >
+                    <RefreshCcw size={16} />
+                  </button>
+
+                  <button className="p-2 rounded-full bg-white border border-gray-100 shadow-sm">
+                    <Filter size={16} />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      )}
+
+      {/* Word fade CSS */}
+      <style>{`
+        @keyframes wordFade {
+          0% { opacity: 0; transform: translateY(14px); filter: blur(4px); }
+          100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+        }
+        .animate-wordFade {
+          animation: wordFade 0.6s ease forwards;
+        }
+      `}</style>
+    </div>
+  );
+};
+
+export default ThemesLandingHero;

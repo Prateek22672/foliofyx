@@ -1,0 +1,120 @@
+// src/pages/Portfolio/Customize/panels/PanelPages.jsx
+import React, { useState } from "react";
+import { Eye, EyeOff, GripVertical, Pencil, Check, Plus } from "lucide-react";
+
+const PanelPages = ({ portfolioData, setPortfolioData }) => {
+  const [editingNav, setEditingNav] = useState(null);
+
+  const navKeys = ["home", "about", "services", "projects", "contact"];
+
+  // Toggle Visibility
+  const toggleNavVisibility = (key) => {
+    setPortfolioData((prev) => ({
+      ...prev,
+      navConfig: {
+        ...prev.navConfig,
+        [key]: {
+          ...prev.navConfig?.[key],
+          visible: !prev.navConfig?.[key]?.visible
+        }
+      },
+      // Also update visibility object for backward compatibility
+      visibility: {
+        ...prev.visibility,
+        [key]: !prev.visibility?.[key]
+      }
+    }));
+  };
+
+  // Rename Page
+  const updateNavLabel = (key, newLabel) => {
+    setPortfolioData((prev) => ({
+      ...prev,
+      navConfig: {
+        ...prev.navConfig,
+        [key]: {
+          ...prev.navConfig?.[key],
+          label: newLabel
+        }
+      }
+    }));
+  };
+
+  return (
+    <div className="p-5 h-full overflow-y-auto">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-lg font-bold text-gray-900">Pages & Nav</h2>
+        <button className="p-1.5 bg-gray-100 hover:bg-gray-200 rounded-md transition">
+            <Plus size={18} className="text-gray-600" />
+        </button>
+      </div>
+
+      <div className="space-y-3">
+        {navKeys.map((key) => {
+          // Safe access
+          const config = portfolioData.navConfig || {};
+          const item = config[key] || { label: key, visible: true };
+          const isEditing = editingNav === key;
+
+          return (
+            <div 
+              key={key} 
+              className={`
+                group flex items-center justify-between p-3 rounded-xl border transition-all duration-200
+                ${item.visible ? "bg-white border-gray-200 shadow-sm" : "bg-gray-50 border-transparent opacity-60"}
+              `}
+            >
+              <div className="flex items-center gap-3 flex-1">
+                <GripVertical size={16} className="text-gray-300 cursor-grab hover:text-gray-500" />
+                
+                {isEditing ? (
+                  <input 
+                    autoFocus
+                    value={item.label}
+                    onChange={(e) => updateNavLabel(key, e.target.value)}
+                    onBlur={() => setEditingNav(null)}
+                    onKeyDown={(e) => e.key === 'Enter' && setEditingNav(null)}
+                    className="text-sm font-bold text-gray-900 bg-white px-2 py-1 rounded w-full outline-none ring-2 ring-purple-500"
+                  />
+                ) : (
+                  <span 
+                    className="text-sm font-semibold capitalize text-gray-700 cursor-pointer hover:text-purple-600"
+                    onClick={() => setEditingNav(key)}
+                  >
+                    {item.label}
+                  </span>
+                )}
+              </div>
+
+              <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <button
+                  onClick={() => setEditingNav(isEditing ? null : key)}
+                  className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-md"
+                >
+                  {isEditing ? <Check size={14} /> : <Pencil size={14} />}
+                </button>
+
+                <button
+                  onClick={() => toggleNavVisibility(key)}
+                  className={`p-1.5 rounded-md transition-all ${
+                    item.visible ? "text-gray-500 hover:bg-gray-100" : "text-gray-300 hover:text-gray-500"
+                  }`}
+                >
+                  {item.visible ? <Eye size={16} /> : <EyeOff size={16} />}
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      
+      <div className="mt-6 p-4 bg-purple-50 rounded-xl border border-purple-100">
+        <p className="text-xs text-purple-700 font-medium">
+          💡 Tip: Click on any page name to rename it instantly. Use the eye icon to hide pages from your site menu.
+        </p>
+      </div>
+    </div>
+  );
+};
+
+export default PanelPages;

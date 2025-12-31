@@ -1,0 +1,436 @@
+import React, { useState, useEffect, useRef } from "react";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { usePortfolio } from "../../../context/PortfolioContext";
+import { saveOrUpdatePortfolio, getPortfolio } from "../../../api/portfolioAPI";
+import PopupMessage from "../../../components/PopupMessage";
+import { 
+  Settings2, 
+  Palette, 
+  Save, 
+  Rocket, 
+  X, 
+  LayoutTemplate
+} from "lucide-react"; 
+
+// Components
+import EditHeader from "./EditHeader";
+import LeftPanel from "./leftpanel/index"; 
+import RightPanel from "./RightPanel";
+import ThemePopup from "./ThemePopup"; 
+import { TEMPLATE_LIST } from "../Templates";
+
+const Customize = () => {
+  // ==========================
+  // 1. STATE MANAGEMENT
+  // ==========================
+  const [message, setMessage] = useState("");
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { template } = useParams();
+  const { portfolioData, setPortfolioData } = usePortfolio();
+  const isLoadedRef = useRef(false);
+
+  // UI State
+  const [showThemeModal, setShowThemeModal] = useState(false);
+  const [showPreviewMobile, setShowPreviewMobile] = useState(false);
+  const [viewMode, setViewMode] = useState("dual"); 
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  
+  // Panel State
+  const [isPanelOpen, setIsPanelOpen] = useState(true); 
+  const [leftPanelWidth, setLeftPanelWidth] = useState(30); 
+  const [isDragging, setIsDragging] = useState(false);
+
+  // Form Field Local States
+  const [projectTitle, setProjectTitle] = useState("");
+  const [projectGithub, setProjectGithub] = useState("");
+  const [projectDemo, setProjectDemo] = useState("");
+  const [projectTechs, setProjectTechs] = useState([]);
+  const [projectTechQuery, setProjectTechQuery] = useState("");
+  const [skillLevel, setSkillLevel] = useState("Intermediate");
+  const [skillQuery, setSkillQuery] = useState("");
+  
+  const [themeBg, setThemeBg] = useState("#000000");
+  const [themeFont, setThemeFont] = useState("#FFFFFF");
+
+  // ==========================
+  // 2. DATA LOADING & EFFECTS
+  // ==========================
+  useEffect(() => {
+    async function load() {
+      if (portfolioData && portfolioData._id) {
+         isLoadedRef.current = true;
+         return; 
+      }
+      try {
+        let restored = location.state || {};
+        if (!restored.name) {
+           const savedLocal = localStorage.getItem("portfolioData");
+           if (savedLocal) restored = JSON.parse(savedLocal);
+        }
+        if (restored._id) {
+           const fresh = await getPortfolio(restored._id);
+           if (fresh) restored = { ...fresh };
+        }
+        if (!restored.template) {
+            restored.template = template || "modern";
+        }
+        setPortfolioData(restored);
+        isLoadedRef.current = true;
+        if(restored.themeBg) setThemeBg(restored.themeBg);
+        if(restored.themeFont) setThemeFont(restored.themeFont);
+      } catch (err) {
+        console.error("Load failed", err);
+      }
+    }
+    load();
+  }, []); 
+
+  useEffect(() => {
+    if (template && isLoadedRef.current) {
+        setPortfolioData(prev => {
+            if (prev?.template !== template) return { ...prev, template: template };
+            return prev;
+        });
+    }
+  }, [template]);
+
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // ==========================
+  // 3. LOGIC HANDLERS
+  // ==========================
+
+  const togglePanel = () => {
+    if (isPanelOpen) {
+        setIsPanelOpen(false);
+    } else {
+        setLeftPanelWidth(30);
+        setIsPanelOpen(true);
+    }
+  };
+
+  const startDragging = (e) => {
+    // Only prevent default if we are actually clicking the resize handle
+    // We do NOT want to prevent default on touch scrolling elsewhere
+    e.preventDefault(); 
+    setIsDragging(true);
+  };
+  
+  const stopDragging = () => setIsDragging(false);
+
+  const handleDragging = (e) => {
+    if (!isDragging) return;
+    const container = document.querySelector(".customize-container");
+    if(!container) return;
+    const rect = container.getBoundingClientRect();
+    const newWidth = ((e.clientX - rect.left) / rect.width) * 100;
+    if (newWidth > 20 && newWidth < 70) setLeftPanelWidth(newWidth);
+  };
+
+  useEffect(() => {
+    if (isDragging) {
+      window.addEventListener("mousemove", handleDragging);
+      window.addEventListener("mouseup", stopDragging);
+      document.body.style.cursor = "col-resize";
+      // This prevents text selection while resizing
+      document.body.style.userSelect = "none";
+    } else {
+      window.removeEventListener("mousemove", handleDragging);
+      window.removeEventListener("mouseup", stopDragging);
+      document.body.style.cursor = "default";
+      document.body.style.userSelect = "auto";
+    }
+    return () => {
+      window.removeEventListener("mousemove", handleDragging);
+      window.removeEventListener("mouseup", stopDragging);
+      document.body.style.cursor = "default";
+      document.body.style.userSelect = "auto";
+    };
+  }, [isDragging]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setPortfolioData({ ...portfolioData, [name]: value });
+  };
+
+  const handleGenerateBio = () => {
+    if(!portfolioData) return;
+    const { name, role, education, experience, skills, projects } = portfolioData;
+    const skillList = Array.isArray(skills) ? skills.map((s) => (s.name ? s.name : s)).join(", ") : skills || "";
+    const projectList = Array.isArray(projects) ? projects.map((p) => (p.title ? p.title : p)).join(", ") : projects || "";
+    const autoBio = `I'm ${name || "a passionate individual"}, working as ${role || "a developer"} with ${experience || "some"} of experience. I hold a degree in ${education || "Computer Science"} and specialize in ${skillList}. I've worked on projects like ${projectList}, focusing on innovation.`.trim();
+    setPortfolioData({ ...portfolioData, bio: autoBio });
+    setMessage("✨ Bio generated successfully!");
+    setTimeout(() => setMessage(""), 2500);
+  };
+
+  const handleSave = async () => {
+    try {
+      const saved = await saveOrUpdatePortfolio(portfolioData);
+      setPortfolioData(saved);
+      setMessage("✅ Portfolio saved successfully!");
+      setTimeout(() => setMessage(""), 2000);
+    } catch (err) {
+      console.error(err);
+      setMessage("❌ Failed to save portfolio.");
+      setTimeout(() => setMessage(""), 2500);
+    }
+  };
+
+  const handlePreview = async () => {
+    try {
+      const saved = await saveOrUpdatePortfolio(portfolioData);
+      setPortfolioData(saved);
+      setMessage("🚀 Portfolio saved! Redirecting...");
+      setTimeout(() => navigate(`/portfolio/${saved._id}`), 1000);
+    } catch (err) {
+      console.error(err);
+      setMessage("❌ Failed to preview portfolio.");
+      setTimeout(() => setMessage(""), 2500);
+    }
+  };
+
+  // Logic Helpers
+  const toggleSkill = (name) => {
+    const exists = portfolioData.skills?.find((s) => s.name === name);
+    if (exists) {
+      setPortfolioData({ ...portfolioData, skills: portfolioData.skills.filter((s) => s.name !== name) });
+    } else {
+      setPortfolioData({ ...portfolioData, skills: [...(portfolioData.skills || []), { name, level: skillLevel }] });
+    }
+    setSkillQuery("");
+  };
+
+  const addSkillManual = () => {
+    const n = skillQuery.trim();
+    if (!n) return;
+    if (!portfolioData.skills?.find((s) => s.name.toLowerCase() === n.toLowerCase())) {
+      setPortfolioData({ ...portfolioData, skills: [...(portfolioData.skills || []), { name: n, level: skillLevel }] });
+    }
+    setSkillQuery("");
+    setSkillLevel("Intermediate");
+  };
+
+  const removeSkillByName = (name) => {
+    setPortfolioData({ ...portfolioData, skills: portfolioData.skills.filter((s) => s.name !== name) });
+  };
+
+  const toggleProjectTech = (tech) => {
+    setProjectTechs((prev) => prev.includes(tech) ? prev.filter((t) => t !== tech) : [...prev, tech]);
+  };
+
+  const addProjectManual = () => {
+    const title = projectTitle.trim();
+    const techs = projectTechs.length ? projectTechs.join(", ") : projectTechQuery.trim();
+    if (!title) return;
+    setPortfolioData({
+      ...portfolioData,
+      projects: [...(portfolioData.projects || []), { title, tech: techs, github: projectGithub.trim(), demo: projectDemo.trim() }],
+    });
+    setProjectTitle(""); setProjectTechs([]); setProjectTechQuery(""); setProjectGithub(""); setProjectDemo("");
+  };
+
+  const removeProject = (idx) => {
+    setPortfolioData({ ...portfolioData, projects: portfolioData.projects.filter((_, i) => i !== idx) });
+  };
+
+  // ==========================
+  // 4. CALCULATIONS & SUB-COMPONENTS
+  // ==========================
+
+  let editorWidth = "0%";
+  if (showPreviewMobile) {
+    editorWidth = "0%";
+  } else if (windowWidth < 768) {
+    editorWidth = "100%"; 
+  } else if (viewMode === "mobile") {
+    editorWidth = isPanelOpen ? "35%" : "0%";
+  } else {
+    editorWidth = isPanelOpen ? `${leftPanelWidth}%` : "0px";
+  }
+
+  // Sticky Left Sidebar
+  const Sidebar = () => (
+    <div className="hidden md:flex flex-col items-center gap-6 w-16 bg-white border-r border-gray-200 py-6 z-50 shadow-lg flex-none">
+      
+      {/* 1. Toggle Editor */}
+      <div className="group relative">
+        <button 
+            onClick={togglePanel}
+            className={`p-3 rounded-xl transition-all ${isPanelOpen ? "bg-black text-white" : "bg-gray-100 text-gray-500 hover:bg-black hover:text-white"}`}
+        >
+            <Settings2 size={22} />
+        </button>
+        <span className="absolute left-14 top-2 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition whitespace-nowrap pointer-events-none">
+            {isPanelOpen ? "Close Editor" : "Open Editor"}
+        </span>
+      </div>
+
+      {/* 2. Theme Picker */}
+      <div className="group relative">
+        <button 
+            onClick={() => setShowThemeModal(true)}
+            className="p-3 bg-gray-100 text-gray-500 rounded-xl hover:bg-purple-600 hover:text-white transition-all"
+        >
+            <Palette size={22} />
+        </button>
+        <span className="absolute left-14 top-2 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition whitespace-nowrap pointer-events-none">
+            Change Template
+        </span>
+      </div>
+
+      <div className="flex-1 w-full flex justify-center">
+        <div className="w-[1px] h-full bg-gray-100"></div>
+      </div>
+
+      {/* 3. Save */}
+      <div className="group relative">
+        <button 
+            onClick={handleSave}
+            className="p-3 bg-gray-100 text-gray-500 rounded-xl hover:bg-green-600 hover:text-white transition-all"
+        >
+            <Save size={22} />
+        </button>
+        <span className="absolute left-14 top-2 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition whitespace-nowrap pointer-events-none">
+            Save Draft
+        </span>
+      </div>
+
+      {/* 4. Deploy */}
+      <div className="group relative">
+        <button 
+            onClick={handlePreview}
+            className="p-3 bg-black text-white rounded-xl hover:bg-purple-600 transition-all shadow-lg shadow-purple-200"
+        >
+            <Rocket size={22} />
+        </button>
+        <span className="absolute left-14 top-2 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition whitespace-nowrap pointer-events-none">
+            Deploy Live
+        </span>
+      </div>
+    </div>
+  );
+
+  // ==========================
+  // 5. MAIN RENDER
+  // ==========================
+  if (!portfolioData) return <div className="bg-black min-h-screen text-white flex items-center justify-center">Loading...</div>;
+
+  return (
+    // ✅ FIX 1: Use 100dvh for mobile address bar support & prevent global body scroll
+    <div className="flex flex-col h-[100dvh] bg-black text-white customize-container ">
+      
+      {/* Top Navigation */}
+      <div className="flex-none">
+        <EditHeader 
+          setViewMode={setViewMode} 
+          viewMode={viewMode} 
+          onOpenThemes={() => setShowThemeModal(true)} 
+        />
+      </div>
+
+      <PopupMessage message={message} onClose={() => setMessage("")} />
+      
+      {showThemeModal && (
+        <ThemePopup 
+          onClose={() => setShowThemeModal(false)} 
+          onSelect={(k) => {
+            setPortfolioData(prev => ({ ...prev, template: k }));
+            window.history.replaceState(null, "", `/customize/${k}`);
+            setMessage(`Theme changed to ${TEMPLATE_LIST?.[k]?.label || k}`);
+            setTimeout(() => setMessage(""), 2000);
+          }} 
+        />
+      )}
+
+      {/* Mobile Top Bar */}
+      <div className="md:hidden flex-none flex justify-between items-center p-4 bg-[#111] border-b border-gray-800 z-40">
+        <button onClick={() => setShowPreviewMobile(false)} className={`px-5 py-2 rounded-full font-bold text-xs transition-all ${!showPreviewMobile ? "bg-white text-black" : "bg-[#222] text-gray-400"}`}>Editor</button>
+        <button onClick={() => setShowPreviewMobile(true)} className={`px-5 py-2 rounded-full font-bold text-xs transition-all ${showPreviewMobile ? "bg-purple-600 text-white" : "bg-[#222] text-gray-400"}`}>Preview</button>
+      </div>
+
+      {/* MAIN WORKSPACE (Flex Row) */}
+      {/* ✅ FIX 2: min-h-0 is CRITICAL for flex children to scroll properly */}
+      <div className="flex flex-1 relative min-h-0 w-full">
+        
+        {/* 1. THE SIDEBAR */}
+        {!showPreviewMobile && <Sidebar />}
+
+        {/* 2. THE EDITOR PANEL */}
+        <div 
+            style={{ 
+                width: editorWidth, 
+                transition: isDragging ? "none" : "width 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)",
+                opacity: (isPanelOpen || windowWidth < 768) ? 1 : 0
+            }} 
+            // ✅ FIX 3: Remove h-full/overflow-hidden here to avoid scroll trapping
+            className={`${showPreviewMobile ? "hidden" : "flex"} flex-col bg-gray-50 border-r border-gray-200 shadow-2xl z-30 min-h-0`}
+        >
+            {/* Header */}
+            <div className="flex-none flex justify-between items-center p-4 border-b border-gray-200 bg-white sticky top-0 z-10">
+                <h3 className="font-bold text-gray-800 flex items-center gap-2">
+                    <LayoutTemplate size={18} className="text-purple-600"/> 
+                    Editor
+                </h3>
+                <button 
+                    onClick={() => setIsPanelOpen(false)}
+                    className="p-1.5 rounded-md hover:bg-gray-100 text-gray-400 hover:text-red-500 transition-colors"
+                >
+                    <X size={20} />
+                </button>
+            </div>
+
+            {/* Scrollable Content */}
+            {/* ✅ FIX 4: Added overscroll-contain & touch-pan-y for smooth mobile drag */}
+            <div className="flex-1  overscroll-contain touch-pan-y scroll-smooth">
+                <LeftPanel
+                    width={leftPanelWidth} 
+                    portfolioData={portfolioData} setPortfolioData={setPortfolioData}
+                    handleChange={handleChange} handleGenerateBio={handleGenerateBio}
+                    handleSave={handleSave} handlePreview={handlePreview}
+                    
+                    toggleSkill={toggleSkill} addSkillManual={addSkillManual} removeSkillByName={removeSkillByName}
+                    skillLevel={skillLevel} setSkillLevel={setSkillLevel} skillQuery={skillQuery} setSkillQuery={setSkillQuery}
+
+                    toggleProjectTech={toggleProjectTech} addProjectManual={addProjectManual} removeProject={removeProject}
+                    projectTitle={projectTitle} setProjectTitle={setProjectTitle}
+                    projectGithub={projectGithub} setProjectGithub={setProjectGithub}
+                    projectDemo={projectDemo} setProjectDemo={setProjectDemo}
+                    projectTechs={projectTechs} setProjectTechs={setProjectTechs}
+                    projectTechQuery={projectTechQuery} setProjectTechQuery={setProjectTechQuery}
+                    
+                    themeBg={themeBg} setThemeBg={setThemeBg}
+                    themeFont={themeFont} setThemeFont={setThemeFont}
+                />
+            </div>
+        </div>
+
+        {/* 3. RESIZER HANDLE */}
+        {viewMode === "dual" && isPanelOpen && !showPreviewMobile && (
+          <div 
+            onMouseDown={startDragging} 
+            className={`hidden md:flex items-center justify-center w-[4px] cursor-col-resize hover:bg-purple-500 transition-colors z-40 bg-gray-200 ${isDragging ? "bg-purple-500" : ""}`}
+          ></div>
+        )}
+
+        {/* 4. PREVIEW AREA */}
+        {/* ✅ FIX 5: Ensure Preview handles scrolling independently */}
+        <div className={`flex-1 min-h-0 relative bg-black ${showPreviewMobile ? "block" : "hidden"} md:block`}>
+             {/* Overlay for resize dragging protection */}
+            {isDragging && <div className="absolute inset-0 bg-transparent z-50 pointer-events-none"></div>}
+            
+            <div className="h-full w-full overscroll-contain touch-pan-y">
+               <RightPanel portfolioData={portfolioData} />
+            </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Customize;

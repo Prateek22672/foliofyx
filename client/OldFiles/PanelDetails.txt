@@ -1,0 +1,104 @@
+// src/pages/Portfolio/Customize/panels/PanelDetails.jsx
+import React from "react";
+import SearchSuggestion from "../../../components/SearchSuggestion";
+
+const PanelDetails = ({ 
+  portfolioData, setPortfolioData, handleChange, handleGenerateBio, 
+  toggleSkill, removeSkillByName, skillLevel, setSkillLevel, 
+  projectTitle, setProjectTitle, projectGithub, setProjectGithub, addProjectManual, removeProject 
+}) => {
+  
+  const isBusiness = portfolioData.type === "business";
+
+  return (
+    <div className="p-5 h-full overflow-y-auto pb-20">
+      <h2 className="text-lg font-bold text-gray-900 mb-6">Site Details</h2>
+
+      {/* Info Section */}
+      <section className="space-y-5 mb-8">
+        <div>
+          <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">
+            {isBusiness ? "Company Name" : "Full Name"}
+          </label>
+          <input
+            name="name"
+            value={portfolioData.name || ""}
+            onChange={handleChange}
+            className="w-full p-3 rounded-xl bg-white border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-100 outline-none transition text-sm font-medium"
+          />
+        </div>
+
+        <div>
+          <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">
+            Title / Role
+          </label>
+          <input
+             name="role"
+             value={portfolioData.role || ""}
+             onChange={handleChange}
+             className="w-full p-3 rounded-xl bg-white border border-gray-200 focus:border-purple-500 outline-none text-sm font-medium"
+          />
+        </div>
+
+        <div>
+          <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">
+            Bio / Description
+          </label>
+          <textarea
+            name="bio"
+            rows={4}
+            value={portfolioData.bio || ""}
+            onChange={handleChange}
+            className="w-full p-3 rounded-xl bg-white border border-gray-200 focus:border-purple-500 outline-none text-sm leading-relaxed resize-none"
+          />
+          <button
+            onClick={handleGenerateBio}
+            className="mt-2 w-full py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white text-xs font-bold rounded-lg hover:shadow-lg transition-all"
+          >
+            ✨ AI Rewrite Bio
+          </button>
+        </div>
+      </section>
+
+      <hr className="border-gray-100 my-6" />
+
+      {/* Skills Section */}
+      <section className="mb-8">
+        <h3 className="text-sm font-bold text-gray-900 mb-3">Skills & Expertise</h3>
+        <div className="flex gap-2 mb-3">
+            <select
+              value={skillLevel}
+              onChange={(e) => setSkillLevel(e.target.value)}
+              className="bg-white border border-gray-200 text-gray-700 text-xs rounded-lg px-2 outline-none"
+            >
+              <option>Basic</option>
+              <option>Intermediate</option>
+              <option>Expert</option>
+            </select>
+            <div className="flex-1">
+              <SearchSuggestion
+                dataFile="skills.txt"
+                multiple={false}
+                selected={null}
+                onSelect={(v) => toggleSkill(v)}
+                placeholder="Add skill..."
+                className="text-sm"
+              />
+            </div>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {portfolioData.skills?.map((s) => (
+            <div key={s.name} className="flex items-center bg-white border border-gray-200 px-3 py-1.5 rounded-full text-xs shadow-sm">
+              <span className="font-bold text-gray-700">{s.name}</span>
+              <button onClick={() => removeSkillByName(s.name)} className="ml-2 text-gray-300 hover:text-red-500">✕</button>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Add more sections (Projects, Links) here as needed, simplified for brevity */}
+    </div>
+  );
+};
+
+export default PanelDetails;

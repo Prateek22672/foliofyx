@@ -1,0 +1,285 @@
+import React, { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useSplash } from "../../context/SplashContext";
+import { motion, AnimatePresence } from "framer-motion"; // Import Animation helpers
+
+import Footer from "../../components/Footer";
+import ThemesLandingHero from "./components/ThemesLandingHero";
+import ThemeCard from "./components/ThemeCard";
+import ThemeCardCTA from "./components/ThemeCardCTA";
+import ThemeCardFooter from "./components/ThemeCardFooter";
+import ThemePreviewModal from "./components/ThemePreviewModal";
+
+const themes = [
+  // --- EXISTING (Now with Tags) ---
+  {
+    id: 1,
+    name: "Coco Gonser",
+    image: "/themes/p1.png",
+    available: false,
+    themeKey: "coco",
+    tags: ["Photographer", "Dark Mode", "Portrait"]
+  },
+  {
+    id: 3,
+    name: "Rose Ben Yehuda",
+    image: "/themes/p3.png",
+    available: false,
+    themeKey: "rose",
+    tags: ["Fashion", "Model", "Light"]
+  },
+  {
+    id: 4,
+    name: "Creative Art",
+    image: "/themes/p4.png",
+    available: false,
+    themeKey: "art",
+    tags: ["Art", "Creative", "Colorful"]
+  },
+  {
+    id: 5,
+    name: "Collab Studio",
+    image: "/themes/p5.png",
+    available: false,
+    themeKey: "collab",
+    tags: ["Agency", "Business", "Professional"]
+  },
+  {
+    id: 6,
+    name: "Lemontree Co.",
+    image: "/themes/p6.png",
+    available: false,
+    themeKey: "lemontree",
+    tags: ["Nature", "Organic", "Green"]
+  },
+
+  // --- NEW (With Tags) ---
+  {
+    id: 7,
+    name: "Nexus™",
+    image: "/preview/nexus/nexus.jpg",
+    available: true,
+    themeKey: "FolioFYX Studio Crafted",
+    tags: ["Dark Mode", "Agency", "Futuristic"]
+  },
+  {
+    id: 8,
+    name: "The Grand Aesthetic Era™",
+    image: "/preview/theEra/grandEra.jpg",
+    available: true,
+    themeKey: "Aesthetic era",
+    tags: ["Luxury", "Typography", "Editorial"]
+  },
+  {
+    id: 9,
+    name: "Luxe™",
+    image: "/preview/luxe/luxe.jpg",
+    available: true,
+    themeKey: "Aesthetic era",
+    tags: ["Photography", "Dark", "Premium"]
+  },
+  {
+    id: 10,
+    name: "Plexis™",
+    image: "/preview/plexis/plexis.jpg",
+    available: true,
+    themeKey: "Aesthetic era",
+    tags: ["Grid", "Creative", "Colorful"]
+  },
+  {
+    id: 11,
+    name: "Minimal™",
+    image: "/themes/minimalTemp.jpg",
+    available: true,
+    themeKey: "minimal",
+    tags: ["Clean", "Resume", "Fast"]
+  },
+  {
+    id: 2,
+    name: "ParallaxBlocks™",
+    image: "/themes/p2.png",
+    available: true,
+    themeKey: "studentbright",
+    tags: ["Motion", "Interactive", "Student"]
+  },
+  {
+    id: 12,
+    name: "Prateek™'s Studio",
+    image: "/themes/p7.png",
+    available: true,
+    themeKey: "modern",
+    tags: ["Developer", "Case Study", "Bold"]
+  },
+];
+
+// ... (Your themes array remains exactly the same, omitted for brevity) ...
+// const themes = [ ... ];
+
+const ThemesPage = () => {
+  const navigate = useNavigate();
+  const { showSplash } = useSplash();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedTheme, setSelectedTheme] = useState(null);
+
+  const handleStart = (themeKey) => {
+    showSplash(
+      2500,
+      () => navigate("/create", { state: { selectedTheme: themeKey } }),
+      "Setting up your theme..."
+    );
+  };
+
+  const { allMatches, specialThemes, regularThemes } = useMemo(() => {
+    // 1. If searching, return filtered list for everything
+    if (searchTerm) {
+      const q = searchTerm.toLowerCase();
+      const matches = themes.filter((t) => {
+        const inName = t.name.toLowerCase().includes(q);
+        const inKey = t.themeKey.toLowerCase().includes(q);
+        const inTags = t.tags && t.tags.some(tag => tag.toLowerCase().includes(q));
+        return inName || inKey || inTags;
+      });
+
+      return { allMatches: matches, specialThemes: [], regularThemes: [] };
+    }
+
+    // 2. If NOT searching, return split lists
+    const specialIds = [9, 10, 11, 7, 8, 2];
+    return {
+      allMatches: [],
+      specialThemes: themes.filter((t) => specialIds.includes(t.id)),
+      regularThemes: themes.filter((t) => !specialIds.includes(t.id)),
+    };
+  }, [searchTerm]); // Removed 'themes' from dependency if it's defined outside component
+
+  const isSearching = searchTerm.length > 0;
+
+  return (
+    <>
+      <div className="bg-[#FDFCF8] min-h-screen pb-20">
+        
+        {/* HERO */}
+        <ThemesLandingHero
+          handleStart={handleStart}
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+        />
+
+        {/* State Flow Visualization */}
+        {/*  */}
+
+        <AnimatePresence mode="wait">
+          {isSearching ? (
+            /* ================= SEARCH VIEW ================= */
+            <motion.div
+              key="search-view"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              className="max-w-7xl mx-auto px-6 md:px-16 mt-8"
+            >
+              <div className="flex items-center gap-4 mb-8">
+                <h2 className="text-xl text-gray-400">
+                  Found <span className="text-black font-bold">{allMatches.length}</span> results for "<span className="text-black italic">{searchTerm}</span>"
+                </h2>
+                <div className="h-[1px] flex-grow bg-gray-200"></div>
+              </div>
+
+              {allMatches.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-12">
+                  {allMatches.map((theme, index) => (
+                    <ThemeCard
+                      key={theme.id}
+                      theme={theme}
+                      index={index}
+                      handleStart={handleStart}
+                      openPreview={setSelectedTheme}
+                      // Default is light, no prop needed
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-20 bg-gray-50 rounded-3xl border border-dashed border-gray-300">
+                  <p className="text-gray-400 text-lg">No themes found matching your search.</p>
+                  <button onClick={() => setSearchTerm("")} className="mt-4 text-black underline font-semibold">
+                    Clear Search
+                  </button>
+                </div>
+              )}
+            </motion.div>
+          ) : (
+            /* ================= EDITORIAL VIEW ================= */
+            <motion.div
+              key="editorial-view"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              {/* 1. SPECIALS SECTION (Dark Mode) */}
+              <section className="bg-[#0a0a0a] text-white py-24 px-6 md:px-16 rounded-3xl mx-2 sm:mx-6 md:mx-10 mt-[-50px] relative z-10 shadow-2xl overflow-hidden">
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-purple-900/30 blur-[120px] rounded-full pointer-events-none"></div>
+                
+                <div className="max-w-7xl mx-auto relative z-10">
+                  <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
+                    <div>
+                      <h4 className="text-purple-400 font-mono text-xs uppercase tracking-[0.2em] mb-4">FolioFYX Originals</h4>
+                      <h2 className="text-4xl md:text-6xl font-black tracking-tighter leading-[0.9]">
+                        HANDCRAFTED <br /> <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-white">COLLECTION.</span>
+                      </h2>
+                    </div>
+                    {/* Ensure this path is correct or imported */}
+                    <img src="/logow.png" alt="Logo" className="w-20 absolute top-0 right-5" />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-16">
+                    {specialThemes.map((theme, index) => (
+                      <ThemeCard 
+                        key={theme.id} 
+                        theme={theme} 
+                        index={index} 
+                        handleStart={handleStart} 
+                        openPreview={setSelectedTheme}
+                        isDark={true} // PASSING THE PROP HERE
+                      />
+                    ))}
+                  </div>
+                </div>
+              </section>
+
+              {/* 2. REGULAR SECTION (Light Mode) */}
+              <section className="py-32 px-6 md:px-16 max-w-7xl mx-auto">
+                <div className="flex items-center gap-6 mb-16">
+                  <div className="w-3 h-3 bg-black rounded-full"></div>
+                  <h2 className="text-2xl font-bold uppercase tracking-widest text-black">Classic Essentials</h2>
+                  <div className="h-[1px] flex-grow bg-gray-200"></div>
+                </div>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-20">
+                  {regularThemes.map((theme, index) => (
+                    <ThemeCard 
+                        key={theme.id} 
+                        theme={theme} 
+                        index={index} 
+                        handleStart={handleStart} 
+                        openPreview={setSelectedTheme}
+                        // Default isLight implied
+                    />
+                  ))}
+                </div>
+
+                <ThemeCardCTA handleStart={handleStart} />
+                <ThemeCardFooter />
+              </section>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      <Footer />
+      <ThemePreviewModal theme={selectedTheme} onClose={() => setSelectedTheme(null)} onStart={handleStart} />
+    </>
+  );
+};
+
+export default ThemesPage;

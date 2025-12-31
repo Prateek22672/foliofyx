@@ -1,0 +1,38 @@
+/* ✅ KEEP SYSTEM POINTER */
+body, a, button, input, textarea {
+  cursor: auto !important;
+}
+
+/* ✅ PURE BLACK DOT BEHIND POINTER */
+.custom-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+
+  width: 10px;
+  height: 10px;
+
+  background-color: #000000 !important;
+  border-radius: 50%;
+
+  pointer-events: none;
+  z-index: 999999999;
+
+  /* We handle positioning entirely in JS now for maximum smoothness */
+  will-change: transform;
+
+  /* ✅ FORCE NO COLOR EFFECTS */
+  mix-blend-mode: normal !important;
+  filter: none !important;
+  backdrop-filter: none !important;
+  
+  /* Optional: Smooth transition for the hover size change only */
+  transition: width 0.3s ease, height 0.3s ease, background-color 0.3s ease;
+}
+
+/* Example hover state */
+.custom-cursor.hovered {
+  width: 20px;
+  height: 20px;
+  opacity: 0.5;
+}
