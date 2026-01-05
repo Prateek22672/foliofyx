@@ -1,8 +1,8 @@
 import React from "react";
 import { motion } from "framer-motion";
 
-// --- MOCK DATA FOR TEMPLATES ---
-const TEMPLATES = [
+// --- MOCK DATA ---
+const RAW_TEMPLATES = [
   { id: 1, title: "Algo", tag: "SaaS", color: "#E11D48", src: "/preview/veloura/whiteMobile.png" },
   { id: 2, title: "Lumina", tag: "Web3", color: "#7C3AED", src: "/preview/luxe/blackMobile.png" },
   { id: 3, title: "Brand", tag: "Identity", color: "#2563EB", src: "/preview/neonix/whiteMobile.png" },
@@ -12,152 +12,135 @@ const TEMPLATES = [
   { id: 7, title: "Sonar", tag: "Audio", color: "#10B981", src: "/preview/pulse/whiteMobile.png" },
   { id: 9, title: "Flow", tag: "Agency", color: "#3B82F6", src: "/preview/theEra/blackMobile3.png" },
   { id: 10, title: "Orbit", tag: "Startup", color: "#059669", src: "/preview/plexis/whiteMobile.png" },
-
 ];
 
-// 1. REUSABLE MOBILE CARD COMPONENT
-const MobileCard = ({ src, title, subtitle, color }) => (
-  <div className="relative group w-full aspect-[9/18] rounded-[40px] overflow-hidden border-[8px] border-[#121212] bg-[#050505] shadow-2xl shadow-black/50 transform transition-all duration-700 hover:scale-[1.03] hover:shadow-purple-500/20">
+// Double the array for seamless looping
+const TEMPLATES = [...RAW_TEMPLATES, ...RAW_TEMPLATES];
 
-    {/* Screen Content (Image) */}
-    <div className="absolute inset-0 w-full h-full overflow-hidden rounded-[30px]">
+// --- COMPONENT: SINGLE MOBILE CARD ---
+const MobileCard = ({ src, title, subtitle, color }) => (
+  <div className="relative group w-full aspect-[9/18] rounded-[30px] overflow-hidden border-[4px] md:border-[6px] border-[#121212] bg-[#050505] shadow-lg transform transition-all duration-500 hover:scale-[1.02]">
+    
+    {/* Image */}
+    <div className="absolute inset-0 w-full h-full">
       <img
         src={src}
         alt={title}
-        className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+        loading="lazy"
+        className="w-full h-full object-cover"
       />
-
-      {/* Mobile Status Bar Hint */}
-      <div className="absolute top-0 left-0 w-full h-8 bg-gradient-to-b from-black/80 to-transparent z-10 pointer-events-none" />
-
-      {/* Dark Overlay Gradient (Fade out on hover) */}
-      <div className="absolute inset-0 bg-black/40 group-hover:bg-black/10 transition-colors duration-500" />
+      {/* Glossy Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-tr from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
     </div>
 
     {/* Content Overlay */}
-    <div className="absolute bottom-0 left-0 w-full p-8 flex flex-col items-center text-center z-20">
-      <motion.div
-        className="px-4 py-1.5 rounded-full text-[11px] font-black uppercase tracking-[0.2em] mb-4 border border-white/20 backdrop-blur-xl shadow-lg"
+    <div className="absolute bottom-0 left-0 w-full p-4 md:p-6 flex flex-col items-center text-center z-20 bg-gradient-to-t from-black/90 via-black/40 to-transparent">
+      <span
+        className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest mb-2 border border-white/10 backdrop-blur-md shadow-sm"
         style={{ backgroundColor: color, color: '#fff' }}
-        whileHover={{ scale: 1.1 }}
       >
         {subtitle}
-      </motion.div>
-      <h3 className="text-4xl font-black text-white leading-none mb-2 drop-shadow-lg">{title}</h3>
-      <p className="text-xs text-white/70 font-bold uppercase tracking-widest">FolioFyX Template</p>
+      </span>
+      <h3 className="text-2xl md:text-3xl font-black text-white leading-none drop-shadow-md">
+        {title}
+      </h3>
     </div>
   </div>
 );
 
-const SectionBento = ({ scrollProgress = 0 }) => {
-  // CONFIGURATION: Controls the Parallax Feel
-  const START_OFFSET = 0.8;
-  // Adjusted speeds from previous fix to ensure bottom scrolling
-  const SPEED_FAST = 55;
-  const SPEED_SLOW = 35;
+// --- COMPONENT: SCROLLING COLUMN ---
+const MarqueeColumn = ({ items, duration, direction = "up" }) => {
+    // Calculate approximate total height for seamless loop
+    const itemHeight = 18 / 9; // aspect ratio height multiplier (assuming width=1)
+    const gap = 24; // 6 * 4px gap in rem, but using px for calc
+    const totalItems = items.length;
+    const totalHeight = totalItems * (itemHeight * 100 + gap) - gap; // rough estimate in vh or px
 
-  const activeScroll = Math.max(0, scrollProgress - START_OFFSET);
-
-  return (
-    <div className="w-full h-full bg-[#030303] text-white overflow-hidden flex flex-col relative py-10">
-
-      {/* 1. HEADER - FIXED VISIBILITY */}
-      <div className="absolute top-0 left-0 w-full z-30 pt-32 pb-20 px-6 md:px-12 bg-gradient-to-b from-[#030303] via-[#030303]/90 to-transparent pointer-events-none">
-        <div className="max-w-[1800px] mx-auto text-center">
-          <motion.div
-            // FIX: Removed 'whileInView' which breaks in fixed containers.
-            // Switched to simple 'animate' so it is always visible once rendered.
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
-          >
-            {/* Wrapped in a flex col div to ensure the button centers easily beneath text */}
-            <div className="flex flex-col items-center text-center">
-              {/* 1. Header and Image Alignment & Size Decrease */}
-              {/* Changed text-6xl/7xl to text-4xl/5xl. Added flex to align image next to text. */}
-              <h2 className="text-4xl md:text-5xl font-black tracking-tighter mb-5 text-white leading-tight flex items-center justify-center gap-3">
-                Built with
-                {/* Removed absolute positioning. Added specific heights so it sits perfectly beside text */}
-                <img className="h-8 md:h-12 w-auto object-contain " src="/logow.png" alt="Logo" />
-              </h2>
-
-              {/* 2. Paragraph Size Decrease */}
-              {/* Changed text-xl/2xl to text-base/lg. Added mb-8 for spacing above button. */}
-              <p className="text-base md:text-lg text-gray-400 max-w-2xl mx-auto font-medium leading-relaxed mb-8">
-                Explore thousands of mobile-first portfolios created by our community. <br className="hidden md:block" />
-                Design that adapts to every screen, instantly.
-              </p>
-
-              {/* 3. New Button Added */}
-              <button className="group relative inline-flex items-center justify-center px-8 py-3 font-bold text-white transition-all duration-200 bg-indigo-600 font-['Wix_Madefor_Text'] rounded-full hover:bg-purple-700 hover:scale-105 shadow-lg shadow-purple-500/30">
-                Explore Templates
-                {/* Arrow icon that moves slightly on hover */}
-                <svg className="w-5 h-5 ml-2 -mr-1 transition-transform group-hover:translate-x-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                  <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd"></path>
-                </svg>
-              </button>
-            </div>
-          </motion.div>
+    return (
+        <div className="relative flex flex-col overflow-hidden h-[120vh] md:h-[150vh]">
+            <motion.div
+                className="flex flex-col gap-6"
+                animate={{
+                    y: direction === "up" ? [0, `-${totalHeight}px`] : [`-${totalHeight}px`, 0],
+                }}
+                transition={{
+                    repeat: Infinity,
+                    duration: duration,
+                    ease: "linear",
+                }}
+                style={{ willChange: "transform" }} // Optimize for smooth animation
+            >
+                {items.map((item, idx) => (
+                    <MobileCard key={`${item.id}-${idx}`} {...item} />
+                ))}
+            </motion.div>
         </div>
-      </div>
-
-      {/* 2. MOBILE SCREEN COLUMNS (Parallax) */}
-      <div className="flex-1 px-4 mt-12 md:px-8 overflow-hidden flex items-start justify-center gap-6 md:gap-12 h-[150vh] origin-top">
-
-        {/* --- COLUMN 1 (LEFT - SLOW) --- */}
-        <div
-          className="w-1/3 md:w-[28%] flex flex-col gap-8 md:gap-16 pt-48 will-change-transform opacity-80 hover:opacity-100 transition-opacity duration-500"
-          style={{ transform: `translateY(${-activeScroll * SPEED_SLOW}vh)` }}
-        >
-          {TEMPLATES.slice(0, 3).map((item) => (
-            <MobileCard
-              key={item.id}
-              src={item.src}
-              title={item.title}
-              subtitle={item.tag}
-              color={item.color}
-            />
-          ))}
-        </div>
-
-        {/* --- COLUMN 2 (MIDDLE - FAST & FOCUSED) --- */}
-        <div
-          className="w-1/3 md:w-[28%] flex flex-col gap-8 md:gap-16 pt-96 will-change-transform z-10"
-          style={{ transform: `translateY(${-activeScroll * SPEED_FAST}vh)` }}
-        >
-          {TEMPLATES.slice(3, 6).map((item) => (
-            <MobileCard
-              key={item.id}
-              src={item.src}
-              title={item.title}
-              subtitle={item.tag}
-              color={item.color}
-            />
-          ))}
-        </div>
-
-        {/* --- COLUMN 3 (RIGHT - SLOW) --- */}
-        <div
-          className="w-1/3 md:w-[28%] flex flex-col gap-8 md:gap-16 pt-48 will-change-transform opacity-80 hover:opacity-100 transition-opacity duration-500"
-          style={{ transform: `translateY(${-activeScroll * SPEED_SLOW}vh)` }}
-        >
-          {TEMPLATES.slice(6, 9).map((item) => (
-            <MobileCard
-              key={item.id}
-              src={item.src}
-              title={item.title}
-              subtitle={item.tag}
-              color={item.color}
-            />
-          ))}
-        </div>
-
-      </div>
-
-      {/* Bottom Fade Gradient */}
-      <div className="absolute bottom-0 left-0 w-full h-64 bg-gradient-to-t from-[#030303] via-[#030303]/80 to-transparent z-20 pointer-events-none" />
-    </div>
-  );
+    );
 };
 
-export default SectionBento;
+// --- MAIN SECTION ---
+export default function SectionBento() {
+  return (
+    <section 
+      className="relative w-full bg-[#080808] z-30 rounded-t-[60px] -mt-[60px] pb-20 border-t border-white/10 shadow-[0_-50px_100px_rgba(0,0,0,0.8)]"
+      style={{ minHeight: "60vh" }} 
+    >
+        {/* 1. HEADER */}
+        <div className="pt-24 pb-12 px-6 text-center">
+            <motion.div 
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8 }}
+                className="max-w-3xl mx-auto"
+            >
+                <h2 className="text-4xl md:text-6xl font-black text-white tracking-tighter mb-4">
+                    Choose Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">Vibe.</span>
+                </h2>
+                <p className="text-neutral-400 text-sm md:text-lg max-w-xl mx-auto">
+                    Thousands of community-crafted templates. <br className="hidden md:block"/>
+                    From minimalist monochrome to vibrant neons.
+                </p>
+            </motion.div>
+        </div>
+
+        {/* 2. INFINITE SCROLL COLUMNS */}
+        {/* Constrained container width on desktop (max-w-6xl) to keep cards smaller */}
+        <div className="container mx-auto px-4 max-w-6xl">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 h-[80vh] md:h-[100vh] overflow-hidden">
+                
+                {/* Column 1: Slow Up (Hidden on Mobile, Visible Tablet+) */}
+                <div className="hidden md:block">
+                     <MarqueeColumn items={TEMPLATES.slice(0, 6)} duration={45} direction="up" />
+                </div>
+
+                {/* Column 2: Fast Down (Visible Mobile & Desktop) */}
+                <div>
+                     <MarqueeColumn items={TEMPLATES.slice(6, 12)} duration={35} direction="down" />
+                </div>
+
+                {/* Column 3: Slow Up (Visible Mobile & Desktop) */}
+                <div>
+                     <MarqueeColumn items={TEMPLATES.slice(12, 18)} duration={50} direction="up" />
+                </div>
+
+                {/* Column 4: Med Down (Visible Desktop Only) */}
+                <div className="hidden lg:block">
+                     <MarqueeColumn items={TEMPLATES.slice(2, 8)} duration={40} direction="down" />
+                </div>
+
+            </div>
+        </div>
+
+        {/* 3. BOTTOM CTA */}
+        <div className="absolute bottom-10 left-0 w-full flex justify-center z-20 pointer-events-none">
+             <div className="bg-gradient-to-t from-[#080808] via-[#080808]/90 to-transparent w-full h-40 absolute bottom-0"></div>
+             <button className="pointer-events-auto relative bg-white text-black font-bold px-8 py-4 rounded-full hover:scale-105 hover:shadow-[0_0_30px_rgba(255,255,255,0.3)] transition-all flex items-center gap-2">
+                Explore All Templates
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+             </button>
+        </div>
+    </section>
+  );
+}

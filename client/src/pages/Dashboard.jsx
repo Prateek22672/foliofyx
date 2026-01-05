@@ -22,39 +22,51 @@ const Dashboard = () => {
 
   const { user, loading, logout } = useAuth();
 
-useEffect(() => {
-  if (loading) return; // ⏳ wait for auth to finish
+  useEffect(() => {
+    // 1. Check for token in storage manually to prevent premature redirect
+    const token = localStorage.getItem("accessToken");
 
-  if (!user) {
-    navigate("/login");
-    return;
-  }
+    // ⏳ If Auth Context is still loading, do nothing yet.
+    if (loading) return;
 
-  let isMounted = true;
-
-  (async () => {
-    try {
-      const res = await getAllPortfolios(); // axiosInstance already has token
-
-      if (isMounted) {
-        setPortfolios(Array.isArray(res) ? res : []);
-      }
-    } catch (err) {
-      console.error("Failed to fetch portfolios:", err);
-
-      if (err.response?.status === 401) {
-        logout();           // single source of truth
-        navigate("/login");
-      }
-    } finally {
-      if (isMounted) setIsLoading(false);
+    // 🔒 If no user AND no token in storage, then redirect to login.
+    if (!user && !token) {
+      navigate("/login");
+      return;
     }
-  })();
 
-  return () => {
-    isMounted = false;
-  };
-}, [user, loading, logout, navigate]);
+    // ⏳ If we have a token but 'user' is null, wait (Auth Context is likely restoring session)
+    if (!user && token) {
+      return; 
+    }
+
+    // ✅ Only fetch data if we have a user
+    let isMounted = true;
+
+    (async () => {
+      try {
+        const res = await getAllPortfolios(); 
+
+        if (isMounted) {
+          setPortfolios(Array.isArray(res) ? res : []);
+        }
+      } catch (err) {
+        console.error("Failed to fetch portfolios:", err);
+
+        if (err.response?.status === 401) {
+          // Only logout if the server explicitly rejects the token
+          logout(); 
+          navigate("/login");
+        }
+      } finally {
+        if (isMounted) setIsLoading(false);
+      }
+    })();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [user, loading, logout, navigate]);
 
 
   // Handle delete
@@ -87,7 +99,8 @@ useEffect(() => {
   const cardVariants = { hidden: { opacity: 0, y: 30 }, show: { opacity: 1, y: 0, transition: { type: "spring", bounce: 0.4 } } };
 
   // ✅ LOADING VIEW
-  if (isLoading) {
+  // Show loader if fetching portfolios OR if we are waiting for Auth to initialize
+  if (isLoading || loading) {
     return (
         <div className="min-h-screen flex items-center justify-center bg-white text-black">
             <div className="flex flex-col items-center gap-4">
@@ -128,8 +141,8 @@ useEffect(() => {
                 transition-all duration-300
                 shadow-xl
                 ${isCreationLocked 
-                    ? "bg-neutral-100 text-neutral-400 cursor-not-allowed border border-neutral-200 hover:bg-neutral-100" 
-                    : "bg-black text-white hover:scale-105 hover:shadow-2xl hover:bg-neutral-900 active:scale-95 shadow-black/20"}
+                  ? "bg-neutral-100 text-neutral-400 cursor-not-allowed border border-neutral-200 hover:bg-neutral-100" 
+                  : "bg-black text-white hover:scale-105 hover:shadow-2xl hover:bg-neutral-900 active:scale-95 shadow-black/20"}
               `}
             >
               {isCreationLocked ? <Lock size={20} /> : <Plus size={20} className="text-white group-hover:rotate-90 transition-transform duration-300" />}

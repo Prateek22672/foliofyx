@@ -1,3 +1,4 @@
+// src/pages/pricing/components/BentoItem.jsx
 import React from "react";
 import { motion } from "framer-motion";
 
@@ -18,7 +19,7 @@ const BentoItem = ({ title, sub, icon: Icon, colSpan, rowSpan, children, tags = 
         </div>
         <div className="mb-4">
           <h3 className="text-2xl font-bold text-white mb-2">{title}</h3>
-          <p className="text-neutral-400 text-sm">{sub}</p>
+          <p className="text-neutral-400 text-sm leading-relaxed">{sub}</p>
         </div>
         {tags.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-6">

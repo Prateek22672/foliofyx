@@ -99,9 +99,16 @@ const PortfolioView = () => {
         accent: portfolioData.accentColor, 
         header: portfolioData.headerColor 
     }}>
-      <ChatbotProvider>
-        <div className="relative bg-black text-white min-h-screen overflow-x-hidden">
-            
+      <ChatbotProvider portfolioData={portfolioData}>
+<div 
+            className="relative bg-black text-white min-h-screen overflow-x-hidden"
+            style={{ 
+                backgroundColor: portfolioData.themeBg, 
+                color: portfolioData.themeFont,
+                fontFamily: portfolioData.themeFontFamily || "Switzer, sans-serif", // <--- ADD THIS
+                "--folio-font": portfolioData.themeFontFamily || "Switzer, sans-serif"
+            }}
+        >            
             <div className="fixed inset-0 bg-gradient-to-b from-black/80 via-black/50 to-black/90 z-0 pointer-events-none" />
 
             <div className="relative z-10 w-full">

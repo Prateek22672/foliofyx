@@ -139,7 +139,7 @@ const FounderSection = ({ onScrollToContact }) => {
                         transition={{ delay: 1.4 }}
                         className="hidden md:block w-30 h-10 rounded-2xl overflow-hidden border border-white/10 grayscale hover:grayscale-0 transition-all duration-500"
                     >
-                         <img src="/fyxw.png" alt="Profile" className="w-30 object-cover" />
+                         <img src="/logow.png" alt="Profile" className="w-30 object-cover" />
                     </motion.div>
                 </div>
             </div>

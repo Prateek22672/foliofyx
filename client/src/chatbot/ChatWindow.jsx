@@ -1,18 +1,15 @@
-// src/chatbot/ChatWindow.jsx
 import React, { useRef, useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useChatbot } from "../context/ChatbotContext";
+import { Send, X, MoreHorizontal, Smile, Sparkles } from "lucide-react"; 
 
 const ChatWindow = () => {
   const { messages, isTyping, handleUserMessage, closeChat } = useChatbot();
   const [input, setInput] = useState("");
   const scrollRef = useRef(null);
 
-  // Auto-scroll to bottom
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
+    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [messages, isTyping]);
 
   const handleSubmit = (e) => {
@@ -27,105 +24,117 @@ const ChatWindow = () => {
       initial={{ opacity: 0, y: 20, scale: 0.95 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: 20, scale: 0.95 }}
-      transition={{ duration: 0.2 }}
-      // ✅ SIZE UPDATE: Reduced width and height for a cleaner, compact look
-      // Mobile: 300px wide, 400px tall | Desktop: 320px wide, 450px tall
-      className="w-[300px] h-[400px] md:w-[320px] md:h-[450px] flex flex-col bg-neutral-900 border border-white/10 rounded-2xl shadow-2xl overflow-hidden font-sans"
+      transition={{ duration: 0.2, ease: "easeOut" }}
+      // ✅ RESIZED: Smaller width (340px) and height (500px) to fit better
+      className="w-[380px] h-[460px] flex flex-col bg-white rounded-3xl shadow-2xl overflow-hidden font-sans border border-gray-200"
     >
-      
-      {/* --- HEADER --- */}
-      <div className="h-12 bg-black/50 border-b border-white/5 flex items-center justify-between px-4 backdrop-blur-md">
-        <div className="flex items-center gap-2">
-          {/* Gold Status Dot */}
-          <div className="w-2 h-2 rounded-full bg-[#D4AF37] shadow-[0_0_8px_#D4AF37]"></div>
-          <span className="text-white text-sm font-medium tracking-wide">FYX Ai</span>
+      {/* --- HEADER (Compact) --- */}
+      {/* Reduced height to h-14 (56px) and padding */}
+      <div className="h-14 bg-black flex items-center justify-between px-4 shadow-md z-10 shrink-0">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-6 rounded-fullflex items-center justify-center">
+             <img className="w-10" src="/fyxlogow.png"/>
+          </div>
+          <div className="flex flex-col">
+            <h3 className="text-white font-bold text-sm leading-tight">FYX Ai</h3>
+            <span className="text-gray-400 text-[10px]">Ask me anything...</span>
+          </div>
         </div>
-        {/* Close Button */}
-        <button onClick={closeChat} className="text-white/50 hover:text-white transition-colors">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-        </button>
+        <div className="flex items-center gap-1 text-gray-400">
+           <button onClick={closeChat} className="p-1.5 hover:bg-white/10 rounded-full transition-colors hover:text-white"><X size={18} /></button>
+        </div>
       </div>
 
       {/* --- MESSAGES AREA --- */}
-      <div 
-        ref={scrollRef}
-        className="flex-1 overflow-y-auto p-3 space-y-3 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent"
-      >
-        {messages.map((msg) => (
-          <div
-            key={msg.id}
-            className={`flex flex-col ${msg.sender === "user" ? "items-end" : "items-start"}`}
+      <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 bg-white scroll-smooth">
+        <div className="h-1"></div>
+
+        {messages.map((msg, idx) => (
+          <motion.div 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            key={idx} 
+            className={`flex flex-col mb-3 ${msg.sender === "user" ? "items-end" : "items-start"}`}
           >
-            {/* Message Bubble */}
+            {/* Bubble - Slightly more compact padding/text */}
             <div
-              className={`max-w-[90%] px-3 py-2 rounded-xl text-xs leading-relaxed ${
+              className={`px-3.5 py-2.5 max-w-[85%] text-[13px] leading-relaxed shadow-sm ${
                 msg.sender === "user"
-                  ? "bg-white text-black rounded-tr-none font-medium" 
-                  : "bg-white/10 text-gray-200 rounded-tl-none border border-white/5"
+                  ? "bg-black text-white rounded-2xl rounded-tr-sm" 
+                  : "bg-[#F3F4F6] text-gray-800 rounded-2xl rounded-tl-sm"
               }`}
             >
               {msg.text}
             </div>
 
-            {/* Option Buttons */}
-            {msg.options && msg.options.length > 0 && (
-               <div className="mt-2 flex flex-wrap gap-1.5">
-                 {msg.options.map((opt, idx) => (
-                   <button
-                     key={idx}
-                     onClick={() => handleUserMessage(opt.label)}
-                     className="text-[10px] bg-black border border-[#D4AF37]/40 text-[#D4AF37] px-2 py-1 rounded-full hover:bg-[#D4AF37] hover:text-black transition-all duration-300"
-                   >
-                     {opt.label}
-                   </button>
-                 ))}
-               </div>
+            {/* Suggestion Chips */}
+            {msg.options && (
+                <div className="flex flex-wrap justify-end gap-1.5 mt-2 max-w-[95%]">
+                    {msg.options.map((opt, i) => (
+                        <button 
+                            key={i}
+                            onClick={() => handleUserMessage(opt.label)}
+                            className="bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300 px-3 py-1.5 rounded-full text-[11px] font-medium transition-all shadow-sm whitespace-nowrap"
+                        >
+                            {opt.label}
+                        </button>
+                    ))}
+                </div>
             )}
-            
-            <span className="text-[9px] text-white/20 mt-1 px-1">
-              {msg.timestamp || "Just now"}
-            </span>
-          </div>
+          </motion.div>
         ))}
 
-        {/* Typing Animation */}
         {isTyping && (
-          <div className="flex items-start">
-             <div className="bg-white/10 px-3 py-2 rounded-xl rounded-tl-none flex gap-1 items-center">
-               <span className="w-1 h-1 bg-white/40 rounded-full animate-bounce"></span>
-               <span className="w-1 h-1 bg-white/40 rounded-full animate-bounce delay-75"></span>
-               <span className="w-1 h-1 bg-white/40 rounded-full animate-bounce delay-150"></span>
+          <div className="flex items-start mb-4">
+             <div className="bg-[#F3F4F6] px-3 py-3 rounded-2xl rounded-tl-sm flex gap-1 items-center">
+                <span className="w-1 h-1 bg-gray-400 rounded-full animate-bounce"></span>
+                <span className="w-1 h-1 bg-gray-400 rounded-full animate-bounce delay-75"></span>
+                <span className="w-1 h-1 bg-gray-400 rounded-full animate-bounce delay-150"></span>
              </div>
           </div>
         )}
       </div>
 
-      {/* --- INPUT AREA --- */}
-      <form 
-        onSubmit={handleSubmit}
-        className="p-3 bg-black/30 border-t border-white/5 backdrop-blur-sm"
-      >
-        <div className="relative flex items-center">
+      {/* --- FOOTER AREA (Compact) --- */}
+      <div className="bg-white px-4 pb-3 pt-2 z-20 shrink-0">
+        
+        {/* Powered By */}
+        <div className="flex items-center justify-center gap-1 mb-2 opacity-40">
+            <div className="w-3 h-3 bg-gray-800 rounded flex items-center justify-center text-[7px] font-bold text-white">F</div>
+            <span className="text-[10px] font-medium text-gray-600">Powered by FOLIOFYX</span>
+        </div>
+
+        {/* Input Field */}
+        <form 
+            onSubmit={handleSubmit} 
+            className="flex items-center gap-2 bg-white border border-gray-200 rounded-xl px-3 py-1.5 shadow-[0_2px_10px_-5px_rgba(0,0,0,0.05)] focus-within:shadow-md focus-within:border-gray-300 transition-all"
+        >
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask AI..."
-            className="w-full bg-white/5 text-white text-xs rounded-lg pl-3 pr-10 py-2.5 focus:outline-none focus:ring-1 focus:ring-[#D4AF37]/50 placeholder:text-white/20 transition-all"
+            placeholder="Message..."
+            className="flex-1 bg-transparent text-[13px] text-gray-800 placeholder:text-gray-400 outline-none h-8"
           />
+          
+          <button type="button" className="text-gray-400 hover:text-gray-600 transition-colors">
+            <Smile size={16} />
+          </button>
+
           <button
             type="submit"
             disabled={!input.trim()}
-            className="absolute right-1.5 p-1 bg-[#D4AF37] rounded-md text-black hover:scale-105 active:scale-95 disabled:opacity-50 transition-transform"
+            className="text-gray-400 hover:text-black disabled:opacity-30 disabled:hover:text-gray-400 transition-colors"
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+            <Send size={16} />
           </button>
-        </div>
+        </form>
+        
+        {/* Small Privacy link below input for better spacing */}
         <div className="text-center mt-1.5">
-            <span className="text-[9px] text-white/20 uppercase tracking-widest">Powered by FolioFYX</span>
+             <span className="text-[9px] text-gray-300 cursor-pointer hover:underline">Privacy Policy</span>
         </div>
-      </form>
-
+      </div>
     </motion.div>
   );
 };

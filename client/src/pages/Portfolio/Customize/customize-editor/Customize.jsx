@@ -29,8 +29,6 @@ const Customize = () => {
   // UI State
   const [showThemeModal, setShowThemeModal] = useState(false);
   const [showPreviewMobile, setShowPreviewMobile] = useState(false);
-  
-  // Default to dual, but header buttons will toggle this
   const [viewMode, setViewMode] = useState("dual"); 
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
@@ -46,26 +44,54 @@ const Customize = () => {
   // --- 2. Custom Hook for Form Logic ---
   const formLogic = useCustomizeForm(portfolioData, setPortfolioData);
 
-  // --- 3. Data Loading ---
+  // --- 3. Data Loading (CRITICAL FIX HERE) ---
   useEffect(() => {
     async function load() {
-      if (portfolioData && portfolioData._id) {
+      // 1. PRIORITY: Check if data was passed from Wizard/Create Page via Navigation State
+      // If yes, we overwrite whatever is in context immediately.
+      if (location.state && location.state.portfolioData) {
+        console.log("📥 Loading fresh data from Wizard:", location.state.portfolioData);
+        setPortfolioData(location.state.portfolioData);
+        
+        // Update local theme state
+        if (location.state.portfolioData.themeBg) setThemeBg(location.state.portfolioData.themeBg);
+        if (location.state.portfolioData.themeFont) setThemeFont(location.state.portfolioData.themeFont);
+        
         isLoadedRef.current = true;
+        
+        // Optional: Clear state so a refresh doesn't reload this specific state if you don't want it to
+        // window.history.replaceState({}, document.title);
         return;
       }
+
+      // 2. SECONDARY: If no new data, check if Context already has data
+      if (portfolioData && portfolioData._id) {
+        isLoadedRef.current = true;
+        // Sync local theme state with context
+        if (portfolioData.themeBg) setThemeBg(portfolioData.themeBg);
+        if (portfolioData.themeFont) setThemeFont(portfolioData.themeFont);
+        return;
+      }
+
+      // 3. FALLBACK: Fetch from API using ID or LocalStorage
       try {
-        let restored = location.state || {};
-        if (!restored.name) {
-          const savedLocal = localStorage.getItem("portfolioData");
-          if (savedLocal) restored = JSON.parse(savedLocal);
+        let restored = {};
+        const savedLocal = localStorage.getItem("portfolioData");
+        
+        if (savedLocal) {
+            restored = JSON.parse(savedLocal);
         }
+
+        // If ID exists in local storage or we can derive it, fetch fresh
         if (restored._id) {
           const fresh = await getPortfolio(restored._id);
           if (fresh) restored = { ...fresh };
         }
+
         if (!restored.template) {
           restored.template = template || "modern";
         }
+
         setPortfolioData(restored);
         isLoadedRef.current = true;
         if (restored.themeBg) setThemeBg(restored.themeBg);
@@ -75,17 +101,8 @@ const Customize = () => {
       }
     }
     load();
-  }, []);
-
-  // Update template if changed via URL
-  useEffect(() => {
-    if (template && isLoadedRef.current) {
-      setPortfolioData((prev) => {
-        if (prev?.template !== template) return { ...prev, template: template };
-        return prev;
-      });
-    }
-  }, [template]);
+    // Add location.state to dependency array to trigger re-run when navigation sends new data
+  }, [location.state, template, setPortfolioData]); 
 
   // Handle Resize
   useEffect(() => {
@@ -196,7 +213,6 @@ const Customize = () => {
   let editorWidth = "0%";
   let isEditorVisible = false;
 
-  // View Mode Logic (Desktop vs Mobile vs Dual)
   if (showPreviewMobile) {
     editorWidth = "0%";
     isEditorVisible = false;
@@ -204,23 +220,20 @@ const Customize = () => {
     editorWidth = "100%";
     isEditorVisible = true;
   } else if (viewMode === "mobile") {
-    // In mobile view mode, we keep sidebar open but restricted width
     editorWidth = isPanelOpen ? "30%" : "0%";
     isEditorVisible = isPanelOpen;
   } else if (viewMode === "desktop") {
-     // In Desktop view mode, usually full screen, but if user wants sidebar + desktop, logic handles it
      editorWidth = "0%"; 
      isEditorVisible = false;
   } else {
-    // Dual Mode
     editorWidth = isPanelOpen ? `${leftPanelWidth}%` : "0px";
     isEditorVisible = isPanelOpen;
   }
 
-  // Helper boolean to check if we are in mobile simulation mode
   const isMobileSim = viewMode === "mobile";
 
-  if (!portfolioData) return <div className="bg-black min-h-screen text-white flex items-center justify-center">Loading...</div>;
+  // Prevent crash if data isn't loaded yet
+  if (!portfolioData) return <div className="bg-black min-h-screen text-white flex items-center justify-center">Loading Data...</div>;
 
   return (
     <div className="flex flex-col min-h-screen bg-white text-white customize-container relative overflow-x-hidden overflow-y-auto">
@@ -248,7 +261,7 @@ const Customize = () => {
         />
       )}
 
-      {/* Mobile Toggle (Physical Mobile Devices) */}
+      {/* Mobile Toggle */}
       <div className="md:hidden flex-none flex justify-between items-center p-4 bg-[#111] border-b border-gray-800 z-40 sticky top-[60px]">
         <button
           onClick={() => setShowPreviewMobile(false)}
@@ -280,7 +293,7 @@ const Customize = () => {
           </div>
         )}
 
-        {/* EDITOR PANEL WRAPPER */}
+        {/* EDITOR PANEL */}
         <div 
             className={`transition-all duration-300 ${!showPreviewMobile && viewMode !== "desktop" ? 'md:ml-[60px]' : ''}`} 
             style={{ width: editorWidth, minHeight: '80vh' }}
@@ -302,23 +315,15 @@ const Customize = () => {
            />
         </div>
 
-        {/* Drag Handle (Only in Dual) */}
+        {/* Drag Handle */}
         {viewMode === "dual" && isPanelOpen && !showPreviewMobile && (
           <Resizer onMouseDown={startDragging} isDragging={isDragging} />
         )}
 
         {/* === RIGHT PREVIEW PANEL === */}
         <div className={`flex-1 min-h-screen relative ${showPreviewMobile ? "block w-full bg-white" : "hidden"} md:block`}>
-          
-          {/* Background color for container: If Mobile Sim, make it gray to contrast with the phone. Else White. */}
           <div className={`h-full w-full transition-colors duration-300 ${isMobileSim ? 'bg-gray-100/90 py-10' : 'bg-white'}`}>
-             
               {isDragging && <div className="absolute inset-0 bg-transparent z-50"></div>}
-              
-              {/* THE MAGIC WRAPPER:
-                 - If Mobile Mode: Width fixed at 375px, centered margin, phone borders.
-                 - If Desktop/Dual: Full width, no borders.
-              */}
               <div 
                 className={`
                     transition-all duration-500 ease-in-out mx-auto bg-white overflow-hidden relative
@@ -328,20 +333,16 @@ const Customize = () => {
                     }
                 `}
               >
-                 {/* Mobile Notion (Notch/Speaker) - Optional Visual Flare */}
-                 {isMobileSim && (
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-black rounded-b-xl z-50 pointer-events-none"></div>
-                 )}
-
-                 <RightPanel portfolioData={portfolioData} />
+                  {isMobileSim && (
+                     <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-black rounded-b-xl z-50 pointer-events-none"></div>
+                  )}
+                  <RightPanel portfolioData={portfolioData} />
               </div>
           </div>
-
         </div>
       </div>
 
       {/* Footer / Studio Text */}
-      {/* Hide footer in mobile sim mode to prevent scrolling past the phone */}
       {!isMobileSim && (!showPreviewMobile || windowWidth >= 768) && (
           <div className="relative w-full bg-black mt-40 pt-20 border-t border-white/5 z-30 pb-10">
             <div className="w-full flex flex-col md:flex-row items-center justify-center gap-2 md:gap-6 text-[10px] md:text-xs font-medium tracking-[0.2em] uppercase text-gray-500 mb-4 px-4 text-center">

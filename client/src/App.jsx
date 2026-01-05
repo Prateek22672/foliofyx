@@ -95,7 +95,7 @@ function App() {
                   <Route path="/about" element={<AboutContactPage />} />
                   <Route path="/release" element={<NewRelease />} />
                   <Route path="/talent" element={<FindTalent />} />
-                  <Route path="/pricing" element={<Pricing />} />
+                  <Route path="/Benefits" element={<Pricing />} />
                   <Route path="/studio" element={<StudioPage />} />
                   <Route path="/legal" element={<Legal />} />
                   <Route path="/testing" element={<WixAboutPage/>}/>

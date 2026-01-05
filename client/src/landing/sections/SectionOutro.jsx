@@ -1,84 +1,48 @@
-import React, { useEffect } from "react";
-import Footer from "../../components/Footer";
-import "./SectionOutro.css";
-
-const FOLIOFYX_LOGO_PATH = "/fyxw.png";
+import React from "react";
+import Footer from "../../components/Footer"; 
 
 export default function SectionOutro({ handleNavigation }) {
-
-  useEffect(() => {
-    const elements = document.querySelectorAll(".textScroll");
-
-    const handleScroll = () => {
-      const scrollY = window.scrollY * 0.25; // speed control (0.25 = smooth slow)
-      elements.forEach((el, index) => {
-        const direction = index % 2 === 0 ? 1 : -1; 
-        el.style.transform = `translateX(${scrollY * direction}px)`;
-      });
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
   return (
-    <section
-      className="relative flex flex-col bg-[#0d0d82] rounded-t-4xl text-white items-center overflow-hidden w-full"
-      style={{ minHeight: "100vh" }}
-    >
-      {/* 🔥 BACKGROUND MOVING TEXT LAYER (WE BUILD) */}
-      <div
-        className="absolute inset-0 overflow-hidden pointer-events-none opacity-10"
-        style={{ transform: "rotate(-15deg)" }}
-      >
-        <div className="flex whitespace-nowrap text-[18vw] font-black text-[#fcd5c5] textScroll">
-          WE BUILD • WE BUILD • WE BUILD • WE BUILD •
-        </div>
-
-        <div className="flex whitespace-nowrap text-[18vw] font-black text-[#c9b0a7] textScroll mt-[-5vw]">
-          WE BUILD • WE BUILD • WE BUILD • WE BUILD •
-        </div>
-
-        <div className="flex whitespace-nowrap text-[18vw] font-black text-[#e2c1b7] textScroll mt-[-5vw]">
-          WE BUILD • WE BUILD • WE BUILD • WE BUILD •
-        </div>
+    // UPDATED: Changed font-['Switzer'] to font-['Syne']
+    <section className="sticky top-0 bg-[#0d0d82] text-white pt-32 pb-2 rounded-t-[60px] -mt-10 min-h-[110vh] flex flex-col justify-between z-50 overflow-hidden font-['Syne']">
+      
+      {/* Background Decor (Optimized: pointer-events-none, will-change) */}
+      <div className="absolute inset-0 w-full h-full pointer-events-none">
+        <div 
+          className="absolute top-[10%] left-[10%] w-[30vw] h-[30vw] bg-purple-500 rounded-full blur-[120px] opacity-20 mix-blend-screen"
+          style={{ willChange: "transform" }}
+        />
+        <div 
+          className="absolute bottom-[20%] right-[10%] w-[40vw] h-[40vw] bg-blue-500 rounded-full blur-[120px] opacity-20 mix-blend-screen"
+          style={{ willChange: "transform" }}
+        />
       </div>
 
-      {/* === FOREGROUND CONTENT === */}
-      <div
-        className="relative z-10 flex-grow w-full flex flex-col items-center justify-center text-center p-8"
-        style={{ animation: "fadeIn 1.5s ease-out 0.5s forwards", opacity: 0 }}
-      >
-        <p className="text-xl md:text-2xl font-normal opacity-80 mb-4">
-          Don't just show your work.
+      <div className="relative z-10 container mx-auto px-6 text-center flex-grow flex flex-col justify-center">
+        <p className="text-indigo-200 font-bold tracking-[0.2em] uppercase mb-8">
+          Ready to launch?
         </p>
-
-        <h2 className="text-[10vw] md:text-[80px] font-black leading-none tracking-tighter max-w-4xl">
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-300 via-pink-400 to-indigo-300">
-            Show Your work.✨
-          </span>
+        
+        <h2 className="text-[12vw] font-black leading-none mb-12 text-transparent bg-clip-text bg-gradient-to-b from-white to-white/50 drop-shadow-sm">
+          FOLIOFYX
         </h2>
-
-        <div className="flex items-center justify-center mt-6 space-x-3">
-          <span className="text-xl md:text-2xl font-semibold text-white">By</span>
-          <img
-            src={FOLIOFYX_LOGO_PATH}
-            alt="FolioFYX Logo"
-            className="h-8 md:h-10 w-auto"
-          />
+        
+        <div className="flex justify-center">
+            <button 
+              onClick={() => handleNavigation('/create')}
+              // Syne looks best with heavier weights, used font-extrabold here
+              className="bg-white text-[#0d0d82] text-xl md:text-2xl font-extrabold px-12 py-5 rounded-full hover:scale-105 hover:shadow-[0_0_50px_rgba(255,255,255,0.3)] transition-all duration-300 active:scale-95"
+            >
+              Build Your Portfolio Now
+            </button>
         </div>
-
-        <button
-          onClick={() => handleNavigation("/create")}
-          className="bg-white text-[#0d0d82] px-12 py-4 rounded-full mt-10 text-xl font-bold tracking-wide hover:scale-105 transition-all shadow-lg"
-        >
-          Build Now
-        </button>
       </div>
 
-      <div className="relative z-20 w-full bg-[#0d0d82]">
+      {/* Footer stays at the bottom */}
+      <div className="mt-20 relative z-20">
         <Footer />
       </div>
+
     </section>
   );
 }

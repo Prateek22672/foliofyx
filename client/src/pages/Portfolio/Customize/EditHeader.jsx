@@ -8,7 +8,7 @@ import {
   Monitor, Columns2, Smartphone, Menu, X, Palette, Plus, Save, Rocket, 
   Crown, QrCode, Globe, Lock, Loader2, Check, AlertCircle, Sparkles,
   User, RefreshCcw, PaintBucket
-} from "lucide-react"; // ✅ Added Icons: User, RefreshCcw, PaintBucket
+} from "lucide-react"; 
 import { useSplash } from "../../../context/SplashContext";
 
 // Popups
@@ -23,6 +23,24 @@ import DomainPopup from "./DomainPopup";
 import { TEMPLATE_LIST } from "../Templates"; 
 
 const PREMIUM_TEMPLATES = ["neo-brutalism", "3d-portfolio", "agency-grid", "artist-gallery"];
+
+// ✅ NEW: Plan Badge Component (Minimalist Outline)
+const PlanBadge = ({ plan }) => {
+  const isPro = plan === 'max';
+  
+  return (
+    <div className={`
+      flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[10px] font-semibold tracking-wider uppercase select-none border backdrop-blur-sm
+      ${isPro 
+        ? "border-[#D4AF37] text-[#D4AF37] bg-[#D4AF37]/5" 
+        : "border-neutral-300 text-neutral-500"
+      }
+    `}>
+      {isPro && <div className="w-1.5 h-1.5 rounded-full bg-[#D4AF37] shadow-[0_0_5px_#D4AF37]" />} 
+      {isPro ? "Max Active" : "Free Plan"}
+    </div>
+  );
+};
 
 const HeaderBtn = ({ icon: Icon, onClick, active, label, isPremium }) => (
   <div className="group relative flex items-center">
@@ -142,12 +160,10 @@ function EditHeader({ setViewMode, viewMode }) {
       try { await saveOrUpdatePortfolio({ ...portfolioData, isPublic: newStatus }); } catch(e) {}
   };
 
-  // ✅ HELPER: Handle Color Changes
   const handleColorChange = (key, val) => {
       setPortfolioData(prev => ({ ...prev, [key]: val }));
   };
 
-  // ✅ HELPER: Reset Colors
   const resetColors = () => {
       setPortfolioData(prev => ({ ...prev, themeBg: "#ffffff", themeFont: "#000000" }));
   };
@@ -207,9 +223,16 @@ function EditHeader({ setViewMode, viewMode }) {
              </div>
              {lastSavedTime && <span className="text-[9px] text-gray-400 font-medium mt-1 mr-1">Last saved {lastSavedTime}</span>}
           </div>
+          
           <button className="md:hidden p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors" onClick={() => setMenuOpen(!menuOpen)}>
             {menuOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
+          
+          {/* ✅ PLAN BADGE ADDED HERE */}
+          <div className="hidden md:block">
+             <PlanBadge plan={user?.plan} />
+          </div>
+
           <div className="pl-2"><UserProfileMenu /></div>
         </div>
       </header>
@@ -218,13 +241,19 @@ function EditHeader({ setViewMode, viewMode }) {
       <div className={`md:hidden fixed top-16 left-0 w-full bg-white/95 backdrop-blur-xl border-b border-gray-200 shadow-2xl transition-all duration-300 ease-in-out overflow-hidden z-40 ${menuOpen ? "max-h-[85vh] opacity-100" : "max-h-0 opacity-0"}`}>
         <div className="p-6 flex flex-col gap-4 overflow-y-auto max-h-[80vh]">
           
+          {/* ✅ Mobile Plan Badge */}
+          <div className="flex justify-between items-center mb-2">
+             <span className="text-xs font-bold text-gray-400">YOUR PLAN</span>
+             <PlanBadge plan={user?.plan} />
+          </div>
+
           {/* 1. View Modes */}
           <div className="grid grid-cols-2 gap-3">
             <button onClick={() => { setViewMode("mobile"); setMenuOpen(false); }} className={`flex-1 py-2.5 rounded-lg flex items-center justify-center gap-2 text-xs font-bold transition-all ${viewMode === "mobile" ? "bg-purple-100 text-purple-700 border border-purple-200" : "bg-gray-100 text-gray-500"}`}><Smartphone size={16} /> Mobile</button>
             <button onClick={() => { setViewMode("desktop"); setMenuOpen(false); }} className={`flex-1 py-2.5 rounded-lg flex items-center justify-center gap-2 text-xs font-bold transition-all ${viewMode === "desktop" ? "bg-purple-100 text-purple-700 border border-purple-200" : "bg-gray-100 text-gray-500"}`}><Monitor size={16} /> Desktop</button>
           </div>
 
-          {/* 2. Visibility & Talent Page (NEW) */}
+          {/* 2. Visibility & Talent Page */}
           <div className="grid grid-cols-2 gap-3">
              <button onClick={toggleVisibility} className={`py-3 border rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-sm transition-all ${portfolioData.isPublic ? "bg-green-50 text-green-700 border-green-200" : "bg-gray-50 text-gray-600 border-gray-200"}`}>
                 {portfolioData.isPublic ? <Globe size={16} /> : <Lock size={16} />}
@@ -237,7 +266,6 @@ function EditHeader({ setViewMode, viewMode }) {
 
           {/* 3. Templates & FYX Card */}
           <div className="grid grid-cols-2 gap-3">
-             {/* ✅ Fixed: Added text-gray-900 to ensure icon/text is visible */}
              <button onClick={() => { setShowThemePopup(true); setMenuOpen(false); }} className="py-3 bg-white border border-gray-200 text-gray-900 rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-sm">
                 <Palette size={16} /> Templates
              </button>
@@ -246,21 +274,19 @@ function EditHeader({ setViewMode, viewMode }) {
              </button>
           </div>
 
-          {/* 4. Color Controls (NEW) */}
+          {/* 4. Color Controls */}
           <div className="p-4 bg-gray-50 rounded-xl border border-gray-200 space-y-3">
              <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                     <PaintBucket size={14} className="text-gray-400"/>
                     <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Theme Colors</span>
                 </div>
-                {/* Reset Button */}
                 <button onClick={resetColors} className="text-[10px] font-bold text-red-500 flex items-center gap-1 hover:bg-red-50 px-2 py-1 rounded transition-colors">
                     <RefreshCcw size={10} /> Reset
                 </button>
              </div>
              
              <div className="grid grid-cols-2 gap-3">
-                {/* Background Color Picker */}
                 <div className="flex flex-col gap-1">
                     <label className="text-[10px] font-semibold text-gray-400">Background</label>
                     <div className="flex items-center gap-2 bg-white p-2 rounded-lg border border-gray-200 shadow-sm">
@@ -269,7 +295,6 @@ function EditHeader({ setViewMode, viewMode }) {
                     </div>
                 </div>
 
-                {/* Font Color Picker */}
                 <div className="flex flex-col gap-1">
                     <label className="text-[10px] font-semibold text-gray-400">Text Color</label>
                     <div className="flex items-center gap-2 bg-white p-2 rounded-lg border border-gray-200 shadow-sm">

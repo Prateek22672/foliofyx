@@ -2,7 +2,21 @@ export const DUMMY_DATA = {
   name: "John Doe",
   role: "Creative Developer",
   bio: "I build digital experiences that blend design and technology. Focused on creating intuitive and scalable applications.",
-  experience: "3+ Years",
+  // Updated structure
+  experience: [
+    { 
+      company: "Tech Solutions Inc.", 
+      role: "Senior Developer", 
+      period: "2021 - Present", 
+      desc: "Led a team of 5 developers building scalable React applications." 
+    },
+    { 
+      company: "Creative Studio", 
+      role: "Frontend Intern", 
+      period: "2019 - 2020", 
+      desc: "Assisted in designing and implementing UI components using Tailwind CSS." 
+    }
+  ],
   skills: [
     { name: "React", level: "Expert" },
     { name: "Tailwind CSS", level: "Expert" },
@@ -23,7 +37,8 @@ export const DUMMY_DATA = {
 export const WIZARD_STEPS = [
   { name: "name", question: "What’s your full name?", suggestion: "e.g., Prateek Koratala" },
   { name: "role", question: "What’s your professional title or role?", suggestion: "e.g., Web Developer | AI Engineer" },
-  { name: "experience", question: "How many years of experience do you have?", suggestion: "e.g., 2 years in full-stack development" },
+  // ✅ Special Type: Experience
+  { name: "experience", question: "Add your professional experience.", special: "experience" },
   { name: "skills", question: "Let's add your skills one by one.", special: "skills" },
   { name: "education", question: "What’s your highest qualification?", special: "education" },
   { name: "projects", question: "Add your projects one by one.", special: "projects" },

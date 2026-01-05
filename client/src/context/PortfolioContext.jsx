@@ -32,6 +32,7 @@ export const PortfolioProvider = ({ children }) => {
             isPublic: p.isPublic ?? false,
             publicProfile: p.publicProfile ?? false,
             template: p.template || "modern",
+            themeFontFamily: p.themeFontFamily || "Switzer, sans-serif",
             skills: Array.isArray(p.skills) ? p.skills : [],
             projects: Array.isArray(p.projects) ? p.projects : [],
           });

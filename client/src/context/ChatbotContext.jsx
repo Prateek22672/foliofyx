@@ -1,138 +1,85 @@
-import React, { createContext, useState, useContext, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { createContext, useContext, useState } from "react";
 import { getBotResponse } from "../chatbot/chatLogic";
-import { getAllPortfolios } from "../api/portfolioAPI";
+import { useNavigate } from "react-router-dom"; // ✅ Import this
 
 const ChatbotContext = createContext();
 
-export const useChatbot = () => useContext(ChatbotContext);
-
-export const ChatbotProvider = ({ children }) => {
-  const navigate = useNavigate();
+export const ChatbotProvider = ({ children, portfolioData }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState([]);
   const [isTyping, setIsTyping] = useState(false);
+  const navigate = useNavigate(); // ✅ Initialize hook
 
-  // 1. Get User Name (Fail gracefully to "User")
-  const getUserName = () => {
-    try {
-      const user = JSON.parse(localStorage.getItem("user"));
-      // Capitalize first letter for premium feel
-      const firstName = user?.name ? user.name.split(" ")[0] : "User";
-      return firstName.charAt(0).toUpperCase() + firstName.slice(1);
-    } catch (e) {
-      return "User";
-    }
-  };
-
-  // 2. Get Premium Time-Based Greeting
-  const getGreeting = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) return "Good morning";
-    if (hour < 18) return "Good afternoon";
-    return "Good evening";
-  };
-
-  // 3. Reset/Init Function
-  const initializeChat = () => {
-    const name = getUserName();
-    const greeting = getGreeting();
-    
-    setMessages([
-      {
-        id: Date.now(),
-        // 🔥 PREMIUM BRANDING: Cleaner, professional text.
-        text: `${greeting}, ${name}. I am FYX Ai. I have full control over the interface. How may I assist you?`,
-        sender: "bot",
-        options: [
-          { label: "Go to Dashboard", value: "dashboard" },
-          { label: "Create Portfolio", value: "create" },
-          { label: "View Templates", value: "Templates" }
-        ]
+  // Initial Welcome Message Logic
+  const getWelcomeMessage = () => {
+      if (portfolioData) {
+          const firstName = portfolioData.name.split(" ")[0];
+          return `Hi! I'm ${firstName}'s agent. They are a skilled ${portfolioData.role}. How can I assist?`;
       }
-    ]);
+      return "Hello! I'm FolioFYX Ai. Ask me to 'Create a Site' or 'Go to Dashboard'.";
   };
 
-  // Run on mount
-  useEffect(() => {
-    if (messages.length === 0) initializeChat();
-  }, []);
+  const [messages, setMessages] = useState([
+    { 
+      id: 1, 
+      text: getWelcomeMessage(),
+      sender: "bot", 
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      options: portfolioData 
+        ? [{ label: "Why Hire?", value: "why hire" }, { label: "Projects", value: "projects" }]
+        : [{ label: "Create Portfolio", value: "create" }, { label: "Templates", value: "templates" }]
+    }
+  ]);
 
-  const toggleChat = () => setIsOpen((prev) => !prev);
+  const toggleChat = () => setIsOpen(!isOpen);
   const closeChat = () => setIsOpen(false);
 
-  // 4. Handle "Clear" Action
-  const clearHistory = () => {
-    setMessages([]); 
-    // Quick fade out/in effect simulation
-    setTimeout(() => initializeChat(), 300); 
-  };
-
-  const addMessage = (text, sender = "user", options = []) => {
-    setMessages((prev) => [
-      ...prev,
-      { id: Date.now(), text, sender, options, timestamp: new Date().toLocaleTimeString() },
-    ]);
-  };
-
-  const addBotMessage = (text, options = []) => {
-    setIsTyping(true);
-    // Smart delay: fast for short texts, slightly longer for long texts
-    const delay = Math.min(1000, 400 + text.length * 15); 
-    
-    setTimeout(() => {
-      addMessage(text, "bot", options);
-      setIsTyping(false);
-    }, delay);
-  };
-
   const handleUserMessage = async (text) => {
-    addMessage(text, "user");
+    const userMsg = { id: Date.now(), text, sender: "user", timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) };
+    setMessages((prev) => [...prev, userMsg]);
+    setIsTyping(true);
 
-    // Get intelligence from chatLogic
-    const { response, action, path, options } = getBotResponse(text);
+    setTimeout(() => {
+        const botData = getBotResponse(text, portfolioData);
+        
+        const botMsg = { 
+            id: Date.now() + 1, 
+            text: botData.response, 
+            sender: "bot", 
+            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            options: botData.options 
+        };
 
-    // --- ⚡ ACTION HANDLERS ---
+        setMessages((prev) => [...prev, botMsg]);
+        setIsTyping(false);
 
-    // 1. Clear History
-    if (action === "clear") {
-      setTimeout(() => clearHistory(), 500);
-      return;
-    }
+        // --- ⚡ ACTION HANDLER ---
+        
+        // 1. Navigation (Internal Routes)
+        if (botData.action === "navigate" && botData.path) {
+            navigate(botData.path); // ✅ Performs the route change
+        }
 
-    // 2. Scroll Actions (Full Control)
-    if (action === "scroll_down") {
-      window.scrollBy({ top: window.innerHeight * 0.8, behavior: "smooth" });
-    }
-    
-    if (action === "scroll_top") {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
+        // 2. Scrolling (Portfolio Sections)
+        if (botData.action === "scroll" && botData.path) {
+            const element = document.getElementById(botData.path.toLowerCase());
+            if (element) {
+                element.scrollIntoView({ behavior: "smooth" });
+            }
+        }
 
-    // Respond first
-    addBotMessage(response, options);
+        // 3. External Links
+        if (botData.action === "link" && botData.path) {
+            window.open(botData.path, "_blank");
+        }
 
-    // 3. Navigation Actions (Delayed slightly for user to read response)
-    if (action === "navigate" && path) {
-      setTimeout(() => {
-        navigate(path);
-        // Optional: Close chat on mobile if navigating? 
-        // setIsOpen(false); 
-      }, 1500); 
-    }
-  };
-
-  const value = { 
-    isOpen, toggleChat, closeChat, 
-    messages, handleUserMessage, 
-    isTyping, clearHistory 
+    }, 800);
   };
 
   return (
-    <ChatbotContext.Provider value={value}>
+    <ChatbotContext.Provider value={{ isOpen, toggleChat, closeChat, messages, isTyping, handleUserMessage }}>
       {children}
     </ChatbotContext.Provider>
   );
 };
 
-export default ChatbotContext;
+export const useChatbot = () => useContext(ChatbotContext);

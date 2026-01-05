@@ -1,219 +1,197 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, ArrowRight, Check, Loader2, Sparkles, GraduationCap } from "lucide-react";
+import { X, Loader2, Sparkles, Check, GraduationCap } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import axiosInstance from "../api/axiosInstance";
 
 const UpgradePopup = ({ isOpen, onClose, reason = "limit" }) => {
   const navigate = useNavigate();
   const { refreshUser } = useAuth();
   
-  const [step, setStep] = useState("intro"); // intro | verify | success
+  const [step, setStep] = useState("intro"); // intro | success
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [collegeName, setCollegeName] = useState("");
 
-  // Swiss Typography Classes
-  const fontHeading = "font-sans font-medium tracking-tight";
-  const fontBody = "font-sans font-light text-neutral-400";
-
-  // Content configuration based on trigger
-  const content = {
-    limit: {
-      label: "LIMIT REACHED",
-      title: "Expand your potential.",
-      desc: "You have reached the project limit. Unlock unlimited space.",
-    },
-    premium_template: {
-      label: "PREMIUM DESIGN",
-      title: "Uncompromising style.",
-      desc: "This template is reserved for Pro members.",
-    },
-    premium_feature: {
-      label: "PRO FEATURE",
-      title: "Refine your aesthetic.",
-      desc: "Custom fonts and advanced colors are locked.",
-    },
-    ai_chatbot: {
-      label: "AI INTELLIGENCE",
-      title: "Smarter interactions.",
-      desc: "Enable the AI assistant to guide your visitors.",
-    }
-  };
-
-  const currentData = content[reason] || content.limit;
-
-  // --- Logic: Verify Student Email ---
-  const handleVerify = () => {
+  const handleVerifyAndActivate = async () => {
+    if (!email) return;
     setLoading(true);
     setError("");
 
-    setTimeout(() => {
-      const lowerEmail = email.toLowerCase();
-      const validDomains = ['gitam', 'srm', 'vit', 'iit', 'nit', 'bits', 'edu', 'ac.in', 'college', 'university'];
-      const domainPart = lowerEmail.split('@')[1] || "";
-      
-      if (validDomains.some(d => domainPart.includes(d)) && email.includes('@')) {
-         let detected = domainPart.split('.')[0].toUpperCase();
-         if(detected === 'AC') detected = "UNIVERSITY";
-         setCollegeName(detected);
-         handleActivateParams(); // Auto-proceed to activation
-      } else {
-         setLoading(false);
-         setError("Institutional email required.");
-      }
-    }, 1200);
-  };
+    try {
+        const lowerEmail = email.toLowerCase();
+        const domainPart = lowerEmail.split('@')[1] || "";
 
-  // --- Logic: Instant Activation (Mock Backend) ---
-  const handleActivateParams = async () => {
-      // Simulating Backend Activation
-      try {
-          const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
-          const updatedUser = { 
-              ...currentUser, 
-              plan: "max", 
-              isStudent: true,
-              planExpiry: new Date(new Date().setMonth(new Date().getMonth() + 3)).toISOString() 
-          };
-          
-          localStorage.setItem("user", JSON.stringify(updatedUser));
-          
-          if (refreshUser) await refreshUser();
-          
-          setLoading(false);
-          setStep("success");
+        // 🚫 Block List: Explicitly block public providers
+        const publicProviders = ['gmail.com', 'outlook.com', 'hotmail.com', 'yahoo.com', 'icloud.com'];
+        const isPublic = publicProviders.some(p => domainPart.includes(p));
 
-          // Auto-close after success
-          setTimeout(() => {
-              onClose();
-          }, 2500);
+        if (isPublic) {
+            setLoading(false);
+            setError("Personal emails are not eligible. Please use your university ID.");
+            return;
+        }
+        
+        // ✅ Allow List: Only Institutional Domains
+        const validDomains = [
+            'gitam.in', 'gitam.edu', 
+            'srm.edu.in', 'vit.ac.in', 
+            'iit', 'nit', 'bits',
+            'edu', 'ac.in', 'college', 'university'
+        ]; 
+        
+        // Check if the domain part contains any of the valid institutional strings
+        const isValidDomain = validDomains.some(d => domainPart.includes(d));
+        
+        if (!email.includes('@') || !isValidDomain) {
+             setLoading(false);
+             setError("Please enter a valid university email address (e.g., .edu, .ac.in).");
+             return;
+        }
 
-      } catch (e) {
-          console.error(e);
-          setLoading(false);
-      }
+        // 2. Call Backend
+        await axiosInstance.post("/payment/claim-offer", { email: lowerEmail });
+
+        // 3. Update UI
+        if (refreshUser) await refreshUser();
+        
+        setLoading(false);
+        setStep("success");
+
+        // 4. Auto-Close after 2.5 seconds (Stay on same page)
+        setTimeout(() => {
+            onClose();
+        }, 2500);
+
+    } catch (e) {
+        console.error("Verification Error:", e);
+        setLoading(false);
+        const backendMsg = e.response?.data?.msg || "Verification failed. Please try again.";
+        setError(backendMsg);
+    }
   };
 
   return (
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Minimal Backdrop */}
+          {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-[#000000]/80 backdrop-blur-sm z-[100]"
+            className="fixed inset-0 bg-black/80 backdrop-blur-md z-[100]"
           />
 
-          {/* Swiss Style Modal */}
+          {/* Holographic Modal */}
           <motion.div
-            initial={{ opacity: 0, y: 10, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 10, scale: 0.98 }}
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed inset-0 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 z-[101] w-full md:w-[420px] h-auto"
+            className="fixed inset-0 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 z-[101] w-full md:w-[480px] h-auto rounded-[2rem] overflow-hidden shadow-2xl border border-white/10"
           >
-            <div className="bg-[#080808] border border-white/10 rounded-2xl overflow-hidden shadow-2xl relative">
-              
-              {/* Close Icon (Top Right) */}
-              <button 
-                onClick={onClose} 
-                className="absolute top-5 right-5 text-neutral-600 hover:text-white transition-colors z-20"
-              >
-                <X size={18} strokeWidth={1.5} />
-              </button>
-
-              {/* ================= STEP: INTRO & INPUT ================= */}
-              {step === "intro" && (
-                  <div className="p-8 md:p-10 flex flex-col">
-                      
-                      {/* Label */}
-                      <span className="text-[10px] font-bold tracking-[0.2em] text-[#D4AF37] uppercase mb-4 flex items-center gap-2">
-                        <Sparkles size={10} /> {currentData.label}
-                      </span>
-
-                      {/* Heading */}
-                      <h2 className={`text-3xl text-white mb-3 ${fontHeading}`}>
-                        {currentData.title}
-                      </h2>
-                      
-                      {/* Description */}
-                      <p className={`text-sm leading-relaxed mb-8 ${fontBody}`}>
-                        {currentData.desc} <br/>
-                        Unlock immediately with a student ID.
-                      </p>
-
-                      {/* Input Field */}
-                      <div className="group relative mb-2">
-                        <input 
-                            type="email" 
-                            placeholder="university email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            className="w-full bg-transparent border-b border-neutral-800 py-3 text-white text-base font-light placeholder:text-neutral-700 focus:outline-none focus:border-white transition-colors"
-                        />
-                        <div className="absolute right-0 top-3 text-neutral-700">
-                            <GraduationCap size={18} strokeWidth={1.5}/>
-                        </div>
-                      </div>
-                      
-                      {/* Error Message */}
-                      <div className="h-6 flex items-start">
-                         {error && <span className="text-[10px] text-red-500 font-medium tracking-wide">{error}</span>}
-                      </div>
-
-                      {/* Action Button */}
-                      <button 
-                        onClick={handleVerify}
-                        disabled={!email || loading}
-                        className="w-full mt-4 bg-white text-black h-12 rounded-lg font-medium text-sm hover:bg-neutral-200 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
-                      >
-                         {loading ? <Loader2 className="animate-spin" size={16}/> : "Unlock Access"} 
-                      </button>
-
-                      {/* Alternative Link */}
-                      <button 
-                        onClick={() => navigate('/pricing')}
-                        className="mt-6 text-[11px] text-neutral-600 hover:text-neutral-400 uppercase tracking-widest text-center transition-colors"
-                      >
-                        Not a student? View Plans
-                      </button>
-                  </div>
-              )}
-
-              {/* ================= STEP: SUCCESS ================= */}
-              {step === "success" && (
-                  <div className="p-10 flex flex-col items-center justify-center text-center min-h-[400px]">
-                      <motion.div 
+            {/* Header: Holographic Gradient */}
+            <div className="relative h-48 bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 flex flex-col items-center justify-center text-center p-6">
+                {/* Noise Texture Overlay */}
+                <div className="absolute inset-0 opacity-20 bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
+                
+                <button 
+                    onClick={onClose} 
+                    className="absolute top-5 right-5 w-8 h-8 rounded-full bg-black/10 hover:bg-black/20 flex items-center justify-center text-white transition-colors backdrop-blur-sm z-10"
+                >
+                    <X size={16} />
+                </button>
+                
+                {step === 'success' ? (
+                    <motion.div 
                         initial={{ scale: 0.8, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
-                        className="w-16 h-16 rounded-full border border-[#D4AF37]/30 flex items-center justify-center mb-6"
-                      >
-                        <Check size={24} className="text-[#D4AF37]" strokeWidth={1.5} />
-                      </motion.div>
+                        className="flex flex-col items-center relative z-10"
+                    >
+                        <div className="bg-white text-purple-600 rounded-full p-4 mb-4 shadow-xl shadow-purple-900/20">
+                            <Check size={36} strokeWidth={4} />
+                        </div>
+                        <h2 className="text-3xl font-bold text-white tracking-tight">Unlocked!</h2>
+                    </motion.div>
+                ) : (
+                    <motion.div 
+                        initial={{ y: 5, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        className="relative z-10"
+                    >
+                        <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-white/20 backdrop-blur-md">
+                            <GraduationCap className="text-white" size={24} />
+                        </div>
+                        <h2 className="text-4xl font-bold text-white tracking-tight drop-shadow-md">
+                            Student Verification
+                        </h2>
+                    </motion.div>
+                )}
+            </div>
 
-                      <h3 className={`text-2xl text-white mb-2 ${fontHeading}`}>
-                        Unlocked.
-                      </h3>
-                      
-                      <p className={`text-sm mb-6 ${fontBody}`}>
-                        Welcome to Folio Max, <span className="text-white font-normal">{collegeName}</span>. <br/>
-                        Your premium features are now active.
-                      </p>
+            {/* Body */}
+            <div className="bg-[#121212] p-8">
+                
+                {step === 'success' ? (
+                    <div className="text-center py-6">
+                        <p className="text-neutral-400 text-sm">Your account has been upgraded to <span className="text-white font-bold">Max Tier</span>.</p>
+                        <div className="mt-6 h-1 w-full bg-neutral-800 rounded-full overflow-hidden">
+                            <motion.div 
+                                initial={{ width: 0 }}
+                                animate={{ width: "100%" }}
+                                transition={{ duration: 2 }}
+                                className="h-full bg-purple-500"
+                            />
+                        </div>
+                        <p className="text-purple-400 mt-2 text-xs font-mono animate-pulse">Redirecting to Dashboard...</p>
+                    </div>
+                ) : (
+                    <>
+                        <p className="text-center text-neutral-400 text-sm leading-relaxed mb-8 px-4 font-light">
+                            Enter your university email address to instantly unlock the full <strong>FolioFYX Suite</strong> for free.
+                        </p>
 
-                      <div className="h-1 w-12 bg-neutral-800 rounded-full overflow-hidden">
-                          <motion.div 
-                            initial={{ x: "-100%" }}
-                            animate={{ x: "0%" }}
-                            transition={{ duration: 2, ease: "linear" }}
-                            className="h-full w-full bg-white"
-                          />
-                      </div>
-                  </div>
-              )}
+                        {/* Input Field */}
+                        <div className="mb-6 relative">
+                            <input 
+                                type="email" 
+                                placeholder="name@gitam.in"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                disabled={loading}
+                                className="w-full bg-[#1E1E20] border border-white/5 focus:border-purple-500/50 rounded-xl py-4 px-5 text-white placeholder:text-neutral-600 outline-none transition-all text-sm shadow-inner"
+                            />
+                            {error && (
+                                <motion.p 
+                                    initial={{ opacity: 0, y: -5 }} 
+                                    animate={{ opacity: 1, y: 0 }} 
+                                    className="absolute -bottom-6 left-1 text-xs text-red-400 font-medium flex items-center gap-1"
+                                >
+                                    <span className="w-1 h-1 rounded-full bg-red-400"/> {error}
+                                </motion.p>
+                            )}
+                        </div>
 
+                        {/* Buttons */}
+                        <div className="flex gap-3 items-center pt-4">
+                            <button 
+                                onClick={handleVerifyAndActivate}
+                                disabled={loading || !email}
+                                className="w-full py-4 rounded-xl bg-white text-black text-sm font-bold hover:bg-neutral-200 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_20px_-5px_rgba(255,255,255,0.2)]"
+                            >
+                                {loading ? (
+                                    <div className="flex items-center gap-2">
+                                        <Loader2 size={18} className="animate-spin" />
+                                        <span>Checking Database...</span>
+                                    </div>
+                                ) : (
+                                    <>Verify & Unlock <Sparkles size={16} className="text-purple-600" /></>
+                                )}
+                            </button>
+                        </div>
+                    </>
+                )}
             </div>
           </motion.div>
         </>

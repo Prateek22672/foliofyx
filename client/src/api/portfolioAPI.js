@@ -34,3 +34,5 @@ export const getPublicPortfolios = async () => {
   const res = await axiosInstance.get("/portfolio/public");
   return res.data;
 };
+
+

@@ -4,75 +4,44 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useSplash } from "../context/SplashContext";
-import { 
-  LayoutDashboard, 
-  LayoutTemplate, 
-  Users, 
-  Briefcase, 
-  Sparkles, 
-  Info, 
-  LogOut,
-  ChevronRight,
-  Zap,
-  Crown,
-  Settings
-} from "lucide-react";
+import { ChevronRight } from "lucide-react";
 
 const UserProfileMenu = () => {
   const { user, logout } = useAuth();
   const { showSplash } = useSplash();
   const [menuOpen, setMenuOpen] = useState(false);
   const [coords, setCoords] = useState({ top: 0, left: 0 });
-  const [alignment, setAlignment] = useState("left");
   const navigate = useNavigate();
   const buttonRef = useRef(null);
 
-  // === 1. PLAN CONFIGURATION ===
+  // === MOCK PLAN STATUS (Replace with actual user.plan from your DB) ===
+  // Logic: If user.plan exists check if it is free, otherwise assume max
   const userPlan = user?.plan || "free"; 
+  const isFree = userPlan.toLowerCase() === "free";
 
-  const planStyles = {
-    free: {
-      badge: "bg-white/5 text-neutral-400 border-white/10 ring-0",
-      icon: null
-    },
-    plus: {
-      badge: "bg-blue-500/15 text-blue-300 border-blue-500/20 shadow-[0_0_12px_rgba(59,130,246,0.3)]",
-      icon: <Zap size={10} className="fill-blue-400 text-blue-400" />
-    },
-    max: {
-      badge: "bg-amber-500/15 text-amber-300 border-amber-500/20 shadow-[0_0_12px_rgba(245,158,11,0.3)]",
-      icon: <Crown size={10} className="fill-amber-400 text-amber-400" />
-    }
-  };
-
-  const currentStyle = planStyles[userPlan] || planStyles.free;
-
-  // === SMART POSITIONING LOGIC ===
+  // === SMART POSITIONING ===
   const updatePosition = () => {
     if (buttonRef.current) {
       const rect = buttonRef.current.getBoundingClientRect();
       const screenW = window.innerWidth;
-      const menuWidth = 290; // Slightly wider for premium feel
+      const menuWidth = 230; // Reduced width slightly
 
-      const isLeftSide = rect.left < screenW / 2;
-      
       let calculatedLeft = rect.left;
-      let align = "left";
 
-      if (isLeftSide) {
-         align = "left";
-         calculatedLeft = rect.left;
-         if (calculatedLeft < 10) calculatedLeft = 10;
-      } else {
-         align = "right";
-         calculatedLeft = rect.right - menuWidth + rect.width; 
+      // Adjust if going off-screen to the right
+      if (rect.left + menuWidth > screenW) {
+        calculatedLeft = rect.right - menuWidth;
+      }
+
+      // Final safety check
+      if (calculatedLeft + menuWidth > screenW - 16) {
+        calculatedLeft = screenW - menuWidth - 16;
       }
 
       setCoords({
-        top: rect.bottom + window.scrollY + 16, 
+        top: rect.bottom + window.scrollY + 6, // Tighter gap
         left: calculatedLeft
       });
-      setAlignment(align);
     }
   };
 
@@ -86,177 +55,131 @@ const UserProfileMenu = () => {
   useEffect(() => {
     const handleResize = () => setMenuOpen(false);
     window.addEventListener("resize", handleResize);
-    window.addEventListener("scroll", handleResize, true);
-    return () => {
-      window.removeEventListener("resize", handleResize);
-      window.removeEventListener("scroll", handleResize, true);
-    };
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   if (!user) return null;
 
-  const handleNavigate = (route, message) => {
+  const handleNavigate = (route) => {
     setMenuOpen(false);
-    showSplash(1200, () => navigate(route), message);
+    navigate(route);
   };
 
   const handleLogout = () => {
     setMenuOpen(false);
-    showSplash(2000, () => {
+    showSplash(1500, () => {
       logout();
       navigate("/");
-    }, "Signing out...");
+    }, "Logging out...");
   };
 
   return (
     <>
-      {/* 🧑 TRIGGER BUTTON */}
-      <motion.button
+      {/* 🧑 TRIGGER AVATAR */}
+      <button
         ref={buttonRef}
-        whileTap={{ scale: 0.95 }}
         onClick={toggleMenu}
         className={`
-          relative z-40 flex items-center justify-center rounded-full transition-all duration-300
-          w-10 h-10 
-          bg-[#0a0a0a] 
-          border border-white/10
-          hover:bg-black hover:border-white/20 hover:shadow-[0_0_15px_rgba(255,255,255,0.15)]
-          ${menuOpen ? `ring-2 ring-white/20 border-transparent bg-black` : ""}
+          relative w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200
+          ${menuOpen ? "bg-[#1e1e1e] ring-2 ring-[#333]" : "bg-[#1e1e1e] hover:bg-[#2a2a2a]"}
         `}
       >
-        <span className="text-white font-medium text-sm" style={{ fontFamily: 'Switzer, sans-serif' }}>
+        <span className="text-white font-semibold text-xs">
           {user.name?.charAt(0).toUpperCase()}
         </span>
-        {/* Status Dot */}
-        <span className={`absolute bottom-0 right-0 w-2.5 h-2.5 border-2 border-black rounded-full ${userPlan === 'free' ? 'bg-emerald-500' : userPlan === 'plus' ? 'bg-blue-500' : 'bg-amber-400'}`}></span>
-      </motion.button>
+      </button>
 
       {/* 🛡️ PORTAL MENU */}
       {createPortal(
         <AnimatePresence>
           {menuOpen && (
             <>
-              {/* Invisible Backdrop */}
-              <div 
-                className="fixed inset-0 z-[99998] cursor-default bg-transparent" 
-                onClick={() => setMenuOpen(false)} 
+              {/* CLICK BACKDROP */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.15 }}
+                className="fixed inset-0 z-[99998] bg-black/10 backdrop-blur-[1px]"
+                onClick={() => setMenuOpen(false)}
               />
 
-              {/* MENU DROPDOWN */}
+              {/* MENU DROPDOWN - COMPACT */}
               <motion.div
-                key="premium-menu"
-                initial={{ opacity: 0, scale: 0.92, y: -8, filter: "blur(4px)" }}
-                animate={{ opacity: 1, scale: 1, y: 0, filter: "blur(0px)" }}
-                exit={{ opacity: 0, scale: 0.95, y: -8, filter: "blur(4px)", transition: { duration: 0.15 } }}
-                transition={{ type: "spring", stiffness: 350, damping: 25 }}
+                initial={{ opacity: 0, scale: 0.95, y: -5 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: -5, transition: { duration: 0.1 } }}
+                transition={{ duration: 0.1 }}
                 style={{
                   position: "absolute",
                   top: coords.top,
                   left: coords.left,
                   zIndex: 99999,
-                  transformOrigin: alignment === "left" ? "top left" : "top right",
-                  fontFamily: 'Switzer, sans-serif' // ✅ Forces Switzer
                 }}
                 className="
-                  w-[290px] rounded-3xl overflow-hidden
-                  bg-[#121212]/85 backdrop-blur-2xl
-                  border border-white/10
-                  shadow-[0_40px_80px_-15px_rgba(0,0,0,0.8)]
-                  ring-1 ring-white/5
+                  w-[230px] rounded-2xl overflow-hidden
+                  bg-[#1e1e1e]/95 backdrop-blur-xl
+                  border border-[#333]/60
+                  shadow-2xl shadow-black/80
+                  text-[#E5E5E5] font-sans
+                  p-1.5 flex flex-col
                 "
                 onClick={(e) => e.stopPropagation()}
               >
-                {/* Glossy Top Edge Highlight */}
-                <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-50" />
 
-                {/* === HEADER SECTION === */}
-                <div className="relative p-6 border-b border-white/5 overflow-hidden group">
-                   {/* Subtle Gradient Glow Background */}
-                   <div className="absolute top-0 right-0 w-[80%] h-[100%] bg-gradient-to-b from-white/[0.03] to-transparent blur-xl rounded-full translate-x-10 -translate-y-10 pointer-events-none"></div>
-
-                   <div className="relative z-10 flex items-center gap-4">
-                      {/* Avatar */}
-                      <div className={`w-12 h-12 shrink-0 rounded-2xl shadow-inner bg-gradient-to-br from-[#2a2a2a] to-[#0a0a0a] border border-white/10 flex items-center justify-center`}>
-                         <span className="text-white font-semibold text-lg">
-                           {user.name?.charAt(0).toUpperCase()}
-                         </span>
-                      </div>
-                      
-                      {/* Text Info */}
-                      <div className="flex flex-col min-w-0">
-                         <span className="text-white font-medium text-[15px] truncate tracking-wide">
-                           {user.name}
-                         </span>
-                         
-                         {/* Plan Badge */}
-                         <div className={`mt-1.5 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest border ${currentStyle.badge}`}>
-                             {currentStyle.icon}
-                             {userPlan} Plan
-                         </div>
-                      </div>
-                   </div>
+                {/* === SECTION 1: PROFILE & PLAN === */}
+                <div className="px-3 py-2.5 flex items-center gap-3 rounded-xl bg-[#2a2a2a]/40 mb-1">  
+                  {/* Avatar */}
+                  <div className="w-8 h-8 rounded-full bg-[#2D3342] flex items-center justify-center shrink-0 border border-white/5">
+                    <span className="text-[#60A5FA] font-medium text-xs">
+                      {user.name?.slice(0, 2).toUpperCase()}
+                    </span>
+                  </div>
+                  
+                  {/* User Info & Plan Badge */}
+                  <div className="flex flex-col min-w-0 flex-1">
+                    <div className="flex justify-between items-center w-full">
+                      <span className="text-[13px] font-semibold text-white leading-tight truncate mr-2">
+                        {user.name}
+                      </span>
+                      {/* PLAN STATUS BADGE */}
+                      <span className={`
+                        text-[9px] font-bold px-1.5 py-[1px] rounded-[4px] tracking-wide uppercase
+                        ${isFree 
+                          ? "bg-[#333] text-[#888] border border-[#444]" 
+                          : "bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-lg shadow-indigo-500/20"}
+                      `}>
+                        {isFree ? "FREE" : "MAX"}
+                      </span>
+                    </div>
+                    <span className="text-[11px] text-[#777] truncate mt-0.5">
+                      @{user.email?.split('@')[0]}
+                    </span>
+                  </div>
                 </div>
 
-                {/* === NAVIGATION LINKS === */}
-                <div className="p-2 flex flex-col gap-1">
-                   <MenuItem 
-                     icon={<LayoutDashboard size={16} />} 
-                     label="Dashboard" 
-                     onClick={() => handleNavigate("/dashboard", "Opening Dashboard...")} 
-                   />
-                   <MenuItem 
-                     icon={<LayoutTemplate size={16} />} 
-                     label="Templates" 
-                     onClick={() => handleNavigate("/Templates", "Loading Templates...")} 
-                   />
-                   <MenuItem 
-                     icon={<Users size={16} />} 
-                     label="Find Talent" 
-                     onClick={() => handleNavigate("/talent", "Exploring Talent...")} 
-                   />
-                   <MenuItem 
-                     icon={<Briefcase size={16} />} 
-                     label="Pricing" 
-                     onClick={() => handleNavigate("/pricing", "Viewing pricing...")} 
-                   />
-                   
-                   <div className="my-2 h-[1px] bg-white/5 mx-3" />
-                   
-                   <MenuItem 
-                     icon={<Sparkles size={16} />} 
-                     label="New Features" 
-                     highlight
-                     onClick={() => handleNavigate("/release", "Checking Updates...")} 
-                   />
-                   <MenuItem 
-                     icon={<Settings size={16} />} 
-                     label="Account Settings" 
-                     onClick={() => handleNavigate("/profile", "Opening Settings...")} 
-                   />
-                   <MenuItem 
-                     icon={<Info size={16} />} 
-                     label="About FolioFYX" 
-                     onClick={() => handleNavigate("/about", "Going to About...")} 
-                   />
+                {/* Divider */}
+                <div className="h-[1px] bg-[#333]/40 mx-2 my-0.5" /> 
+
+                {/* === SECTION 2: MAIN ACTIONS (COMPACT) === */}
+                <div className="py-0.5 space-y-[1px]">  
+                  <MenuItem label="Dashboard" onClick={() => handleNavigate("/dashboard")} />
+                  <MenuItem label="New Features" onClick={() => handleNavigate("/release")} />
+                  <MenuItem label="Templates" onClick={() => handleNavigate("/templates")} />
+                  <MenuItem label="Settings" onClick={() => handleNavigate("/profile")} />
+                  <MenuItem label="Benefits" onClick={() => handleNavigate("/benefits")} />
                 </div>
 
-                {/* === FOOTER === */}
-                <div className="p-2 border-t border-white/5 bg-white/[0.02]">
-                   <button 
-                     onClick={handleLogout} 
-                     className="
-                       w-full flex items-center justify-between px-4 py-3 rounded-2xl
-                       text-[13px] font-medium text-neutral-400 
-                       hover:text-red-300 hover:bg-red-500/10 
-                       transition-all duration-200 group
-                     "
-                   >
-                     <span className="flex items-center gap-3">
-                       <LogOut size={16} className="group-hover:-translate-x-0.5 transition-transform" /> 
-                       Sign Out
-                     </span>
-                   </button>
+                {/* Divider */}
+                <div className="h-[1px] bg-[#333]/40 mx-2 my-0.5" />
+
+                {/* === SECTION 3: FOOTER (COMPACT) === */}
+                <div className="py-0.5 space-y-[1px]">
+                  <MenuItem label="Help" hasArrow onClick={() => handleNavigate("/about")} />
+                  <MenuItem label="Legal" hasArrow onClick={() => handleNavigate("/legal")} />
+                  <MenuItem label="Log out" isDanger onClick={handleLogout} />
                 </div>
+
               </motion.div>
             </>
           )}
@@ -267,31 +190,22 @@ const UserProfileMenu = () => {
   );
 };
 
-// === SUB-COMPONENT: MENU ITEM ===
-const MenuItem = ({ icon, label, onClick, highlight }) => (
-  <button 
-    onClick={onClick} 
+// === SUB-COMPONENT: COMPACT ITEM ===
+const MenuItem = ({ label, onClick, hasArrow, isDanger }) => (
+  <button
+    onClick={onClick}
     className={`
-      group w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl 
-      text-[13px] font-medium tracking-wide transition-all duration-300
-      relative overflow-hidden
-      ${highlight 
-        ? "text-white bg-white/5 border border-white/5 hover:bg-white/10" 
-        : "text-neutral-400 hover:text-white hover:bg-white/[0.06]"
-      }
+      w-full flex items-center justify-between px-3 py-1.5 rounded-lg
+      text-[13px] font-medium transition-all duration-150 group text-left
+      ${isDanger 
+        ? "text-red-400 hover:bg-red-500/10 hover:text-red-300" 
+        : "text-[#d4d4d4] hover:bg-white/[0.06] hover:text-white"}
     `}
   >
-    <div className="flex items-center gap-3 relative z-10">
-      <span className={`transition-colors duration-200 ${highlight ? "text-purple-300" : "text-neutral-500 group-hover:text-white"}`}>
-        {icon}
-      </span>
-      {label}
-    </div>
-    
-    <ChevronRight 
-      size={14} 
-      className="opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 text-neutral-500 group-hover:text-white" 
-    />
+    <span>{label}</span>
+    {hasArrow && (
+      <ChevronRight size={14} className="text-[#555] group-hover:text-white transition-colors" />
+    )}
   </button>
 );
 

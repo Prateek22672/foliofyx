@@ -1,224 +1,129 @@
-import React, { useEffect, useState, useRef } from "react";
-import { motion, useAnimation, useInView } from "framer-motion";
+import React from "react";
+import { motion } from "framer-motion";
 
-// --- Helper for the Kinetic Text Effect ---
-const MarqueeRow = ({ text, direction, speed, isCenter, animControls, verticalDir = 0 }) => {
-  const moveDir = direction === "left" ? -1 : 1;
-  return (
-    <motion.div
-      style={{
-        display: "flex",
-        whiteSpace: "nowrap",
-        gap: "2rem",
-        opacity: isCenter ? 1 : 0.2, 
-        fontWeight: isCenter ? 400 : 300, 
-        fontSize: "10vw", 
-        textTransform: "uppercase",
-        lineHeight: 0.9,
-        color: isCenter ? "#0d0d82" : "rgba(13, 13, 130, 0.1)", 
-        rotate: isCenter ? 0 : moveDir * 2,
-        fontFamily: "'Inter', sans-serif", 
-      }}
-      animate={
-        isCenter
-          ? animControls 
-          : { 
-              x: [0, moveDir * 1000], 
-              y: [0, verticalDir * 200] 
-            } 
-      }
-      transition={{
-        x: { repeat: Infinity, duration: speed, ease: "linear" },
-        y: { repeat: Infinity, duration: speed, ease: "linear" }
-      }}
-    >
-      {[...Array(10)].map((_, i) => (
-        <span key={i} className={isCenter ? "hero-text" : ""}>
-          {text}
-        </span>
-      ))}
-    </motion.div>
-  );
+// --- CSS Animation Styles (Inline for simplicity) ---
+const marqueeStyle = {
+  display: "flex",
+  gap: "4rem", // space between words
+  width: "max-content",
+  animation: "marquee 20s linear infinite", // CSS Animation
 };
 
+const keyframes = `
+  @keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+`;
+
 export default function SectionBlue({ handleNavigation }) {
-  const sectionRef = useRef(null);
-  
-  // 1. RE-TRIGGER LOGIC: Set 'once' to false so it detects every entry
-  const isInView = useInView(sectionRef, { once: false, amount: 0.3 });
-  
-  const wrapperControls = useAnimation();
-  const centerTextControls = useAnimation();
-  const [showContent, setShowContent] = useState(false);
-
-  useEffect(() => {
-    const sequence = async () => {
-      if (isInView) {
-        // --- PLAY ANIMATION ---
-        
-        // 1. Reset manually to ensure chaos start
-        await wrapperControls.set({ scale: 25, rotate: 10, opacity: 1 });
-        
-        // 2. Snap Zoom Out
-        wrapperControls.start({
-          scale: 1,
-          rotate: 0,
-          opacity: 1, // Ensure visible
-          transition: { duration: 1.5, ease: [0.16, 1, 0.3, 1] }, 
-        });
-
-        // 3. Reveal Button & Content after zoom settles
-        setTimeout(() => {
-          setShowContent(true);
-        }, 1000);
-
-      } else {
-        // --- RESET ANIMATION (When scrolling away) ---
-        setShowContent(false);
-        wrapperControls.set({ scale: 25, rotate: 10, opacity: 0 }); // Hide/Reset
-      }
-    };
-    sequence();
-  }, [isInView, wrapperControls]);
-
-  const rowFadeVariants = {
-    initial: { opacity: 1 },
-    animate: { opacity: 0, transition: { duration: 1, delay: 0.8 } },
+  // Simple reveal animation for the card
+  const cardVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: { 
+      opacity: 1, 
+      y: 0, 
+      transition: { duration: 0.8, ease: "easeOut", delay: 0.2 } 
+    }
   };
 
   return (
     <section
-      ref={sectionRef}
-      className="
-        fixed inset-0 
-        flex flex-col items-center justify-center 
-        text-[#0d0d82] 
-        bg-[#9aa9ff] 
-        z-[4] 
-        rounded-t-[60px]
-        overflow-hidden
-      "
+      className="fixed inset-0 flex flex-col items-center justify-center bg-[#4F46E5] overflow-hidden rounded-t-[50px] z-[5] font-['Syne']"
       style={{
-        transform: `
-          translateY(
-            calc(
-              max(0px, (3 - var(--scroll, 0)) * 150vh)
-            )
-          )
-        `,
-        transition: "transform 0s linear",
+        transform: `translateY(calc(max(0px, (15.5 - var(--scroll, 0)) * 100vh)))`,
+        willChange: "transform" // Critical for scroll performance
       }}
     >
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap');
-        .font-inter-light { font-family: 'Inter', sans-serif; font-weight: 300; }
-      `}</style>
+      <style>{keyframes}</style>
 
-      {/* ===========================================
-          BACKGROUND: Kinetic Swarm "FOLIOFYX"
-      =========================================== */}
-      <motion.div
-        className="absolute inset-0 flex flex-col justify-center items-center pointer-events-none z-0"
-        initial="initial"
-        animate="animate"
-      >
-        <motion.div animate={wrapperControls}>
-            {/* Top Chaos */}
-            <motion.div variants={rowFadeVariants}>
-               <MarqueeRow text="FOLIOFYX" direction="left" verticalDir={-1} speed={20} />
-               <MarqueeRow text="FOLIOFYX" direction="right" verticalDir={1} speed={25} />
-            </motion.div>
+      {/* --- LAYER 1: STATIC AMBIENT GLOW --- */}
+      {/* Reduced blur radius to save GPU memory */}
+      <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-[-10%] left-[-10%] w-[40vw] h-[40vw] bg-white/10 rounded-full blur-[80px] mix-blend-screen" />
+          <div className="absolute bottom-[-10%] right-[-10%] w-[40vw] h-[40vw] bg-indigo-300/20 rounded-full blur-[80px] mix-blend-overlay" />
+      </div>
 
-            {/* The Main Text (Will be replaced by final content) */}
-            <div className="relative z-10 py-4">
-              <motion.h1
-                animate={centerTextControls}
-                className="font-inter-light" 
-                style={{
-                    fontSize: "12vw",
-                    fontWeight: 300, 
-                    textTransform: "uppercase",
-                    margin: 0,
-                    lineHeight: 1,
-                    whiteSpace: "nowrap",
-                    color: "#0d0d82",
-                    // Fade out the chaotic text when the final clean content appears
-                    opacity: showContent ? 0 : 1, 
-                    transition: "opacity 0.5s ease"
-                }}
-              >
+      {/* --- LAYER 2: SMOOTH CSS MARQUEE --- */}
+      <div className="absolute inset-0 flex flex-col justify-center items-center opacity-10 pointer-events-none select-none overflow-hidden">
+         <div style={marqueeStyle}>
+            {/* We repeat the text enough times to fill the screen + buffer */}
+            {[...Array(8)].map((_, i) => (
+              <span key={i} className="text-[15vh] font-extrabold text-white leading-none">
                 FOLIOFYX
-              </motion.h1>
-            </div>
+              </span>
+            ))}
+         </div>
+      </div>
 
-            {/* Bottom Chaos */}
-            <motion.div variants={rowFadeVariants}>
-               <MarqueeRow text="FOLIOFYX" direction="right" verticalDir={-1} speed={25} />
-               <MarqueeRow text="FOLIOFYX" direction="left" verticalDir={1} speed={20} />
-            </motion.div>
-        </motion.div>
-      </motion.div>
-
-      {/* ===========================================
-          FOREGROUND: Main Content (Final State)
-      =========================================== */}
+      {/* --- LAYER 3: MAIN CARD --- */}
       <motion.div 
-        className="relative z-10 flex flex-col items-center w-full h-full justify-center"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: showContent ? 1 : 0 }}
-        transition={{ duration: 0.8 }}
+        className="relative z-20 w-full max-w-5xl px-6 flex flex-col items-center"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-100px" }} // Triggers once nicely
+        variants={cardVariants}
       >
         
-        {/* Top Icon */}
-        <img className="absolute top-10 sm:top-16 w-[80px] sm:w-[100px] m-auto block opacity-80" src="ai.svg" alt="AI" />
+        {/* GLASS CARD */}
+        <div className="
+            relative w-full backdrop-blur-xl bg-white/10
+            rounded-[40px] border border-white/20
+            p-8 md:p-14 text-center
+            shadow-2xl
+            overflow-hidden
+        ">
+            {/* Simple Gradient Overlay */}
+            <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent pointer-events-none" />
 
-        {/* Center Content Group */}
-        <div className="flex flex-col items-center mt-20 sm:mt-0 text-center px-4">
-            
-            {/* Replaced Kinetic Text with the Clean Final Title */}
-            <h2 className="text-5xl font-light sm:text-7xl text-center mb-10 leading-tight font-inter-light">
-               Dream it. Design it.<br /> 
-               <span className="font-normal">FolioFyX it.</span>
+            {/* Icon */}
+            <div className="mx-auto w-16 h-16 bg-white rounded-2xl flex items-center justify-center mb-6 shadow-lg">
+               <img src="/ai.svg" alt="AI" className="w-8 h-8" />
+            </div>
+
+            {/* Typography */}
+            <h2 className="text-4xl md:text-6xl font-extrabold text-white mb-6 leading-tight tracking-tight">
+                Dream it. Design it.<br/>
+                <span className="text-indigo-200">
+                    FolioFYX it.
+                </span>
             </h2>
-            
+
+            <p className="text-lg md:text-xl text-indigo-100 max-w-2xl mx-auto mb-8 font-medium font-sans">
+                Turn your ideas into a stunning reality. No coding required.<br className="hidden md:block"/> 
+                Just pure creativity powered by AI.
+            </p>
+
+            {/* Button */}
             <button
                 onClick={() => handleNavigation("/create")}
                 className="
-                  bg-[#0d0d82] text-white 
-                  px-8 py-3 sm:px-10 sm:py-4 
-                  rounded-full text-lg sm:text-xl 
-                  hover:scale-105 hover:bg-[#0a0a65]
-                  transition-all duration-300 shadow-xl
-                  font-inter-light font-normal
+                    inline-flex items-center gap-2 px-8 py-4 
+                    bg-white text-indigo-600 rounded-full 
+                    font-bold text-lg 
+                    hover:scale-105 transition-transform duration-200
+                    shadow-lg
                 "
             >
                 Create Your Portfolio
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
             </button>
         </div>
 
-        {/* Footer Area */}
-        <div className="absolute flex items-center justify-center bottom-10 sm:bottom-14">
-            <p className="font-inter-light text-sm sm:text-base relative bg-gradient-to-r from-[#0d0d82] via-[#1a1a1a] to-black bg-clip-text text-transparent animate-gradient-shine">
-            Simplified by AI
-            <img
-                src="/ai.svg"
-                alt="AI Icon"
-                className="absolute -top-2 -right-4 w-4 h-4 sm:w-5 sm:h-5 opacity-90"
-            />
-            </p>
-        </div>
-
-        {/* Bottom Right Image */}
+        {/* FLOATING LOGO */}
         <motion.img 
-            initial={{ x: 100, opacity: 0 }}
-            animate={{ x: showContent ? 0 : 100, opacity: showContent ? 1 : 0 }}
-            transition={{ delay: 0.2, duration: 0.8 }}
-            className="bottom-6 right-6 sm:bottom-10 sm:right-10 absolute w-[150px] sm:w-[200px] rounded-3xl shadow-lg rotate-[-5deg] hover:rotate-0 transition-transform duration-500" 
-            src="fyx3.png" 
+            src="/logow.png" 
             alt="FolioFyX"
+            className="absolute -bottom-10 -left-6 md:-left-12 w-32 md:w-40 drop-shadow-xl z-30 pointer-events-none"
+            initial={{ y: 20, opacity: 0 }}
+            whileInView={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.5, duration: 0.8 }}
         />
 
       </motion.div>
+
     </section>
   );
 }

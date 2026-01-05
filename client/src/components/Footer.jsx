@@ -10,52 +10,53 @@ import { Link } from "react-router-dom";
 
 const Footer = () => {
   return (
-    <footer className="bg-white text-black font-['Wix_Madefor_Text'] border-t border-gray-200">
+    // UPDATED: Font changed to Switzer
+    <footer className="bg-white text-black font-['Switzer'] border-t border-gray-200">
       
       {/* ====================== TOP GRID ====================== */}
       <div className="max-w-7xl mx-auto px-6 md:px-10 py-16 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-6 gap-12">
 
         {/* -------- PRODUCT -------- */}
         <div>
-          <h3 className="font-semibold text-lg mb-4 text-[#0d355c]">Product</h3>
+          <h3 className="font-bold text-lg mb-4 text-[#0d355c]">Product</h3>
           <ul className="space-y-2 text-sm text-gray-700">
-            <li><Link to="/themes" className="footer-link">Portfolio Templates</Link></li>
+            <li><Link to="/templates" className="footer-link">Portfolio Templates</Link></li>
             <li><Link to="/create" className="footer-link">AI Portfolio Builder</Link></li>
             <li><Link to="/dashboard" className="footer-link">Design Studio</Link></li>
-            <li><Link to="/custom-domain" className="footer-link">Custom Domain</Link></li>
-            <li><Link to="/hosting" className="footer-link">Hosting by Foliofy</Link></li>
+            <li><Link to="/studio" className="footer-link">FolioFYX Studio</Link></li>
+            <li><Link to="/benefits" className="footer-link">Pricing & Benefits</Link></li>
           </ul>
         </div>
 
         {/* -------- SOLUTIONS -------- */}
         <div>
-          <h3 className="font-semibold text-lg mb-4 text-[#0d355c]">Solutions</h3>
+          <h3 className="font-bold text-lg mb-4 text-[#0d355c]">Solutions</h3>
           <ul className="space-y-2 text-sm text-gray-700">
-            <li><Link to="/solutions/students" className="footer-link">Student Portfolios</Link></li>
-            <li><Link to="/solutions/developers" className="footer-link">Developer Showcase</Link></li>
-            <li><Link to="/solutions/freelancers" className="footer-link">Freelancer Portfolios</Link></li>
-            <li><Link to="/solutions/designers" className="footer-link">Design Portfolios</Link></li>
-            <li><Link to="/solutions/personal-branding" className="footer-link">Personal Branding</Link></li>
+            <li><Link to="/templates/cs-students" className="footer-link">Student Portfolios</Link></li>
+            <li><Link to="/templates?category=developer" className="footer-link">Developer Showcase</Link></li>
+            <li><Link to="/templates?category=freelancer" className="footer-link">Freelancer Portfolios</Link></li>
+            <li><Link to="/templates?category=design" className="footer-link">Design Portfolios</Link></li>
+            <li><Link to="/create" className="footer-link">Personal Branding</Link></li>
           </ul>
         </div>
 
         {/* -------- THEMES -------- */}
         <div>
-          <h3 className="font-semibold text-lg mb-4 text-[#0d355c]">Themes</h3>
+          <h3 className="font-bold text-lg mb-4 text-[#0d355c]">Themes</h3>
           <ul className="space-y-2 text-sm text-gray-700">
-            <li><Link to="/themes/minimal" className="footer-link">Minimal Theme</Link></li>
-            <li><Link to="/themes/creative" className="footer-link">Creative Theme</Link></li>
-            <li><Link to="/themes/business" className="footer-link">Business Theme</Link></li>
-            <li><Link to="/themes/prateek" className="footer-link">Prateek’s Studio Theme</Link></li>
+            <li><Link to="/templates?filter=minimal" className="footer-link">Minimal Theme</Link></li>
+            <li><Link to="/templates?filter=creative" className="footer-link">Creative Theme</Link></li>
+            <li><Link to="/templates?filter=business" className="footer-link">Business Theme</Link></li>
+            <li><Link to="/demo/prateek" className="footer-link">Prateek’s Studio Theme</Link></li>
           </ul>
         </div>
 
         {/* -------- TALENT -------- */}
         <div>
-          <h3 className="font-semibold text-lg mb-4 text-[#0d355c]">Talent</h3>
+          <h3 className="font-bold text-lg mb-4 text-[#0d355c]">Talent</h3>
           <ul className="space-y-2 text-sm text-gray-700">
             <li><Link to="/talent" className="footer-link">Explore Public Profiles</Link></li>
-            <li><Link to="/find-talent" className="footer-link">Find Talent</Link></li>
+            <li><Link to="/talent" className="footer-link">Find Talent</Link></li>
             <li><Link to="/create" className="footer-link">Become a Creator</Link></li>
             <li><Link to="/dashboard" className="footer-link">My Talent Dashboard</Link></li>
           </ul>
@@ -63,11 +64,11 @@ const Footer = () => {
 
         {/* -------- SUPPORT -------- */}
         <div>
-          <h3 className="font-semibold text-lg mb-4 text-[#0d355c]">Support</h3>
+          <h3 className="font-bold text-lg mb-4 text-[#0d355c]">Support</h3>
           <ul className="space-y-2 text-sm text-gray-700">
-            <li><Link to="/contact" className="footer-link">Contact Support</Link></li>
-            <li><a href="mailto:support@foliofy.com" className="footer-link">Report an Issue</a></li>
-            <li><Link to="/faqs" className="footer-link">FAQs</Link></li>
+            <li><Link to="/about" className="footer-link">Contact Support</Link></li>
+            <li><a href="mailto:support@foliofyx.com" className="footer-link">Report an Issue</a></li>
+            <li><Link to="/legal" className="footer-link">Legal Center</Link></li>
           </ul>
         </div>
 
@@ -75,7 +76,7 @@ const Footer = () => {
         <div>
           <img
             src="/fyx3.png"
-            alt="Foliofy Logo"
+            alt="FolioFYX Logo"
             className="w-35 mb-4 rounded-xl"
           />
 
@@ -84,10 +85,10 @@ const Footer = () => {
             portfolios — no code needed. Create your online identity in minutes.
           </p>
 
-          <div className="space-y-2">
+          <div className="space-y-2 font-medium">
             <Link to="/about" className="footer-link block">About</Link>
-            <Link to="/release" className="footer-link block">New Release</Link>
-            <Link to="/careers" className="footer-link block">Careers</Link>
+            <Link to="/release" className="footer-link block">New Releases</Link>
+            <Link to="/benefits" className="footer-link block">Plans</Link>
           </div>
         </div>
 
@@ -113,8 +114,8 @@ const Footer = () => {
 
           {/* Terms */}
           <div className="flex space-x-4 mt-4 md:mt-0">
-            <Link to="/terms" className="footer-link">Terms of Use</Link>
-            <Link to="/privacy" className="footer-link">Privacy Policy</Link>
+            <Link to="/legal" className="footer-link">Terms of Use</Link>
+            <Link to="/legal" className="footer-link">Privacy Policy</Link>
           </div>
 
         </div>
@@ -122,8 +123,8 @@ const Footer = () => {
 
       {/* ====================== BLUE BRAND STRIP ====================== */}
       <div className="bg-[#0d0d82] text-white text-center py-6 rounded-t-[40px]">
-        <p className="text-[11px] sm:text-xs mt-1 uppercase tracking-[0.25em] cursor-pointer hover:opacity-80 transition">
-          A <span className="font-normal">FolioFYX</span> Product — Where ideas meet passion.
+        <p className="text-[11px] sm:text-xs mt-1 uppercase tracking-[0.25em] cursor-pointer hover:opacity-80 transition ">
+          A <span className="font-bold">FolioFYX</span> Product — Where ideas meet passion.
         </p>
       </div>
 

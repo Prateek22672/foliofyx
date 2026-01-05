@@ -1,252 +1,192 @@
-import React from "react";
+import React, { useRef, useLayoutEffect, useState, useCallback } from "react";
 import { motion } from "framer-motion";
 
-// --- Custom Cursor ---
+// --- CUSTOM CURSOR ---
 const Cursor = () => {
-  const [position, setPosition] = React.useState({ x: 0, y: 0 });
+  const [pos, setPos] = useState({ x: 0, y: 0 });
+  const rafRef = useRef();
 
   React.useEffect(() => {
-    const updatePosition = (e) => setPosition({ x: e.clientX, y: e.clientY });
-    window.addEventListener("mousemove", updatePosition);
-    return () => window.removeEventListener("mousemove", updatePosition);
+    const move = (e) => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      rafRef.current = requestAnimationFrame(() => {
+        setPos({ x: e.clientX, y: e.clientY });
+      });
+    };
+    window.addEventListener("mousemove", move);
+    return () => {
+      window.removeEventListener("mousemove", move);
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
   }, []);
 
   return (
     <div
-      className="fixed w-4 h-4 bg-black rounded-full pointer-events-none z-[9999] -translate-x-1/2 -translate-y-1/2 mix-blend-difference"
-      style={{ left: position.x, top: position.y }}
+      className="fixed w-4 h-4 bg-black rounded-full pointer-events-none z-[9999]
+      -translate-x-1/2 -translate-y-1/2 mix-blend-difference hidden md:block transition-transform duration-75 ease-out"
+      style={{ left: pos.x, top: pos.y, willChange: "transform" }}
     />
   );
 };
 
-export default function SectionWhite({ message, handleNavigation }) {
-  
-  const contentVariants = {
-    hidden: { opacity: 0, y: 40 },
-    visible: { 
-      opacity: 1, 
-      y: 0, 
-      transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } 
-    }
-  };
+const CARDS = [
+  { id: 1, title: "The 6-Second Rule", desc: "Recruiters spend an average of 6 seconds on a resume.", bg: "bg-[#111]", text: "text-white", img: "/image.png", tag: "Problem" },
+  { id: 2, title: "Show, Don't Just Tell", desc: "Interactive case studies and live demos build trust instantly.", bg: "bg-[#111]", text: "text-white", img: "/image2.jpg", tag: "Solution" },
+  { id: 3, title: "Zero-Code Magic", desc: "We handle the code, hosting, and design.", bg: "bg-[#111]", text: "text-white", img: "/image1.png", tag: "Speed" },
+  { id: 4, title: "Always Responsive", desc: "Your work looks perfect on every device.", bg: "bg-[#111]", text: "text-white", img: "/themes/image_landing.jpg", tag: "Quality" },
+];
 
-  // --- CONFIGURATION ---
-  // MATCH THIS WITH LANDING.JSX (See step 2 below)
-  // We start this section at scroll index 9.5
-  const SECTION_START_INDEX = 9.5; 
+export default function SectionWhite({ handleNavigation, scrollProgress }) {
+  const trackRef = useRef(null);
+  const [maxX, setMaxX] = useState(0);
+
+  const updateMaxX = useCallback(() => {
+    if (!trackRef.current) return;
+    const total = trackRef.current.scrollWidth;
+    const vw = window.innerWidth;
+    setMaxX(total - vw);
+  }, []);
+
+  useLayoutEffect(() => {
+    updateMaxX();
+    window.addEventListener("resize", updateMaxX);
+    return () => window.removeEventListener("resize", updateMaxX);
+  }, [updateMaxX]);
+
+  /**
+   * SCROLL LOGIC:
+   * Starts at 1.5. 
+   * Divisor is 4.
+   * Ends at 1.5 + 4 = 5.5.
+   */
+  const rawProgress = Math.max(0, (scrollProgress - 1.5) / 4);
+  const progress = Math.min(rawProgress, 1);
+
+  const x = -(maxX * progress);
 
   return (
     <>
       <Cursor />
+      <section className="relative h-screen bg-white text-black rounded-t-[40px] md:rounded-t-[60px] shadow-[0_-50px_100px_rgba(0,0,0,0.1)] overflow-hidden font-['Switzer']">
+        <div className="h-screen flex flex-col justify-center">
 
-      <section
-        id="section-white"
-        className="
-          fixed inset-0 
-          flex flex-col items-center justify-start 
-          text-black bg-[#f5f5f5] 
-          z-[4] 
-          rounded-t-[40px] md:rounded-t-[60px]
-          overflow-hidden
-        "
-        style={{
-          height: "100vh",
-          // Only show this section once we are near its start point to prevent glitches
-          opacity: `calc(var(--scroll) > 7.5 ? 1 : 0)`, 
-          pointerEvents: `calc(var(--scroll) > 7.5 ? 'auto' : 'none')` 
-        }}
-      >
-        {/* CONTAINER */}
-        <div className="relative w-full h-full flex flex-col pt-10 max-w-[100vw] mx-auto">
-          
-          {/* ================= HEADER ================= */}
-          <div className="px-6 md:px-16 flex flex-col md:flex-row justify-between items-end max-w-[1400px] mx-auto w-full z-10 shrink-0">
-            <motion.div
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, amount: 0.5 }}
-              variants={contentVariants}
+          {/* HEADER */}
+          <div className="px-6 md:px-16 mb-6 md:mb-8 shrink-0 ">
+            <motion.span 
+              initial={{ opacity: 0, y: 10 }} 
+              animate={{ opacity: 1, y: 0 }} 
+              transition={{ duration: 0.2 }}
+              className="inline-block px-4 py-1 absolute right-7 top-10 rounded-full border border-black/10 bg-black/5 text-[10px] md:text-xs font-bold uppercase mb-4"
             >
-              <h2 className="text-[3.5rem] md:text-[5.5rem] leading-[0.9] font-medium tracking-tight">
-                What About
-              </h2>
-              <div className="mt-2 pb-10 md:mt-4 relative h-[60px] w-[200px]">
-                <img 
-                  className="h-[50px] sm:h-[75px] absolute top-0 left-0 object-contain" 
-                  src="/fyx3.png" 
-                  alt="FolioFyX" 
-                />
+              Why FolioFyX?
+            </motion.span>
+
+            <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-4">
+              <motion.h2 
+                initial={{ opacity: 0, y: 20 }} 
+                animate={{ opacity: 1, y: 0 }} 
+                transition={{ duration: 0.8, delay: 0.2 }}
+                className="text-4xl pt-7 sm:text-5xl md:text-8xl font-medium tracking-tighter leading-[0.9]"
+              >
+                Stand Out <br />
+                <span className="text-gray-400">From The Crowd.</span>
+              </motion.h2>
+
+              <div className="hidden md:block text-right">
+                <p className="text-gray-500 mb-2 font-medium">Scroll to explore</p>
+                <div className="w-40 h-1 bg-gray-200 rounded-full overflow-hidden">
+                  <motion.div
+                    style={{ scaleX: progress }}
+                    className="h-full bg-black origin-left transition-transform duration-100 ease-out"
+                  />
+                </div>
               </div>
-            </motion.div>
-
-            <motion.button
-              initial={{ opacity: 0, scale: 0.9 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.2, duration: 0.5 }}
-              onClick={() => handleNavigation("/create")}
-              className="
-                hidden md:block bg-black text-white 
-                px-8 py-3 rounded-full text-sm font-medium
-                hover:scale-105 transition-transform shadow-lg mb-4
-              "
-            >
-              Start Project →
-            </motion.button>
-          </div>
-
-          {/* ================= CARD TRACK ================= */}
-          <div className="flex-1 flex items-center w-full relative">
-            <div
-              className="flex gap-6 md:gap-10 pl-[5vw] items-center h-full"
-              style={{
-                // LOGIC: 
-                // 1. (SECTION_START_INDEX - var(--scroll)) becomes negative as we scroll down.
-                // 2. We multiply by 100vw. This means for every 1 unit of vertical scroll (100vh),
-                //    the content moves 1 unit of width (100vw). This is a 1:1 smooth ratio.
-                transform: `translateX(calc(min(0px, (${SECTION_START_INDEX} - var(--scroll, 0)) * 100vw)))`,
-                willChange: "transform",
-              }}
-            >
-
-              {/* CARD 1: No-Code */}
-              <motion.div
-                className="relative min-w-[85vw] sm:min-w-[600px] aspect-[16/10] rounded-[40px] overflow-hidden cursor-pointer group shadow-2xl bg-[#0a0a0a] p-8 md:p-12 shrink-0"
-                whileHover={{ scale: 1.02 }}
-                onClick={() => handleNavigation("/create")}
-                transition={{ type: "spring", stiffness: 120, damping: 20 }}
-              >
-                <div className="relative z-20 flex flex-col justify-between h-full">
-                  <div>
-                    <span className="inline-block px-4 py-1.5 rounded-full border border-white/20 text-white/60 text-[10px] md:text-xs tracking-widest uppercase mb-6 bg-white/5 backdrop-blur-sm">
-                      Powered by AI
-                    </span>
-                    <h3 className="text-white text-3xl md:text-5xl font-semibold mb-4 leading-tight tracking-tight">
-                      No-Code,<br /> Full Creativity
-                    </h3>
-                    <p className="text-white/60 text-base md:text-lg font-light leading-relaxed max-w-sm">
-                      Simplified by AI. Showcase your work on a world-class portfolio.
-                    </p>
-                  </div>
-                  <div className="mt-6 md:mt-0">
-                    <div className="flex flex-wrap items-center gap-3 text-white/40 text-xs md:text-sm mb-6 uppercase tracking-wider font-medium">
-                        <span>no code</span>
-                        <span className="text-purple-500">•</span>
-                        <span>no limits</span>
-                        <span className="text-purple-500">•</span>
-                        <span>no watermark</span>
-                    </div>
-                    <div className="group-hover:translate-x-2 transition-transform duration-300 flex items-center gap-2 text-white font-medium text-xl md:text-2xl">
-                        Start your journey <span className="text-purple-400">→</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="absolute top-0 right-0 w-[200px] h-[200px] bg-purple-600/20 blur-[80px] pointer-events-none" />
-                <div className="absolute bottom-0 left-0 w-[200px] h-[200px] bg-blue-600/10 blur-[80px] pointer-events-none" />
-              </motion.div>
-
-
-              {/* CARD 2: Fast & Seamless */}
-              <motion.div
-                className="relative min-w-[85vw] sm:min-w-[600px] aspect-[16/10] rounded-[40px] overflow-hidden cursor-pointer group shadow-2xl bg-black shrink-0"
-                whileHover={{ scale: 1.02 }}
-                transition={{ type: "spring", stiffness: 120, damping: 20 }}
-              >
-                <motion.img
-                  src="/image1.png"
-                  className="w-full h-full object-cover opacity-80"
-                  whileHover={{ scale: 1.05 }}
-                  transition={{ duration: 0.8 }}
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
-                <div className="absolute bottom-8 left-8 right-8 z-20">
-                  <h3 className="text-white text-3xl md:text-4xl font-semibold mb-3">
-                    Fast & Seamless Portfolios
-                  </h3>
-                  <p className="text-white/80 text-lg md:text-xl font-light leading-relaxed max-w-md">
-                    Your portfolio loads instantly, ensuring your work gets the attention it deserves.
-                  </p>
-                </div>
-              </motion.div>
-
-
-              {/* CARD 3: Accessible */}
-              <motion.div
-                className="relative min-w-[85vw] sm:min-w-[600px] aspect-[16/10] rounded-[40px] overflow-hidden cursor-pointer group shadow-2xl bg-black shrink-0"
-                whileHover={{ scale: 1.02 }}
-                transition={{ type: "spring", stiffness: 120, damping: 20 }}
-              >
-                <motion.img
-                src="/themes/image_landing.jpg"
-                  
-                  className="w-full h-full object-cover opacity-80"
-                  whileHover={{ scale: 1.05 }}
-                  transition={{ duration: 0.8 }}
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
-                <div className="absolute bottom-8 left-8 right-8 z-20">
-                  <h3 className="text-white text-3xl md:text-4xl font-semibold mb-3">
-                    Accessible on Every Device
-                  </h3>
-                  <p className="text-white/80 text-lg md:text-xl font-light leading-relaxed max-w-md">
-                    Looks stunning across phones, tablets, and desktops.
-                  </p>
-                </div>
-              </motion.div>
-
-
-              {/* CARD 4: Free Deployment */}
-              <motion.div
-                className="relative min-w-[85vw] sm:min-w-[600px] aspect-[16/10] rounded-[40px] overflow-hidden cursor-pointer group shadow-2xl bg-black shrink-0"
-                whileHover={{ scale: 1.02 }}
-                transition={{ type: "spring", stiffness: 120, damping: 20 }}
-              >
-                <motion.img
-                  src="/image.png"
-                  className="w-full h-full object-cover opacity-80"
-                  whileHover={{ scale: 1.05 }}
-                  transition={{ duration: 0.8 }}
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
-                <div className="absolute bottom-8 left-8 right-8 z-20">
-                  <h3 className="text-white text-3xl md:text-4xl font-semibold mb-3">
-                    Free & Hassle-Free Deployment
-                  </h3>
-                  <p className="text-white/80 text-lg md:text-xl font-light leading-relaxed max-w-md">
-                    Deploy your portfolio in seconds — no setup needed.
-                  </p>
-                </div>
-              </motion.div>
-
-
-              {/* FINAL CTA - Ensuring it is visible */}
-              <div className="relative min-w-[30vw] h-full flex flex-col justify-center pl-8 md:pl-12 shrink-0">
-                 <button 
-                   onClick={() => handleNavigation("/create")}
-                   className="
-                     text-4xl md:text-6xl font-medium text-neutral-400 
-                     hover:text-black transition-colors duration-300
-                     flex items-center gap-4 group whitespace-nowrap
-                   "
-                 >
-                   Start Your <br/> Journey 
-                   <span className="transform group-hover:translate-x-4 transition-transform duration-300">→</span>
-                 </button>
-              </div>
-
-              {/* Spacer to ensure last element clears the screen edge */}
-              <div className="min-w-[10vw] shrink-0"></div>
-
             </div>
           </div>
-        </div>
 
-        {/* Top Message */}
-        {message && (
-          <div className="absolute top-6 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-md px-6 py-2 rounded-full text-xs font-medium shadow-sm animate-fade-in z-50">
-            {message}
+          {/* HORIZONTAL TRACK - Reduced container height slightly */}
+          <div className="pl-6 md:pl-16 pt-2 overflow-hidden h-[60vh] flex items-center">
+            <motion.div
+              ref={trackRef}
+              style={{ 
+                transform: `translate3d(${x}px, 0, 0)`, 
+                willChange: "transform",
+                backfaceVisibility: "hidden"
+              }}
+              className="flex gap-4 md:gap-5 w-max"
+            >
+              {/* INTRO CARD (Dimensions Reduced) */}
+              <motion.div 
+                whileHover={{ scale: 1.02 }}
+                transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                // UPDATED SIZE: w-[80vw] / md:w-[290px] | h-[50vh] / md:h-[55vh]
+                className="w-[80vw] sm:w-[280px] md:w-[290px] h-[50vh] md:h-[55vh] bg-[#111] text-white rounded-[30px] md:rounded-[40px] p-6 md:p-8 shrink-0 flex flex-col justify-center shadow-lg hover:shadow-xl transition-shadow duration-300"
+              >
+                <h3 className="text-2xl md:text-3xl font-medium mb-6 leading-tight">The Old Way.</h3>
+                <p className="text-sm md:text-base text-gray-300 leading-relaxed font-light">
+                  Sending a static PDF resume.<br />
+                  Hoping someone reads it.<br />
+                  Getting lost in the pile.
+                </p>
+              </motion.div>
+
+              {/* DYNAMIC CARDS (Dimensions Reduced) */}
+              {CARDS.map((card) => (
+                <motion.div
+                  key={card.id}
+                  whileHover={{ scale: 1.02 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                  // UPDATED SIZE
+                  className={`w-[80vw] sm:w-[280px] md:w-[290px] h-[50vh] md:h-[55vh] ${card.bg} ${card.text}
+                  rounded-[30px] md:rounded-[40px] shrink-0 relative overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300`}
+                >
+                  <img
+                    src={card.img}
+                    alt={card.title}
+                    loading="lazy"
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/50 to-transparent z-0 pointer-events-none" />
+
+                  <div className="relative z-10 p-6 md:p-8 flex flex-col justify-between h-full">
+                    <span className="text-[10px] md:text-xs uppercase opacity-90 font-bold tracking-wider border border-white/20 w-fit px-3 py-1 rounded-full backdrop-blur-sm bg-white/10">
+                      {card.tag}
+                    </span>
+                    <div>
+                      <h3 className="text-xl md:text-2xl font-bold mb-2 leading-tight drop-shadow-md">
+                        {card.title}
+                      </h3>
+                      <p className="text-xs md:text-sm opacity-90 leading-relaxed text-gray-200 drop-shadow-sm font-medium">
+                        {card.desc}
+                      </p>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+
+              {/* CTA CARD (Dimensions Reduced) */}
+              <motion.div
+                onClick={() => handleNavigation("/create")}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                // UPDATED SIZE
+                className="w-[80vw] sm:w-[280px] md:w-[290px] h-[50vh] md:h-[55vh] bg-[#0d0d82] text-white
+                rounded-[30px] md:rounded-[40px] shrink-0 flex flex-col items-center justify-center text-center cursor-pointer
+                hover:bg-[#0a0a65] transition-all duration-300 shadow-lg hover:shadow-2xl"
+              >
+                <h3 className="text-3xl md:text-5xl font-bold mb-4">Ready?</h3>
+                <p className="text-white/70 mb-6 max-w-[200px] md:max-w-xs text-xs md:text-sm font-medium">
+                  Join thousands of professionals who switched to FolioFyX.
+                </p>
+                <button className="bg-white text-[#0d0d82] px-6 py-3 md:px-8 md:py-3 rounded-full font-bold text-xs md:text-sm hover:scale-105 transition-transform duration-200 shadow-md">
+                  Build My Portfolio
+                </button>
+              </motion.div>
+              <div className="w-[5vw] shrink-0" />
+            </motion.div>
           </div>
-        )}
+        </div>
       </section>
     </>
   );
