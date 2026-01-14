@@ -1,6 +1,6 @@
-# Foliofyx 
+# FolioFYX 
 
-Foliofyx is a free no-code portfolio website builder designed exclusively for students and developers.
+FolioFYX is a free no-code portfolio website builder designed exclusively for students and developers.
 
 It helps users create a premium, recruiter-ready portfolio website in under 5 minutes — without worrying about design, coding, deployment, or hosting.
 
