@@ -2,6 +2,12 @@ import React from "react";
 import { Mail, ArrowUpRight } from "lucide-react";
 
 export default function TalentCard({ t, onOpen }) {
+  // 1. Determine initial image source
+  // If t.image exists, use it. Otherwise, generate an avatar based on their name.
+  const initialImage = t.image && t.image.trim() !== "" 
+    ? t.image 
+    : `https://ui-avatars.com/api/?name=${encodeURIComponent(t.name || "User")}&background=random&color=fff&size=128`;
+
   return (
     <div
       onClick={() => onOpen(t)}
@@ -12,9 +18,15 @@ export default function TalentCard({ t, onOpen }) {
         <div className="relative">
             <div className="w-16 h-16 rounded-full overflow-hidden border border-gray-100 bg-gray-50">
             <img
-                src={t.image || "/default-profile.jpg"}
+                src={initialImage}
                 alt={t.name}
+                loading="lazy"
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                // 2. Safety Fallback: If the user's image URL is broken (404), this switches to the default avatar
+                onError={(e) => {
+                    e.target.onerror = null; 
+                    e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(t.name || "User")}&background=random&color=fff&size=128`;
+                }}
             />
             </div>
             {/* Online Status Dot */}
@@ -36,7 +48,8 @@ export default function TalentCard({ t, onOpen }) {
             key={idx}
             className="px-3 py-1 text-[10px] uppercase tracking-wider font-semibold bg-gray-50 text-gray-600 rounded-md border border-gray-100"
           >
-            {s.name}
+            {/* Handle case if skill is an object or string */}
+            {typeof s === 'string' ? s : s.name}
           </span>
         ))}
         {(t.skills?.length > 4) && (

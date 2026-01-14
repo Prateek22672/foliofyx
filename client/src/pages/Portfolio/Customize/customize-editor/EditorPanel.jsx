@@ -16,14 +16,14 @@ const EditorPanel = ({
   themeBg, setThemeBg,
   themeFont, setThemeFont
 }) => {
-  
+
   return (
     <div
       style={{
         width: width,
         transition: isDragging ? "none" : "width 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)",
         opacity: isVisible ? 1 : 0,
-        pointerEvents: isVisible ? "auto" : "none", // Prevents interaction when hidden
+        pointerEvents: isVisible ? "auto" : "none",
       }}
       className="flex flex-col bg-white border-r border-gray-200  z-30 min-h-0 h-full"
     >
@@ -34,13 +34,13 @@ const EditorPanel = ({
           Editor
         </h3>
         <button
+          type="button" // ✅ FIX: Added type="button"
           onClick={onClose}
           className="p-1.5 rounded-md hover:bg-gray-100 text-gray-400 hover:text-red-500 transition-colors"
         >
           <X size={20} />
         </button>
       </div>
-
       {/* Scrollable Content - The Fix for Freezing */}
       <div className="flex-1  overscroll-contain touch-pan-y scroll-smooth relative">
         <LeftPanel

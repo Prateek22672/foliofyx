@@ -1,51 +1,56 @@
 import React from "react";
 import { motion } from "framer-motion";
 
-// --- CSS Animation Styles (Inline for simplicity) ---
+// --- CSS Animation Styles (Optimized for GPU) ---
+// We use translate3d(0,0,0) to force hardware acceleration
+const keyframes = `
+  @keyframes marquee {
+    0% { transform: translate3d(0, 0, 0); }
+    100% { transform: translate3d(-50%, 0, 0); }
+  }
+`;
+
 const marqueeStyle = {
   display: "flex",
   gap: "4rem", // space between words
   width: "max-content",
-  animation: "marquee 20s linear infinite", // CSS Animation
+  animation: "marquee 20s linear infinite",
+  willChange: "transform", // Hint to browser
+  backfaceVisibility: "hidden", // Prevent micro-stutter
 };
-
-const keyframes = `
-  @keyframes marquee {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-50%); }
-  }
-`;
 
 export default function SectionBlue({ handleNavigation }) {
   // Simple reveal animation for the card
   const cardVariants = {
-    hidden: { opacity: 0, y: 30 },
+    hidden: { opacity: 0, y: 30, scale: 0.95 },
     visible: { 
       opacity: 1, 
       y: 0, 
+      scale: 1,
       transition: { duration: 0.8, ease: "easeOut", delay: 0.2 } 
     }
   };
 
   return (
     <section
-      className="fixed inset-0 flex flex-col items-center justify-center bg-[#4F46E5] overflow-hidden rounded-t-[50px] z-[5] font-['Syne']"
+      className="fixed inset-0 flex flex-col items-center justify-center bg-[#4F46E5] overflow-hidden rounded-t-[50px] z-[5] font-['Syne'] will-change-transform"
       style={{
-        transform: `translateY(calc(max(0px, (15.5 - var(--scroll, 0)) * 100vh)))`,
-        willChange: "transform" // Critical for scroll performance
+        // The parent Landing.js applies the translateY via motion.div
+        // We ensure this inner content is ready for it.
+        transformStyle: "preserve-3d" 
       }}
     >
       <style>{keyframes}</style>
 
       {/* --- LAYER 1: STATIC AMBIENT GLOW --- */}
-      {/* Reduced blur radius to save GPU memory */}
-      <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-[-10%] left-[-10%] w-[40vw] h-[40vw] bg-white/10 rounded-full blur-[80px] mix-blend-screen" />
-          <div className="absolute bottom-[-10%] right-[-10%] w-[40vw] h-[40vw] bg-indigo-300/20 rounded-full blur-[80px] mix-blend-overlay" />
+      {/* Added transform-gpu and translate-z-0 to prevent repaints behind the glass card */}
+      <div className="absolute inset-0 pointer-events-none" style={{ transform: "translateZ(0)" }}>
+          <div className="absolute top-[-10%] left-[-10%] w-[40vw] h-[40vw] bg-white/10 rounded-full blur-[80px] mix-blend-screen will-change-transform" />
+          <div className="absolute bottom-[-10%] right-[-10%] w-[40vw] h-[40vw] bg-indigo-300/20 rounded-full blur-[80px] mix-blend-overlay will-change-transform" />
       </div>
 
       {/* --- LAYER 2: SMOOTH CSS MARQUEE --- */}
-      <div className="absolute inset-0 flex flex-col justify-center items-center opacity-10 pointer-events-none select-none overflow-hidden">
+      <div className="absolute inset-0 flex flex-col justify-center items-center opacity-10 pointer-events-none select-none overflow-hidden" style={{ transform: "translateZ(0)" }}>
          <div style={marqueeStyle}>
             {/* We repeat the text enough times to fill the screen + buffer */}
             {[...Array(8)].map((_, i) => (
@@ -63,6 +68,7 @@ export default function SectionBlue({ handleNavigation }) {
         whileInView="visible"
         viewport={{ once: true, margin: "-100px" }} // Triggers once nicely
         variants={cardVariants}
+        style={{ willChange: "transform, opacity" }}
       >
         
         {/* GLASS CARD */}
@@ -72,6 +78,7 @@ export default function SectionBlue({ handleNavigation }) {
             p-8 md:p-14 text-center
             shadow-2xl
             overflow-hidden
+            transform-gpu
         ">
             {/* Simple Gradient Overlay */}
             <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent pointer-events-none" />
@@ -103,6 +110,7 @@ export default function SectionBlue({ handleNavigation }) {
                     font-bold text-lg 
                     hover:scale-105 transition-transform duration-200
                     shadow-lg
+                    will-change-transform
                 "
             >
                 Create Your Portfolio
@@ -120,6 +128,7 @@ export default function SectionBlue({ handleNavigation }) {
             initial={{ y: 20, opacity: 0 }}
             whileInView={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.5, duration: 0.8 }}
+            style={{ willChange: "transform, opacity" }}
         />
 
       </motion.div>

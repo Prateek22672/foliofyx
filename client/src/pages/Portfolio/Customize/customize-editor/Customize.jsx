@@ -236,7 +236,7 @@ const Customize = () => {
   if (!portfolioData) return <div className="bg-black min-h-screen text-white flex items-center justify-center">Loading Data...</div>;
 
   return (
-    <div className="flex flex-col min-h-screen bg-white text-white customize-container relative overflow-x-hidden overflow-y-auto">
+<div className="flex flex-col min-h-screen bg-white text-white customize-container relative overflow-x-hidden overflow-y-auto">
       
       {/* Top Header */}
       <div className="flex-none sticky top-0 z-[60] bg-white">
@@ -248,6 +248,7 @@ const Customize = () => {
       </div>
 
       <PopupMessage message={message} onClose={() => setMessage("")} />
+
 
       {showThemeModal && (
         <ThemePopup
@@ -264,12 +265,14 @@ const Customize = () => {
       {/* Mobile Toggle */}
       <div className="md:hidden flex-none flex justify-between items-center p-4 bg-[#111] border-b border-gray-800 z-40 sticky top-[60px]">
         <button
+          type="button" // ✅ FIX: Added type="button"
           onClick={() => setShowPreviewMobile(false)}
           className={`px-5 py-2 rounded-full font-bold text-xs transition-all ${!showPreviewMobile ? "bg-white text-black" : "bg-[#222] text-gray-400"}`}
         >
           Editor
         </button>
         <button
+          type="button" // ✅ FIX: Added type="button"
           onClick={() => setShowPreviewMobile(true)}
           className={`px-5 py-2 rounded-full font-bold text-xs transition-all ${showPreviewMobile ? "bg-purple-600 text-white" : "bg-[#222] text-gray-400"}`}
         >

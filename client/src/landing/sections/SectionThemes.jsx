@@ -1,22 +1,19 @@
-import React, { useEffect } from "react";
-import { motion, useTransform, useMotionValue } from "framer-motion";
+import React from "react";
+import { motion, useTransform } from "framer-motion"; 
 import { ArrowRight, LayoutGrid, Zap, Moon, MousePointer2 } from "lucide-react";
 
-// --- OPTIMIZED MARQUEE (GPU Accelerated) ---
+// --- OPTIMIZED MARQUEE ---
 const MarqueeRow = ({ text, direction, speed }) => {
   return (
-    <div className="relative flex overflow-hidden -rotate-[5deg] py-4 bg-transparent pointer-events-none select-none opacity-10">
+    <div className="relative flex overflow-hidden -rotate-[5deg] py-4 bg-transparent pointer-events-none select-none opacity-10" style={{ transform: "translateZ(0)" }}>
       <motion.div
-        className="flex whitespace-nowrap gap-24"
+        className="flex whitespace-nowrap gap-24 will-change-transform"
         animate={{ x: direction === "left" ? [0, -1000] : [-1000, 0] }}
         transition={{ x: { repeat: Infinity, duration: speed, ease: "linear" } }}
-        style={{ willChange: "transform" }} 
+        style={{ backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden" }} 
       >
         {[...Array(6)].map((_, i) => (
-          <span
-            key={i}
-            className="font-black text-[10vw] leading-none tracking-tighter uppercase text-black"
-          >
+          <span key={i} className="font-black text-[10vw] leading-none tracking-tighter uppercase text-black">
             {text}
           </span>
         ))}
@@ -25,26 +22,21 @@ const MarqueeRow = ({ text, direction, speed }) => {
   );
 };
 
-export default function SectionThemes({ localScroll = 0, handleNavigation }) {
-  const scrollY = useMotionValue(localScroll);
-
-  useEffect(() => {
-    scrollY.set(localScroll);
-  }, [localScroll, scrollY]);
-
-  // --- PARALLAX ANIMATIONS ---
-  const titleY = useTransform(scrollY, [0, 0.2], [50, 0]);
-  const titleOpacity = useTransform(scrollY, [0, 0.1], [0, 1]);
+export default function SectionThemes({ scrollProgress, handleNavigation }) {
   
-  // Staggered slide up
-  const themesY = useTransform(scrollY, [0, 0.5], ["30%", "0%"]);
-  const blocksY = useTransform(scrollY, [0.2, 0.7], ["40%", "0%"]);
-
+  // --- UPDATED ANIMATION TRIGGERS (Start at 11.5) ---
+  
+  // Title fades in: 11.5 -> 11.7
+const titleY = useTransform(scrollProgress, [15.5, 15.7], [50, 0], { clamp: true });
+  const titleOpacity = useTransform(scrollProgress, [15.5, 15.6], [0, 1], { clamp: true });
+  
+  const themesY = useTransform(scrollProgress, [15.5, 16.0], ["30%", "0%"], { clamp: true });
+  const blocksY = useTransform(scrollProgress, [15.7, 16.2], ["40%", "0%"], { clamp: true });
   return (
-    <section className="relative w-full h-screen bg-[#F3F4F6] overflow-hidden flex flex-col justify-center py-8 rounded-t-[60px] shadow-[0_-50px_100px_rgba(0,0,0,0.1)] font-['Switzer']">
+    <section className="relative w-full h-screen bg-[#F3F4F6] overflow-hidden flex flex-col justify-center py-8 rounded-t-[60px] shadow-[0_-50px_100px_rgba(0,0,0,0.1)] font-['Switzer'] will-change-transform">
       
       {/* BACKGROUND DECOR */}
-      <div className="absolute inset-0 flex flex-col justify-center items-center pointer-events-none">
+      <div className="absolute inset-0 flex flex-col justify-center items-center pointer-events-none" style={{ transform: "translateZ(0)" }}>
         <MarqueeRow text="ESTHETIC" direction="left" speed={60} />
         <MarqueeRow text="MOTION" direction="right" speed={70} />
         <MarqueeRow text="LAYOUT" direction="left" speed={50} />
@@ -54,8 +46,8 @@ export default function SectionThemes({ localScroll = 0, handleNavigation }) {
         
         {/* HEADER */}
         <motion.div 
-          style={{ y: titleY, opacity: titleOpacity, willChange: "transform, opacity" }}
-          className="flex flex-col md:flex-row justify-between items-end mb-10 shrink-0"
+          style={{ y: titleY, opacity: titleOpacity }}
+          className="flex flex-col md:flex-row justify-between items-end mb-10 shrink-0 will-change-transform"
         >
           <div>
             <span className="text-xs font-bold tracking-[0.2em] uppercase text-black/40 mb-3 block">
@@ -81,17 +73,15 @@ export default function SectionThemes({ localScroll = 0, handleNavigation }) {
           
           {/* --- TOP ROW: THEMES --- */}
           <motion.div 
-            style={{ y: themesY, willChange: "transform" }}
-            className="grid grid-cols-1 md:grid-cols-2 gap-6 flex-[2] min-h-0"
+            style={{ y: themesY }}
+            className="grid grid-cols-1 md:grid-cols-2 gap-6 flex-[2] min-h-0 will-change-transform"
           >
-            {/* Minimalist Theme */}
             <ThemeCard
               title="Minimalist"
               tag="CLEAN"
               img="/preview/veloura/vel.png"
               onSelect={() => handleNavigation("/create?theme=minimalist")}
             />
-            {/* Creative Theme */}
             <ThemeCard
               title="Creative"
               tag="BOLD"
@@ -103,8 +93,8 @@ export default function SectionThemes({ localScroll = 0, handleNavigation }) {
 
           {/* --- BOTTOM ROW: UI HIGHLIGHT BLOCKS --- */}
           <motion.div 
-            style={{ y: blocksY, willChange: "transform" }} 
-            className="grid grid-cols-2 md:grid-cols-4 gap-4 flex-1 min-h-[120px]"
+            style={{ y: blocksY }} 
+            className="grid grid-cols-2 md:grid-cols-4 gap-4 flex-1 min-h-[120px] will-change-transform"
           >
             <FeatureBlock title="Dark Mode" sub="Easy on eyes" icon={<Moon size={20} />} />
             <FeatureBlock title="Grid System" sub="Pixel perfect" icon={<LayoutGrid size={20} />} />
@@ -121,7 +111,7 @@ export default function SectionThemes({ localScroll = 0, handleNavigation }) {
 // --- SUB COMPONENTS ---
 
 const FeatureBlock = ({ title, sub, icon }) => (
-  <div className="bg-white text-black rounded-[24px] p-5 flex flex-col justify-between group hover:scale-[1.02] transition-transform duration-300 border border-black/5 shadow-lg cursor-default relative overflow-hidden">
+  <div className="bg-white text-black rounded-[24px] p-5 flex flex-col justify-between group hover:scale-[1.02] transition-transform duration-300 border border-black/5 shadow-lg cursor-default relative overflow-hidden will-change-transform">
       <div className="absolute top-4 right-4 text-black/20 group-hover:text-black/80 transition-colors">
          {icon}
       </div>
@@ -135,9 +125,8 @@ const FeatureBlock = ({ title, sub, icon }) => (
 const ThemeCard = ({ title, tag, img, isDark, onSelect }) => (
   <div 
     onClick={onSelect}
-    className={`relative group w-full h-full rounded-[32px] overflow-hidden ${isDark ? "bg-[#111]" : "bg-white"} shadow-xl hover:shadow-2xl transition-all duration-500 cursor-pointer border border-black/5`}
+    className={`relative group w-full h-full rounded-[32px] overflow-hidden ${isDark ? "bg-[#111]" : "bg-white"} shadow-xl hover:shadow-2xl transition-all duration-500 cursor-pointer border border-black/5 will-change-transform`}
   >
-    {/* Browser Bar Look */}
     <div className="absolute top-0 left-0 w-full h-14 z-20 flex items-center px-6 gap-2">
        <div className={`w-3 h-3 rounded-full ${isDark ? "bg-white/20" : "bg-black/10"}`} />
        <div className={`w-3 h-3 rounded-full ${isDark ? "bg-white/20" : "bg-black/10"}`} />
@@ -148,19 +137,17 @@ const ThemeCard = ({ title, tag, img, isDark, onSelect }) => (
        </div>
     </div>
 
-    {/* Image Container */}
     <div className="absolute inset-0 w-full h-full">
         <img
             src={img}
             alt={title}
             loading="lazy"
+            decoding="async"
             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
         />
-        {/* Gradient Overlay */}
         <div className={`absolute inset-0 bg-gradient-to-t ${isDark ? "from-black/90 via-black/20" : "from-black/60 via-transparent"} to-transparent opacity-80`} />
     </div>
 
-    {/* Bottom Content */}
     <div className="absolute bottom-0 left-0 w-full p-8 z-20 flex justify-between items-end transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
       <div>
          <h3 className="text-3xl md:text-5xl font-black text-white mb-1">{title}</h3>

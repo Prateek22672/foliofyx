@@ -86,11 +86,13 @@ export default function FindTalent() {
 
       {/* 2. SEARCH & STATS SECTION (with Background Image) */}
       <div className="relative z-20 -mt-8 px-0 max-w-7xl mx-auto">
+
+        
         <div 
           className="relative rounded-[0rem] overflow-hidden shadow-2xl py-19 "
           style={{ 
              // ✅ Updated path to your public folder image
-             backgroundImage: 'url("/themes/talentbg.jpg")', 
+             backgroundImage: 'url("/cards2.jpeg")', 
              backgroundSize: 'cover', 
              backgroundPosition: 'center' 
           }}
@@ -98,16 +100,19 @@ export default function FindTalent() {
           {/* Dark Overlay for better text readability */}
           <div className="absolute inset-0 bg-black/30 backdrop-blur-sm"></div>
 
-          {/* Search Section */}
-          <div className="relative z-10 pt-8 pb-4">
-             <SearchSection search={search} setSearch={setSearch} reload={load} />
-          </div>
 
           {/* Stats Section */}
           <div className="relative z-10 pb-8 pt-4">
              <StatsSection talents={talents} />
           </div>
+
+                    {/* Search Section */}
+          <div className="relative z-10 pt-8 pb-4">
+             <SearchSection search={search} setSearch={setSearch} reload={load} />
+          </div>
+
         </div>
+        
       </div>
 
 

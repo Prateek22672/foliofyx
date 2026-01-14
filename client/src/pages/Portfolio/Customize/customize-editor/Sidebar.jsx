@@ -1,3 +1,4 @@
+// src/pages/Customize/customize-editor/Sidebar.jsx
 import React, { useState } from "react";
 import { 
   Settings2, Palette, PaintBucket, Save, Rocket, RotateCcw, 
@@ -28,6 +29,7 @@ const FONT_OPTIONS = [
 const SidebarItem = ({ icon: Icon, label, onClick, active, color = "hover:bg-gray-50 hover:text-gray-900", className="" }) => {
   return (
     <button 
+      type="button" // ✅ FIX: Prevents form submission/reload
       onClick={onClick}
       className={`
         group flex flex-col items-center justify-center gap-[6px] w-[56px] py-3 rounded-xl transition-all duration-200
@@ -135,7 +137,7 @@ const Sidebar = ({ isPanelOpen, togglePanel, onOpenThemes, onSave, onPreview }) 
               {/* Header */}
               <div className="flex justify-between items-center border-b border-gray-100 pb-3">
                 <span className="text-[12px] font-semibold text-gray-900">Site Design</span>
-                <button onClick={resetColors} className="text-gray-400 hover:text-black transition-colors" title="Reset Default"><RotateCcw size={12} /></button>
+                <button type="button" onClick={resetColors} className="text-gray-400 hover:text-black transition-colors" title="Reset Default"><RotateCcw size={12} /></button>
               </div>
               
               {/* Colors */}
@@ -160,10 +162,11 @@ const Sidebar = ({ isPanelOpen, togglePanel, onOpenThemes, onSave, onPreview }) 
 
               {/* Typography */}
               <div>
-                 <SectionLabel icon={Type} label="Typography" />
-                 <div className="grid grid-cols-2 gap-2 max-h-[220px] overflow-y-auto pr-1 custom-scrollbar">
-                      {FONT_OPTIONS.map((font) => (
-                          <button
+                  <SectionLabel icon={Type} label="Typography" />
+                  <div className="grid grid-cols-2 gap-2 max-h-[220px] overflow-y-auto pr-1 custom-scrollbar">
+                       {FONT_OPTIONS.map((font) => (
+                           <button
+                              type="button"
                               key={font.label}
                               onClick={() => handleFontChange(font.value)}
                               className={`
@@ -172,11 +175,11 @@ const Sidebar = ({ isPanelOpen, togglePanel, onOpenThemes, onSave, onPreview }) 
                                       ? "border-black bg-black text-white shadow-md" 
                                       : "border-gray-100 bg-gray-50/50 hover:bg-white hover:border-gray-200 text-gray-600"}
                               `}
-                          >
-                              <span className="block leading-none font-medium mb-0.5" style={{ fontFamily: font.value }}>{font.label}</span>
-                              <span className={`text-[8px] ${portfolioData?.themeFontFamily === font.value ? "text-gray-400" : "text-gray-400"}`}>{font.type}</span>
-                          </button>
-                      ))}
+                           >
+                               <span className="block leading-none font-medium mb-0.5" style={{ fontFamily: font.value }}>{font.label}</span>
+                               <span className={`text-[8px] ${portfolioData?.themeFontFamily === font.value ? "text-gray-400" : "text-gray-400"}`}>{font.type}</span>
+                           </button>
+                       ))}
                   </div>
               </div>
           </div>
@@ -210,6 +213,7 @@ const Sidebar = ({ isPanelOpen, togglePanel, onOpenThemes, onSave, onPreview }) 
       
       <div className="pb-2 pt-1 w-full px-2">
         <button 
+            type="button"
             onClick={() => handleRestrictedAction(onPreview)} 
             className={`
                 w-full py-3 rounded-xl flex flex-col items-center justify-center gap-1.5 shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300
