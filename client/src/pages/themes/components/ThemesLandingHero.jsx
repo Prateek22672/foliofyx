@@ -172,7 +172,6 @@ const RightCollagePanel = ({ onPreviewClick }) => {
 
   return (
 
-
     <motion.div
       initial={{ opacity: 0, y: 40, rotate: 3 }}
       animate={{ opacity: 1, y: 0, rotate: isHovered ? 1 : 3 }}
@@ -191,7 +190,6 @@ const RightCollagePanel = ({ onPreviewClick }) => {
         transition: "box-shadow 0.3s",
       }}
     >
-
       {/* Particles */}
       {particles.map(p => <Particle key={p.id} x={p.x} y={p.y} color={p.color} dx={p.dx} dy={p.dy} />)}
 

@@ -388,7 +388,6 @@ const DashboardTutorial = ({ onClose }) => {
             </AnimatePresence>
           </div>
         </div>
-
       </div>
     </AnimatePresence>
   );
