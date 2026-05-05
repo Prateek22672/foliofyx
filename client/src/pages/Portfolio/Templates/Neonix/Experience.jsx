@@ -1,125 +1,157 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { usePortfolio } from "../../../../context/PortfolioContext";
 import useFadeInOnScroll from "../../../../hooks/useFadeInOnScroll";
+import EditableText from "../EditableText";
 
-const DEFAULT_BG = "#ffffff";
-const DEFAULT_FG = "#111827";
+// Skill Categorization Rules - Matches your professional background
+const CATEGORIES = [
+  { id: "ai", label: "Intelligence & ML", keywords: ["ai", "machine learning", "nlp", "rag", "llm", "openai"] },
+  { id: "web", label: "Interface & Web", keywords: ["react", "next", "tailwind", "javascript", "typescript", "frontend", "mern"] },
+  { id: "system", label: "Logic & Systems", keywords: ["node", "express", "backend", "python", "sql", "mongo", "dsa"] },
+];
 
-const Experience = ({ portfolioData: propData }) => {
-  const { portfolioData: contextData } = usePortfolio();
-  const data = propData || contextData || {};
-  const bg = data.themeBg || DEFAULT_BG;
-  const fg = data.themeFont || DEFAULT_FG;
+const Experience = ({ portfolioData: propData, isReadOnly }) => {
+  const { portfolioData: contextData, setPortfolioData } = usePortfolio();
+  const data = (propData && Object.keys(propData).length > 0) ? propData : (contextData || {});
+  
+  const bg = data.themeBg || "#f8f9fa";
+  const fg = data.themeFont || "#111111";
+  const borderColor = `${fg}15`;
 
-  // --- 1. SAFE SKILLS ---
-  let skills = [];
-  if (Array.isArray(data.skills)) {
-    skills = data.skills
-      .map((s) => {
-        if (!s) return null;
-        if (typeof s === "string") return { name: s, level: "Intermediate" };
-        if (typeof s === "object" && s.name) return { name: s.name, level: s.level || "Intermediate" };
-        return null;
-      })
-      .filter(Boolean);
-  }
+  // --- Skill Categorization Logic ---
+  const rawSkills = Array.isArray(data?.skills) ? data.skills : [];
+  
+  const categorizedSkills = useMemo(() => {
+    const groups = {};
+    rawSkills.forEach(skill => {
+      const name = typeof skill === 'string' ? skill : skill.name;
+      const lowerName = name?.toLowerCase() || "";
+      let matched = false;
 
-  // --- 2. SAFE JOB HISTORY ---
-  const jobList = (Array.isArray(data.experience) && data.experience.length > 0) 
+      for (const cat of CATEGORIES) {
+        if (cat.keywords.some(kw => lowerName.includes(kw))) {
+          if (!groups[cat.id]) groups[cat.id] = { label: cat.label, items: [] };
+          groups[cat.id].items.push(name);
+          matched = true;
+          break;
+        }
+      }
+      if (!matched) {
+        if (!groups.core) groups.core = { label: "Core Expertise", items: [] };
+        groups.core.items.push(name);
+      }
+    });
+    return Object.values(groups);
+  }, [rawSkills]);
+
+  // --- Work History Logic ---
+  const jobList = Array.isArray(data?.experience) && data.experience.length > 0 
     ? data.experience 
-    : [
-        { company: "Demo Corp", role: "Senior Dev", period: "2023", desc: "Leading frontend team." },
-        { company: "Startup Inc", role: "Junior Dev", period: "2021", desc: "Full stack development." }
-      ];
+    : [{ company: "Freelance", role: "Developer", period: "2024", desc: "Building digital products." }];
 
-  useFadeInOnScroll([skills.length]);
-
-  // Helper to determine bar width based on level
-  const getLevelWidth = (level) => {
-      const l = level.toLowerCase();
-      if (l.includes("expert") || l.includes("advanced")) return "w-[95%]";
-      if (l.includes("intermediate")) return "w-[70%]";
-      if (l.includes("beginner") || l.includes("basic")) return "w-[40%]";
-      return "w-[60%]";
+  const handleUpdateJob = (index, field, value) => {
+    const updated = [...jobList];
+    updated[index] = { ...updated[index], [field]: value };
+    setPortfolioData({ ...data, experience: updated });
   };
+
+  useFadeInOnScroll();
 
   return (
     <section
       id="experience"
-      className="py-32 px-6 transition-all duration-500 font-[Switzer]"
+      className="py-32 px-6 relative overflow-hidden font-[Switzer]"
       style={{ backgroundColor: bg, color: fg }}
     >
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-7xl mx-auto relative z-10">
         
-        {/* --- SECTION 1: TECH STACK --- */}
-        <div className="flex flex-col md:flex-row justify-between items-end mb-20 fade-up">
-            <div className="max-w-2xl">
-                <span className="text-sm font-bold tracking-[0.2em] uppercase opacity-50 block mb-4">Technical Proficiency</span>
-                <h2 className="text-5xl md:text-7xl font-bold tracking-tight">Tools of the trade.</h2>
+        {/* Header Area */}
+        <div className="mb-20 fade-up">
+           <div className="inline-flex items-center gap-2 px-3 py-1 mb-6 border border-current/20 rounded-full text-xs font-bold uppercase tracking-widest opacity-60">
+                Journey & Stack
             </div>
-            <p className="opacity-60 text-lg mt-6 md:mt-0 max-w-sm text-right">
-                A breakdown of the technologies and tools I use to bring ideas to life.
-            </p>
+            <h2 className="text-5xl md:text-7xl font-bold leading-[0.95] tracking-tight">
+                Technical <br/>
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">Proficiency.</span>
+            </h2>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-32">
-          {skills.length > 0 ? (
-            skills.map((s, i) => (
-              <div
-                key={i}
-                className="group p-8 rounded-[2rem] bg-white/5 border border-current/10 hover:border-current/30 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 relative overflow-hidden"
-              >
-                {/* Background Glow */}
-                <div className="absolute -right-10 -top-10 w-32 h-32 bg-current opacity-[0.03] rounded-full blur-2xl group-hover:opacity-[0.08] transition-opacity"></div>
-
-                <div className="flex justify-between items-start mb-6 relative z-10">
-                    <h4 className="text-2xl font-bold">{s.name}</h4>
-                    <span className="text-[10px] font-bold uppercase tracking-widest border border-current/20 px-2 py-1 rounded-md opacity-60">
-                        {s.level}
+        {/* --- SECTION 1: CATEGORIZED SKILLS --- */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-24 fade-up">
+           {categorizedSkills.map((cat, idx) => (
+             <div 
+               key={idx} 
+               className="p-8 border border-current/10 rounded-[2rem] bg-white/5 backdrop-blur-md hover:bg-current/5 transition-all duration-500"
+             >
+                <h4 className="text-[10px] font-black uppercase tracking-[0.3em] mb-8 opacity-40 border-b border-current/10 pb-4">
+                  {cat.label}
+                </h4>
+                <div className="flex flex-wrap gap-2">
+                  {cat.items.map((skill, sIdx) => (
+                    <span 
+                      key={sIdx} 
+                      className="px-4 py-2 border border-current/10 rounded-full text-sm font-medium hover:border-current/40 transition-colors"
+                    >
+                      {skill}
                     </span>
+                  ))}
                 </div>
-
-                {/* Progress Bar Visual */}
-                <div className="w-full h-1.5 bg-current/10 rounded-full overflow-hidden relative z-10">
-                    <div 
-                        className={`h-full bg-current opacity-80 rounded-full transition-all duration-1000 ease-out group-hover:scale-x-105 origin-left ${getLevelWidth(s.level)}`}
-                    ></div>
-                </div>
-              </div>
-            ))
-          ) : (
-            <div className="col-span-3 py-20 text-center border border-dashed border-current/20 rounded-[2rem] opacity-50 fade-up">
-                <p className="italic text-lg">Add your skills in the editor to populate this section.</p>
-            </div>
-          )}
+             </div>
+           ))}
         </div>
 
         {/* --- SECTION 2: WORK HISTORY --- */}
         <div className="fade-up">
-            <h3 className="text-4xl font-bold mb-12 flex items-center gap-4">
-               <span className="w-12 h-[1px] bg-current opacity-30"></span> 
+           <h3 className="text-3xl font-bold mb-10 flex items-center gap-4">
                Career History
-            </h3>
-            
-            <div className="grid md:grid-cols-2 gap-6">
-               {jobList.map((job, i) => {
-                  if (typeof job !== 'object') return null;
-                  return (
-                    <div key={`job-${i}`} className="p-10 rounded-[2.5rem] border border-current/10 hover:border-current/30 transition-all bg-current/5">
-                        <div className="flex justify-between items-start mb-4">
-                           <div>
-                              <h4 className="text-2xl font-bold">{job.company || "Company"}</h4>
-                              <p className="opacity-60 text-sm uppercase tracking-widest mt-1">{job.role || "Role"}</p>
-                           </div>
-                           <span className="px-4 py-1 border border-current/20 rounded-full text-xs font-bold">{job.period || "Year"}</span>
-                        </div>
-                        <p className="opacity-70 leading-relaxed max-w-md">
-                           {job.desc || "Description of your role and achievements."}
+           </h3>
+           
+           <div className="grid grid-cols-1 gap-4">
+              {jobList.map((job, i) => (
+                <div 
+                  key={i} 
+                  className="p-10 rounded-[2.5rem] border border-current/10 bg-current/5 hover:bg-current/10 transition-all duration-500 flex flex-col md:flex-row justify-between items-start md:items-center gap-6"
+                >
+                    <div className="flex-1">
+                        <h4 className="text-2xl font-bold">
+                          <EditableText 
+                            value={job.company} 
+                            onChange={(v) => handleUpdateJob(i, 'company', v)} 
+                            readOnly={isReadOnly} 
+                          />
+                        </h4>
+                        <p className="opacity-60 text-sm uppercase tracking-widest mt-1">
+                          <EditableText 
+                            value={job.role} 
+                            onChange={(v) => handleUpdateJob(i, 'role', v)} 
+                            readOnly={isReadOnly} 
+                          />
                         </p>
                     </div>
-                  )
-               })}
-            </div>
+                    
+                    <div className="flex-1 max-w-xl">
+                       <p className="opacity-70 leading-relaxed italic">
+                         <EditableText 
+                            value={job.desc} 
+                            onChange={(v) => handleUpdateJob(i, 'desc', v)} 
+                            readOnly={isReadOnly} 
+                            multiline 
+                          />
+                       </p>
+                    </div>
+
+                    <div className="md:text-right">
+                       <span className="px-5 py-2 border border-current/20 rounded-full text-xs font-bold whitespace-nowrap">
+                          <EditableText 
+                            value={job.period} 
+                            onChange={(v) => handleUpdateJob(i, 'period', v)} 
+                            readOnly={isReadOnly} 
+                          />
+                       </span>
+                    </div>
+                </div>
+              ))}
+           </div>
         </div>
 
       </div>

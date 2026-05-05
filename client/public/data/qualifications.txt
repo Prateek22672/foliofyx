@@ -7,6 +7,17 @@ B.Tech in Software Engineering
 B.Tech in Cyber Security
 B.Tech in Cloud Computing
 B.Tech in Robotics
+B.Tech in Internet of Things
+B.Tech in Blockchain Technology
+B.Tech in Augmented Reality and Virtual Reality
+B.Tech in Autonomous Vehicles
+B.Tech in Quantum Computing
+B.Tech in Embedded Systems
+B.Tech in Network Engineering
+B.Tech in Human-Computer Interaction
+B.Tech in Game Development
+B.Tech in Bioinformatics
+B.Tech in Computational Mathematics
 B.Sc in Computer Science
 B.Sc in Information Technology
 B.Sc in Data Science
@@ -14,25 +25,160 @@ B.Sc in Artificial Intelligence
 B.Sc in Software Engineering
 B.Sc in Cyber Security
 B.Sc in Computer Applications
+B.Sc in Statistics and Data Analytics
+B.Sc in Mathematics and Computing
+B.Sc in Physics with Computing
+B.Sc in Cognitive Science
+B.Sc in Bioinformatics
+B.Sc in Environmental Informatics
+B.Sc in Health Informatics
+B.Sc in Geographic Information Systems
 BCA (Bachelor of Computer Applications)
+BCA with Specialization in AI
+BCA with Specialization in Cloud Computing
+BCA with Specialization in Cyber Security
+BCA with Specialization in Data Analytics
+Bachelor of Software Engineering
+Bachelor of Information Systems
+Bachelor of Data Analytics
+Bachelor of Cyber Security
+Bachelor of Computer Engineering
+Bachelor of AI and Robotics
+Bachelor of Game Design and Development
+Bachelor of Digital Media Technology
+Bachelor of Business Information Systems
+Bachelor of Health Information Management
+Bachelor of Financial Technology
+Bachelor of Automotive Software Engineering
+Bachelor of Aerospace Systems Engineering
+Bachelor of Biomedical Engineering with Computing
+Bachelor of Science in Computational Biology
 MCA (Master of Computer Applications)
+MCA with Specialization in Machine Learning
+MCA with Specialization in Blockchain
+MCA with Specialization in Cloud Architecture
 M.Tech in Computer Science
 M.Tech in Artificial Intelligence
 M.Tech in Data Science
 M.Tech in Cyber Security
 M.Tech in Cloud Computing
 M.Tech in Software Engineering
+M.Tech in Internet of Things
+M.Tech in Embedded Systems
+M.Tech in Robotics and Automation
+M.Tech in VLSI Design
+M.Tech in Computer Vision
+M.Tech in Natural Language Processing
+M.Tech in Quantum Computing
+M.Tech in Network Security
+M.Tech in Human-Computer Interaction
+M.Tech in Distributed Systems
+M.Tech in High Performance Computing
+M.Tech in Bioinformatics
 M.Sc in Computer Science
 M.Sc in Information Technology
 M.Sc in Artificial Intelligence
 M.Sc in Data Analytics
 M.Sc in Software Systems
+M.Sc in Cyber Security
+M.Sc in Machine Learning
+M.Sc in Computational Statistics
+M.Sc in Health Informatics
+M.Sc in Geographic Information Science
+M.Sc in Cognitive Computing
+M.Sc in Digital Forensics
+M.Sc in Big Data Analytics
+M.Sc in Business Intelligence
+Master of Information Systems
+Master of Data Analytics
+Master of Cyber Security
+Master of Computer Engineering
+Master of AI and Robotics
+Master of Cloud Computing
+Master of Software Architecture
+Master of Digital Transformation
+Master of Financial Technology
+Master of IT Management
+MBA in Information Technology
+MBA in Data Analytics
+MBA in Technology Management
+MBA in AI and Robotics
+MBA in Digital Marketing Technology
+MBA in FinTech
+MBA in Healthcare Technology
+MBA in Product Management
+MBA in Operations and Technology
+MBA in Supply Chain Technology
+Ph.D. in Computer Science
+Ph.D. in Artificial Intelligence
+Ph.D. in Machine Learning
+Ph.D. in Data Science
+Ph.D. in Software Engineering
+Ph.D. in Cyber Security
+Ph.D. in Cloud Computing
+Ph.D. in Computer Vision
+Ph.D. in Natural Language Processing
+Ph.D. in Robotics
+Ph.D. in Human-Computer Interaction
+Ph.D. in Quantum Computing
+Ph.D. in Distributed Systems
+Ph.D. in Bioinformatics
+Ph.D. in Computational Linguistics
+Ph.D. in Information Retrieval
+Ph.D. in Network Security
+Ph.D. in Data Privacy
+Ph.D. in Digital Health
+Ph.D. in Autonomous Systems
+Doctorate in Computer Vision
+Doctorate in Natural Language Processing
+Doctorate in Data Mining
+Doctorate in Human-Computer Interaction
+Doctorate in Robotics
+Doctorate in Distributed Systems
+Doctorate in Ethical AI
+Doctorate in Computational Neuroscience
+Doctorate in Federated Learning
+Doctorate in Explainable AI
 Diploma in Computer Engineering
 Diploma in Information Technology
 Diploma in Software Development
 Diploma in Data Science
 Diploma in Cyber Security
 Diploma in Web Development
+Diploma in Mobile App Development
+Diploma in Database Administration
+Diploma in Network Administration
+Diploma in Cloud Services
+Diploma in Game Development
+Diploma in UI/UX Design
+Diploma in Digital Forensics
+Diploma in AI Fundamentals
+Diploma in DevOps Engineering
+PG Diploma in Data Science
+PG Diploma in Artificial Intelligence
+PG Diploma in Cloud Computing
+PG Diploma in Cyber Security
+PG Diploma in Web Development
+PG Diploma in Software Engineering
+PG Diploma in Business Analytics
+PG Diploma in Big Data
+PG Diploma in Machine Learning
+PG Diploma in FinTech
+PG Diploma in Digital Marketing Analytics
+PG Diploma in IoT Engineering
+PG Diploma in Blockchain Development
+PG Diploma in AR/VR Development
+PG Diploma in Robotics Process Automation
+Advanced Diploma in Computer Applications
+Advanced Diploma in Software Development
+Advanced Diploma in Web Design
+Advanced Diploma in Networking
+Advanced Diploma in AI and ML
+Advanced Diploma in Data Analytics
+Advanced Diploma in Full Stack Development
+Advanced Diploma in DevSecOps
+Advanced Diploma in Cloud Architecture
+Advanced Diploma in Embedded Programming
 Certificate in Python Programming
 Certificate in Full Stack Development
 Certificate in Data Analytics
@@ -46,52 +192,328 @@ Certificate in Blockchain
 Certificate in Mobile App Development
 Certificate in UI/UX Design
 Certificate in Project Management
-Ph.D. in Computer Science
-Ph.D. in Artificial Intelligence
-Ph.D. in Machine Learning
-Ph.D. in Data Science
-Ph.D. in Software Engineering
-Ph.D. in Cyber Security
-Ph.D. in Cloud Computing
-MBA in Information Technology
-MBA in Data Analytics
-MBA in Technology Management
-MBA in AI and Robotics
-PG Diploma in Data Science
-PG Diploma in Artificial Intelligence
-PG Diploma in Cloud Computing
-PG Diploma in Cyber Security
-PG Diploma in Web Development
-PG Diploma in Software Engineering
-PG Diploma in Business Analytics
-PG Diploma in Big Data
-PG Diploma in Machine Learning
-Advanced Diploma in Computer Applications
-Advanced Diploma in Software Development
-Advanced Diploma in Web Design
-Advanced Diploma in Networking
-Advanced Diploma in AI and ML
-Advanced Diploma in Data Analytics
-Bachelor of Software Engineering
-Bachelor of Information Systems
-Bachelor of Data Analytics
-Bachelor of Cyber Security
-Bachelor of Computer Engineering
-Bachelor of AI and Robotics
-Master of Information Systems
-Master of Data Analytics
-Master of Cyber Security
-Master of Computer Engineering
-Master of AI and Robotics
-Master of Cloud Computing
-Doctorate in Computer Vision
-Doctorate in Natural Language Processing
-Doctorate in Data Mining
-Doctorate in Human-Computer Interaction
-Doctorate in Robotics
-Doctorate in Distributed Systems
+Certificate in JavaScript and Frameworks
+Certificate in SQL and Database Design
+Certificate in Docker and Kubernetes
+Certificate in AWS Solutions Architecture
+Certificate in Azure Fundamentals
+Certificate in Google Cloud Associate
+Certificate in TensorFlow Developer
+Certificate in Ethical Hacking
+Certificate in Penetration Testing
+Certificate in Prompt Engineering
+Certificate in LLM Fine-tuning
+Certificate in RAG Systems
+Certificate in MLOps
+Certificate in Data Engineering
+Certificate in Power BI Analytics
+Certificate in Tableau Visualization
+Certificate in Salesforce Development
+Certificate in SAP Fundamentals
+Certificate in Agile Scrum Master
+Certificate in ITIL Foundation
+Certificate in PMP (Project Management Professional)
+Certificate in CISSP (Cybersecurity)
+Certificate in CCNA (Cisco Networking)
+Certificate in CompTIA Security+
+Certificate in CompTIA A+
+Certificate in CompTIA Network+
+Certificate in Google Analytics
+Certificate in Meta Ads Manager
+Certificate in HubSpot Marketing
+Certificate in Figma for UI Design
+Certificate in No-Code Development
+Certificate in Low-Code Platforms
+Certificate in Unity Game Development
+Certificate in Unreal Engine
+Certificate in AR Development with ARKit
+Certificate in VR Development with Oculus SDK
+Certificate in Rust Programming
+Certificate in Go Programming
+Certificate in Kotlin for Android
+Certificate in Swift for iOS
+Certificate in React Native
+Certificate in Flutter Development
+Certificate in Solidity and Smart Contracts
+Certificate in Web3 Development
+Certificate in Edge Computing
+Certificate in Quantum Computing Basics
 Nanodegree in Machine Learning
 Nanodegree in Full Stack Development
 Nanodegree in Data Engineering
 Nanodegree in AI Product Management
 Nanodegree in Cloud DevOps
+Nanodegree in Deep Learning
+Nanodegree in Computer Vision
+Nanodegree in Natural Language Processing
+Nanodegree in Self-Driving Car Engineering
+Nanodegree in Robotics Software Engineering
+Nanodegree in Blockchain Developer
+Nanodegree in React Nanodegree
+Nanodegree in Digital Marketing
+Nanodegree in AI Programming with Python
+Nanodegree in Data Analyst
+Associate Degree in Computer Science
+Associate Degree in Network Administration
+Associate Degree in Web Development
+Associate Degree in Information Security
+Associate Degree in Game Development
+Associate Degree in Digital Design
+Associate Degree in Database Technology
+Associate Degree in IT Support
+Executive Education in Digital Transformation
+Executive Education in AI Strategy
+Executive Education in Cybersecurity Leadership
+Executive Education in Product Innovation
+Executive Education in Data-Driven Decision Making
+Executive Education in Technology Entrepreneurship
+Executive Certificate in Generative AI
+Executive Certificate in Cloud Strategy
+Executive Certificate in FinTech Innovation
+Executive Certificate in Healthcare Informatics
+Professional Certificate in AI Ethics
+Professional Certificate in Privacy Engineering
+Professional Certificate in Site Reliability Engineering
+Professional Certificate in Platform Engineering
+Professional Certificate in Applied Machine Learning
+Professional Certificate in Data Storytelling
+Professional Certificate in IT Governance
+Professional Certificate in Enterprise Architecture
+Professional Certificate in Business Intelligence
+Professional Certificate in Digital Forensics and Incident Response
+AWS Certified Solutions Architect Associate
+AWS Certified Solutions Architect Professional
+AWS Certified Developer Associate
+AWS Certified DevOps Engineer
+AWS Certified Machine Learning Specialty
+AWS Certified Security Specialty
+AWS Certified Database Specialty
+Microsoft Azure Administrator
+Microsoft Azure Developer Associate
+Microsoft Azure Solutions Architect Expert
+Microsoft Azure AI Engineer Associate
+Microsoft Azure Data Engineer Associate
+Microsoft Azure Security Engineer
+Google Cloud Associate Cloud Engineer
+Google Cloud Professional Data Engineer
+Google Cloud Professional ML Engineer
+Google Cloud Professional Cloud Architect
+Google Cloud Professional DevOps Engineer
+Certified Kubernetes Administrator (CKA)
+Certified Kubernetes Application Developer (CKAD)
+Certified Kubernetes Security Specialist (CKS)
+HashiCorp Certified Terraform Associate
+Red Hat Certified Engineer (RHCE)
+Red Hat Certified System Administrator (RHCSA)
+Oracle Certified Professional Java SE Developer
+Oracle Database Administrator Certified Professional
+Salesforce Certified Platform Developer
+Salesforce Certified Administrator
+ServiceNow Certified System Administrator
+Databricks Certified Associate Developer
+Databricks Certified Data Engineer Associate
+Snowflake SnowPro Core Certification
+MongoDB Certified Developer Associate
+Docker Certified Associate
+TOGAF Enterprise Architecture Certification
+COBIT 5 Foundation
+PRINCE2 Foundation and Practitioner
+Six Sigma Green Belt
+Six Sigma Black Belt
+Certified Data Management Professional (CDMP)
+Certified Information Systems Security Professional (CISSP)
+Certified Ethical Hacker (CEH)
+Offensive Security Certified Professional (OSCP)
+Certified Information Security Manager (CISM)
+Certified Information Systems Auditor (CISA)
+GIAC Security Essentials (GSEC)
+PMI Agile Certified Practitioner (PMI-ACP)
+Scaled Agile Framework (SAFe) Practitioner
+Lean Six Sigma Yellow Belt
+ISTQB Certified Tester Foundation Level
+ISTQB Advanced Level Test Analyst
+Certified Scrum Master (CSM)
+Certified Product Owner (CSPO)
+Certified Kubernetes Security Specialist
+Linux Foundation Certified System Administrator
+TensorFlow Developer Certificate
+Hugging Face NLP Certificate
+OpenAI API Developer Certification
+Postman API Fundamentals
+GraphQL Developer Certification
+NVIDIA Deep Learning Institute Certification
+Intel Edge AI Certification
+IBM AI Engineering Professional Certificate
+IBM Data Science Professional Certificate
+IBM Full Stack Cloud Developer Certificate
+Coursera Google Data Analytics Certificate
+Coursera Meta Front-End Developer Certificate
+Coursera Meta Back-End Developer Certificate
+Coursera IBM DevOps and Software Engineering Certificate
+edX MIT MicroMasters in Statistics and Data Science
+edX Columbia MicroMasters in AI
+edX RITx MicroMasters in Cybersecurity
+Udacity Self-Driving Car Engineer Nanodegree
+Udacity Data Streaming Nanodegree
+Udacity Edge AI for IoT Developers Nanodegree
+Udacity Sensor Fusion Nanodegree
+Udacity C++ Nanodegree
+Stanford Online Certificate in AI in Healthcare
+Stanford Online Certificate in Cryptography
+Harvard Online Certificate in Data Science
+Harvard Online Certificate in Cybersecurity
+MIT OpenCourseWare Certification in Algorithms
+DeepLearning.AI TensorFlow Developer Certificate
+DeepLearning.AI MLOps Specialization Certificate
+DeepLearning.AI Generative AI with LLMs Certificate
+DeepLearning.AI AI for Medicine Specialization
+Fast.ai Practical Deep Learning Certificate
+Kaggle Data Science Certificate
+Kaggle Machine Learning Certificate
+Kaggle SQL Certificate
+Kaggle Python Certificate
+Kaggle Data Visualization Certificate
+LinkedIn Learning Software Development Path
+LinkedIn Learning Data Science Path
+LinkedIn Learning UX Design Path
+LinkedIn Learning Cybersecurity Path
+LinkedIn Learning Cloud Computing Path
+Codecademy Full Stack Engineer Path
+Codecademy Data Scientist Path
+Codecademy Machine Learning Specialist Path
+Codecademy DevOps Engineer Path
+freeCodeCamp Responsive Web Design Certification
+freeCodeCamp JavaScript Algorithms and Data Structures
+freeCodeCamp Front End Development Libraries
+freeCodeCamp Data Visualization
+freeCodeCamp Back End Development and APIs
+freeCodeCamp Quality Assurance
+freeCodeCamp Scientific Computing with Python
+freeCodeCamp Data Analysis with Python
+freeCodeCamp Machine Learning with Python
+freeCodeCamp Information Security
+Certified Jenkins Engineer
+Certified Scrum Developer (CSD)
+SAFe Agilist Certification
+SAFe Practitioner Certification
+SAFe DevOps Practitioner
+SAFe Lean Portfolio Manager
+IASSC Certified Lean Six Sigma Green Belt
+IASSC Certified Lean Six Sigma Black Belt
+FinOps Certified Practitioner
+Certified Cloud Security Professional (CCSP)
+Systems Security Certified Practitioner (SSCP)
+Certified Secure Software Lifecycle Professional (CSSLP)
+EC-Council Certified Incident Handler (ECIH)
+EC-Council Certified Security Analyst (ECSA)
+GIAC Certified Enterprise Defender (GCED)
+GIAC Penetration Tester (GPEN)
+GIAC Web Application Penetration Tester (GWAPT)
+GIAC Cloud Security Automation (GCSA)
+ISACA CGEIT Certification
+ISACA CRISC Certification
+PMI-PBA (Professional in Business Analysis)
+Certified Business Analysis Professional (CBAP)
+Entry Certificate in Business Analysis (ECBA)
+IIBA Agile Analysis Certification (IIBA-AAC)
+Certified Analytics Professional (CAP)
+SAS Certified AI and Machine Learning Professional
+SAS Certified Data Scientist
+Cloudera Data Platform Generalist
+Cloudera Certified Associate (CCA) Spark and Hadoop Developer
+Hortonworks Certified Apache Hadoop Developer
+Databricks Certified Machine Learning Professional
+Databricks Certified Data Analyst Associate
+Snowflake SnowPro Advanced Data Engineer
+Snowflake SnowPro Advanced Architect
+dbt Analytics Engineering Certification
+Fivetran Modern Data Stack Certification
+Looker Business Intelligence Analyst
+Tableau Desktop Specialist
+Tableau Server Certified Associate
+Power BI Data Analyst Associate
+Microsoft Certified Power Platform Developer
+Microsoft Azure AI Fundamentals
+Microsoft Azure Data Fundamentals
+Microsoft Security Operations Analyst Associate
+Google Associate Android Developer
+Google TensorFlow Developer Certificate
+Google Project Management Certificate
+Google UX Design Certificate
+Google Cybersecurity Certificate
+Meta Social Media Marketing Certificate
+IBM Applied AI Professional Certificate
+IBM Blockchain Foundation Developer
+IBM Quantum Developer Certification
+NVIDIA Jetson AI Specialist
+NVIDIA Deep Learning Institute AI Infrastructure Certification
+NVIDIA Clara Developer Certification
+Unity Certified User: Programmer
+Unity Certified Associate: Game Developer
+Unity Certified Professional: Programmer
+Unreal Engine Certified Professional
+Epic Games MegaGrant Recipient (Applied)
+freeCodeCamp Foundational C# with Microsoft Certification
+freeCodeCamp Relational Database Certification
+Responsive Web Design (freeCodeCamp)
+Front End Development Libraries (freeCodeCamp)
+JavaScript Algorithms and Data Structures (freeCodeCamp)
+Back End Development and APIs (freeCodeCamp)
+Quality Assurance (freeCodeCamp)
+Scientific Computing with Python (freeCodeCamp)
+Data Analysis with Python (freeCodeCamp)
+Machine Learning with Python (freeCodeCamp)
+College Degree in Information Science
+Online Master in Analytics (Georgia Tech OMSA)
+Online Master in Computer Science (Georgia Tech OMSCS)
+Online Master in Cybersecurity (Georgia Tech OMS Cybersecurity)
+MIT MicroMasters in Supply Chain Management
+MIT MicroMasters in Logistics
+Columbia MicroMasters in AI
+UT Austin Post Graduate Program in AI and ML
+Purdue Post Graduate Program in AI and ML
+Caltech PG Program in AI and ML
+IIT Bombay M.Tech in AI (Online)
+IIT Roorkee Executive Programme in ML and AI
+IIIT Hyderabad Advanced Certification in ML and Cloud
+IISc Executive Programme in Data Science
+BITS Pilani Work Integrated Learning Program in Data Science
+XLRI Executive Program in AI for Business
+SP Jain Master of Data Science
+Great Lakes Post Graduate Program in Data Science
+Manipal University Post Graduate Diploma in Data Science
+Amity University Online MBA in Data Science
+Symbiosis Online MBA in Information Technology
+Jain University Online MBA in Fintech
+Chandigarh University Online M.Tech in CSE
+Lovely Professional University Online BCA
+Amrita University Online B.Sc in Data Science
+IGNOU Master of Computer Applications (MCA)
+IGNOU Bachelor of Computer Applications (BCA)
+IGNOU Post Graduate Diploma in Information Security
+NIELIT 'A' Level Certificate (IT)
+NIELIT 'B' Level Certificate (IT)
+NIELIT 'C' Level Certificate (IT)
+NIELIT 'O' Level Certificate (IT)
+DOEACC Certificate in Electronics and Accredited Computer Courses
+Aptech Diploma in Computer Science
+NIIT Advanced Diploma in Software Engineering
+NIIT Program in AI and Machine Learning
+NIIT Program in Data Analytics
+NIIT Program in Full Stack Development
+HackerRank Python Certificate
+HackerRank Java Certificate
+HackerRank SQL Certificate
+HackerRank Rest API Certificate
+HackerRank JavaScript Certificate
+HackerRank React Certificate
+HackerRank Node.js Certificate
+LeetCode Problem Solving Proficiency (Top Percentile)
+Codewars Kata Completion (High Rank)
+Codeforces Competitive Programming Rating
+AtCoder Competitive Programming Rating
+Topcoder Data Science Rating
+Kaggle Competition Medal
+Kaggle Datasets Expert
+Kaggle Discussion Expert
+Kaggle Notebooks Expert

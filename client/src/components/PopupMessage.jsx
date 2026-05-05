@@ -3,15 +3,20 @@ import React, { useEffect, useState } from "react";
 const PopupMessage = ({ message, onClose }) => {
   const [visible, setVisible] = useState(false);
 
-  // Handle entrance/exit logic for smooth animation
   useEffect(() => {
     if (message) {
-      setVisible(true);
-      const timer = setTimeout(() => {
-        setVisible(false); // Trigger exit animation
-        setTimeout(onClose, 500); // Wait for animation to finish before unmounting
-      }, 2000);
-      return () => clearTimeout(timer);
+      // Small delay to ensure the mount is registered before animating
+      const startTimer = setTimeout(() => setVisible(true), 10);
+      
+      const exitTimer = setTimeout(() => {
+        setVisible(false);
+        setTimeout(onClose, 400); // Match duration-400
+      }, 2500); // Display for 2.5s
+
+      return () => {
+        clearTimeout(startTimer);
+        clearTimeout(exitTimer);
+      };
     }
   }, [message, onClose]);
 
@@ -20,35 +25,35 @@ const PopupMessage = ({ message, onClose }) => {
   return (
     <div
       onClick={() => setVisible(false)}
-      className={`fixed top-[12%] left-1/2 transform -translate-x-1/2 z-[9999] cursor-pointer
-        transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]
+      className={`fixed top-26 left-1/2 transform -translate-x-1/2 cursor-pointer
+        transition-all duration-400 ease-[cubic-bezier(0.23,1,0.32,1)]
         ${visible 
           ? "opacity-100 translate-y-0 scale-100" 
           : "opacity-0 -translate-y-4 scale-95 pointer-events-none"
         }`}
+      style={{ zIndex: 10000 }} // Explicitly forced on top
     >
-      {/* The Glass Container */}
-      <div className="relative group">
-        {/* Subtle background glow effect behind the component */}
-        <div className="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full blur opacity-20 group-hover:opacity-40 transition duration-500"></div>
-        
-        <div className="relative flex items-center gap-3 
-                        bg-gray-900/80 backdrop-blur-xl 
-                        border border-white/10 
-                        shadow-[0_8px_32px_0_rgba(0,0,0,0.36)]
-                        text-gray-100 px-6 py-3 rounded-full 
-                        pr-8"
-        >
-          {/* Optional: A subtle premium icon/indicator */}
-          <span className="flex h-2 w-2 relative">
-             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-          </span>
-
-          <span className="text-sm font-medium tracking-wide antialiased">
-            {message}
-          </span>
+      <div className="flex items-center gap-3 
+                      bg-black/90 backdrop-blur-md 
+                      border border-white/10 
+                      shadow-[0_20px_40px_rgba(0,0,0,0.4)]
+                      text-white px-5 py-2.5 rounded-3xl"
+      >
+        {/* Status Indicator - Using your brand Indigo */}
+        <div className="relative flex h-2 w-2">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#5551ff] opacity-40"></span>
+          <span className="relative inline-flex rounded-full h-2 w-2 bg-[#5551ff]"></span>
         </div>
+
+        <p className="text-[13px] antialiased">
+          {message}
+        </p>
+
+        {/* Minimal Close Hint */}
+        <div className="ml-2 h-4 w-[1px] bg-white/20" />
+        <span className="text-[10px] text-white/40 font-bold uppercase tracking-widest">
+          Dismiss
+        </span>
       </div>
     </div>
   );

@@ -2,96 +2,107 @@ import React, { useState, useEffect } from "react";
 import { motion, useSpring, useTransform } from "framer-motion";
 
 export default function ScrollHUD({ scrollYProgress }) {
-  // Smooth out the raw scroll data for a fluid feel
   const smoothProgress = useSpring(scrollYProgress, {
     stiffness: 100,
     damping: 30,
-    restDelta: 0.001
+    restDelta: 0.001,
   });
 
-  // Map progress to percentage (0 to 100)
   const [percentage, setPercentage] = useState(0);
-  
-  // Dynamic Messages based on scroll position
-  const currentMessage = useTransform(
-    smoothProgress,
-    [0, 0.1, 0.25, 0.45, 0.65, 0.85, 1],
-    [
-      "Scroll to Explore",   // Hero
-      "The Problem",         // White Section starts
-      "The Solution",        // White Section ends
-      "Talent Ecosystem",    // Talent
-      "Find Your Vibe",      // Bento/Themes
-      "Ready to Launch?",    // Outro
-      "Welcome Aboard"       // End
-    ]
-  );
+  const [progressVal, setProgressVal] = useState(0);
 
   useEffect(() => {
-    // Subscribe to the spring to update the percentage text
     return smoothProgress.on("change", (v) => {
       setPercentage(Math.round(v * 100));
+      setProgressVal(v);
     });
   }, [smoothProgress]);
+
+  // ── Determine which section we're in so HUD color stays legible ──
+  // White section ≈ 0.07–0.43 of total scroll (matches Landing.js timeline)
+  const isOnLightSection = progressVal > 0.06 && progressVal < 0.43;
+
+  const hudColor       = isOnLightSection ? "#111111" : "#ffffff";
+  const trackColor     = isOnLightSection ? "rgba(0,0,0,0.15)" : "rgba(255,255,255,0.2)";
+  const lineTrackColor = isOnLightSection ? "rgba(0,0,0,0.12)" : "rgba(255,255,255,0.2)";
+
+  // Derive current label from progress value (avoids useTransform string maps)
+  const getLabel = (v) => {
+    if (v < 0.08)  return "Scroll to Explore";
+    if (v < 0.25)  return "The Problem";
+    if (v < 0.43)  return "The Solution";
+    if (v < 0.60)  return "Talent Ecosystem";
+    if (v < 0.78)  return "Find Your Vibe";
+    if (v < 0.93)  return "Ready to Launch?";
+    return "Welcome Aboard";
+  };
+
+  const lineHeight = useTransform(smoothProgress, [0, 1], ["0%", "100%"]);
 
   return (
     <motion.div
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: 1, duration: 0.8 }}
-      className="fixed right-4 md:right-8 top-1/2 -translate-y-1/2 z-[100] flex flex-col items-center gap-4 pointer-events-none mix-blend-difference"
+      className="fixed right-4 md:right-8 top-1/2 -translate-y-1/2 z-[100] flex flex-col items-center gap-4 pointer-events-none"
+      // ── removed mix-blend-difference — use explicit color switching instead ──
     >
-      {/* 1. PROGRESS TEXT (Vertical) */}
-      <motion.div className="writing-vertical-rl text-[10px] font-bold tracking-[0.2em] uppercase text-white/50 rotate-180 mb-2 font-['Switzer']">
-        {currentMessage}
+      {/* 1. SECTION LABEL — vertical text */}
+      <motion.div
+        animate={{ color: hudColor }}
+        transition={{ duration: 0.4 }}
+        className="writing-vertical-rl text-[10px] font-bold tracking-[0.2em] uppercase rotate-180 mb-2 font-['Switzer']"
+        style={{ opacity: 0.55 }}
+      >
+        {getLabel(progressVal)}
       </motion.div>
 
       {/* 2. CIRCULAR TRACKER */}
       <div className="relative w-12 h-12 flex items-center justify-center">
-        {/* Background Circle */}
         <svg className="absolute w-full h-full -rotate-90" viewBox="0 0 100 100">
-          <circle
-            cx="50"
-            cy="50"
-            r="40"
-            stroke="currentColor"
-            strokeWidth="2"
-            fill="transparent"
-            className="text-white/20"
-          />
-          {/* Filling Circle */}
+          {/* Track ring */}
           <motion.circle
-            cx="50"
-            cy="50"
-            r="40"
-            stroke="currentColor"
+            cx="50" cy="50" r="40"
+            stroke={trackColor}
             strokeWidth="2"
             fill="transparent"
-            className="text-white"
-            style={{
-              pathLength: smoothProgress
-            }}
+            animate={{ stroke: trackColor }}
+            transition={{ duration: 0.4 }}
+          />
+          {/* Fill ring */}
+          <motion.circle
+            cx="50" cy="50" r="40"
+            strokeWidth="2"
+            fill="transparent"
+            animate={{ stroke: hudColor }}
+            transition={{ duration: 0.4 }}
+            style={{ pathLength: smoothProgress }}
           />
         </svg>
-        
-        {/* Percentage Number - UPDATED TO SWITZER */}
-        <span className="text-[10px] font-black text-white font-['Switzer']">
+        <motion.span
+          animate={{ color: hudColor }}
+          transition={{ duration: 0.4 }}
+          className="text-[10px] font-black font-['Switzer']"
+        >
           {percentage}%
-        </span>
+        </motion.span>
       </div>
 
       {/* 3. VERTICAL LINE */}
-      <div className="w-[1px] h-24 bg-white/20 relative overflow-hidden">
-        <motion.div 
-          className="absolute top-0 left-0 w-full bg-white"
-          style={{ height: useTransform(smoothProgress, [0, 1], ["0%", "100%"]) }}
+      <div
+        className="w-[1px] h-24 relative overflow-hidden"
+        style={{ background: lineTrackColor }}
+      >
+        <motion.div
+          className="absolute top-0 left-0 w-full"
+          animate={{ backgroundColor: hudColor }}
+          transition={{ duration: 0.4 }}
+          style={{ height: lineHeight }}
         />
       </div>
 
       <style>{`
-        .writing-vertical-rl {
-          writing-mode: vertical-rl;
-        }
+        .writing-vertical-rl { writing-mode: vertical-rl; }
       `}</style>
     </motion.div>
   );

@@ -1,186 +1,267 @@
+// src/pages/Customize/ThemePopup.jsx
 import React, { useState, useEffect, useRef } from "react";
-import { TEMPLATE_LIST } from "../Templates"; 
+import { TEMPLATE_LIST } from "../Templates";
+import { Crown, X, Sparkles, Search, ChevronRight } from "lucide-react";
 
-// Premium Templates List (Matches other files)
 const PREMIUM_TEMPLATES = ["neo-brutalism", "3d-portfolio", "agency-grid", "artist-gallery"];
+
+const CATEGORIES = {
+  all: "All Templates",
+  free: "Free",
+  premium: "Premium",
+};
 
 export default function ThemePopup({ onSelect, onClose }) {
   const [isDragging, setIsDragging] = useState(false);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  const dragStartPos = useRef({ x: 0, y: 0 });
+  const [position, setPosition]     = useState({ x: 0, y: 0 });
+  const [search, setSearch]         = useState("");
+  const [category, setCategory]     = useState("all");
+  const [hovered, setHovered]       = useState(null);
+  const dragStartPos                = useRef({ x: 0, y: 0 });
 
-  // --- 🔒 GLOBAL SCROLL LOCK ---
   useEffect(() => {
     document.body.style.overflow = "hidden";
-    document.documentElement.style.overflow = "hidden"; // Often needed for mobile safaris
-    return () => {
-      document.body.style.overflow = "";
-      document.documentElement.style.overflow = "";
-    };
+    return () => { document.body.style.overflow = ""; };
   }, []);
 
-  // --- 🖱️ MOUSE HANDLERS ---
-  const handleMouseDown = (e) => {
-    if (e.button !== 0) return; 
-    startDrag(e.clientX, e.clientY);
-  };
-
-  // --- 📱 TOUCH HANDLERS ---
-  const handleTouchStart = (e) => {
-    const touch = e.touches[0];
-    startDrag(touch.clientX, touch.clientY);
-  };
-
-  // --- SHARED START LOGIC ---
   const startDrag = (clientX, clientY) => {
     setIsDragging(true);
-    dragStartPos.current = {
-      x: clientX - position.x,
-      y: clientY - position.y
-    };
+    dragStartPos.current = { x: clientX - position.x, y: clientY - position.y };
   };
 
-  // --- EFFECT: GLOBAL MOVE/UP LISTENERS ---
   useEffect(() => {
-    const handleMouseMove = (e) => {
+    const onMove = (e) => {
       if (!isDragging) return;
+      const cx = e.clientX ?? e.touches?.[0]?.clientX;
+      const cy = e.clientY ?? e.touches?.[0]?.clientY;
+      if (cx == null) return;
       e.preventDefault();
-      setPosition({
-        x: e.clientX - dragStartPos.current.x,
-        y: e.clientY - dragStartPos.current.y
-      });
+      setPosition({ x: cx - dragStartPos.current.x, y: cy - dragStartPos.current.y });
     };
-
-    const handleTouchMove = (e) => {
-      if (!isDragging) return;
-      const touch = e.touches[0];
-      // On mobile, dragging the modal should NOT scroll the page
-      if (e.cancelable) e.preventDefault(); 
-      setPosition({
-        x: touch.clientX - dragStartPos.current.x,
-        y: touch.clientY - dragStartPos.current.y
-      });
-    };
-
-    const handleEnd = () => {
-      setIsDragging(false);
-    };
-
+    const onEnd = () => setIsDragging(false);
     if (isDragging) {
-      window.addEventListener('mousemove', handleMouseMove);
-      window.addEventListener('mouseup', handleEnd);
-      window.addEventListener('touchmove', handleTouchMove, { passive: false });
-      window.addEventListener('touchend', handleEnd);
+      window.addEventListener("mousemove", onMove);
+      window.addEventListener("mouseup", onEnd);
+      window.addEventListener("touchmove", onMove, { passive: false });
+      window.addEventListener("touchend", onEnd);
     }
-
     return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleEnd);
-      window.removeEventListener('touchmove', handleTouchMove);
-      window.removeEventListener('touchend', handleEnd);
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onEnd);
+      window.removeEventListener("touchmove", onMove);
+      window.removeEventListener("touchend", onEnd);
     };
   }, [isDragging]);
 
+  const allTemplates = TEMPLATE_LIST ? Object.entries(TEMPLATE_LIST) : [];
+  const filtered = allTemplates.filter(([key, item]) => {
+    const matchSearch = !search || item.label?.toLowerCase().includes(search.toLowerCase());
+    const matchCat =
+      category === "all" ||
+      (category === "premium" && PREMIUM_TEMPLATES.includes(key)) ||
+      (category === "free" && !PREMIUM_TEMPLATES.includes(key));
+    return matchSearch && matchCat;
+  });
+
+  const freeCount    = allTemplates.filter(([k]) => !PREMIUM_TEMPLATES.includes(k)).length;
+  const premiumCount = allTemplates.filter(([k]) => PREMIUM_TEMPLATES.includes(k)).length;
+
   return (
-    <div 
-      className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-[9999] p-4 animate-fade-in"
-      onWheel={(e) => e.stopPropagation()} 
-      onTouchMove={(e) => e.stopPropagation()} // Stop scroll propagation to body
+    <div
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-3 md:p-6"
+      style={{ backgroundColor: "rgba(0,0,0,0.6)", backdropFilter: "blur(6px)" }}
+      onWheel={(e) => e.stopPropagation()}
     >
-      
-      <div 
-        className="bg-white rounded-3xl shadow-2xl w-full max-w-5xl flex flex-col max-h-[85vh] relative overflow-hidden"
-        style={{ 
+      <div
+        className="bg-white rounded-3xl shadow-2xl w-full max-w-4xl flex flex-col overflow-hidden"
+        style={{
+          maxHeight: "92vh",
           transform: `translate(${position.x}px, ${position.y}px)`,
-          transition: isDragging ? 'none' : 'transform 0.1s ease-out',
-          touchAction: "none" // Disables browser handling of gestures on the modal container
+          transition: isDragging ? "none" : "transform 0.1s ease-out",
+          touchAction: "none",
         }}
       >
-        
-        {/* HEADER (DRAG HANDLE) */}
-        <div 
-          onMouseDown={handleMouseDown}
-          onTouchStart={handleTouchStart}
-          className="flex justify-between items-center p-6 border-b border-gray-100 bg-white cursor-move select-none"
+        {/* Header */}
+        <div
+          onMouseDown={(e) => e.button === 0 && startDrag(e.clientX, e.clientY)}
+          onTouchStart={(e) => startDrag(e.touches[0].clientX, e.touches[0].clientY)}
+          className="flex items-center justify-between px-5 py-4 border-b border-gray-100 cursor-move select-none shrink-0"
         >
-          <div>
-            <h3 className="text-2xl font-bold text-gray-900 pointer-events-none">Choose a Template</h3>
-            <p className="text-gray-500 text-sm pointer-events-none">Select a starting point for your portfolio.</p>
+          <div className="flex items-center gap-3 pointer-events-none">
+            <div className="w-9 h-9 rounded-2xl bg-gray-900 flex items-center justify-center shrink-0">
+              <Sparkles size={16} className="text-white" />
+            </div>
+            <div>
+              <h2 className="text-[15px] font-bold text-gray-900 leading-tight">Choose a Template</h2>
+              <p className="text-[11px] text-gray-400 mt-0.5">{freeCount} free · {premiumCount} premium</p>
+            </div>
           </div>
           <button
+            type="button"
             onClick={onClose}
             onMouseDown={(e) => e.stopPropagation()}
-            onTouchStart={(e) => e.stopPropagation()}
-            className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 transition cursor-pointer"
+            className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 transition-all shrink-0"
           >
-            ✕
+            <X size={15} />
           </button>
         </div>
 
-        {/* SCROLLABLE CONTENT */}
-        <div 
-          className="flex-1 overflow-y-auto p-6 custom-scrollbar"
-          style={{ overscrollBehavior: "contain" }} // Prevents scroll chaining to parent
-          // Re-enable touch interactions for inner content so scrolling works
-          onTouchStart={(e) => e.stopPropagation()} 
-        >
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" style={{ touchAction: "pan-y" }}>
-            {TEMPLATE_LIST && Object.entries(TEMPLATE_LIST).map(([key, item]) => {
-              const isPremium = PREMIUM_TEMPLATES.includes(key);
-              
-              return (
-                <button
-                  key={key}
-                  onClick={() => {
-                    onSelect(key);
-                    onClose();
-                  }}
-                  className={`group flex flex-col text-left gap-3 p-3 rounded-3xl border transition-all duration-300 relative
-                    ${isPremium ? "border-yellow-500/30 bg-yellow-50/10 hover:border-yellow-500 hover:shadow-lg hover:shadow-yellow-500/10" : "border-gray-200 bg-gray-50/50 hover:border-black/20 hover:shadow-xl"}
-                  `}
-                >
-                  {/* Premium Badge */}
-                  {isPremium && (
-                    <div className="absolute top-4 right-4 z-10 bg-gradient-to-r from-yellow-500 to-amber-600 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-md flex items-center gap-1">
-                       PREMIUM
-                    </div>
-                  )}
+        {/* Filters */}
+        <div className="flex items-center gap-2 px-5 py-3 border-b border-gray-100 bg-gray-50/50 shrink-0 flex-wrap gap-y-2">
+          <div className="relative">
+            <Search size={12} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search…"
+              className="pl-8 pr-3 py-1.5 text-[12px] bg-white border border-gray-200 rounded-xl outline-none focus:border-gray-400 w-36"
+            />
+          </div>
+          <div className="flex items-center gap-1.5">
+            {Object.entries(CATEGORIES).map(([key, label]) => (
+              <button
+                key={key}
+                type="button"
+                onClick={() => setCategory(key)}
+                className={`px-3 py-1.5 rounded-xl text-[11px] font-bold transition-all ${
+                  category === key
+                    ? "bg-gray-900 text-white"
+                    : "bg-white border border-gray-200 text-gray-500 hover:border-gray-300"
+                }`}
+              >
+                {label}
+                {key === "premium" && <Crown size={9} className="inline ml-1 text-amber-400 fill-amber-400" />}
+              </button>
+            ))}
+          </div>
+          <span className="ml-auto text-[10px] text-gray-400 font-medium">
+            {filtered.length} template{filtered.length !== 1 ? "s" : ""}
+          </span>
+        </div>
 
-                  <div className="w-full overflow-hidden rounded-lg aspect-[24/11] bg-gray-200 relative">
-                    {item.preview ? (
-                      <>
+        {/* Grid */}
+        <div className="flex-1 overflow-y-auto p-5" style={{ overscrollBehavior: "contain" }}>
+          {filtered.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-16 text-gray-400">
+              <Search size={28} className="mb-3 opacity-40" />
+              <p className="text-[13px] font-medium">No templates match "{search}"</p>
+              <button type="button" onClick={() => setSearch("")} className="mt-2 text-[11px] text-violet-500 hover:underline">
+                Clear search
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filtered.map(([key, item]) => {
+                const isPremium = PREMIUM_TEMPLATES.includes(key);
+                const isHov = hovered === key;
+
+                return (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => { onSelect(key); onClose(); }}
+                    onMouseEnter={() => setHovered(key)}
+                    onMouseLeave={() => setHovered(null)}
+                    className={`group flex flex-col text-left rounded-2xl border overflow-hidden transition-all duration-200 ${
+                      isPremium
+                        ? "border-amber-200 hover:border-amber-400 hover:shadow-lg"
+                        : "border-gray-200 hover:border-gray-400 hover:shadow-lg"
+                    }`}
+                  >
+                    {/* 
+                      TRUE 16:9 BOX
+                      paddingBottom: 56.25% = 9/16 * 100
+                      All children are absolute so they don't affect height
+                    */}
+                    <div style={{
+                      position: "relative",
+                      width: "100%",
+                      paddingBottom: "56.25%",
+                      backgroundColor: "#f3f4f6",
+                      overflow: "hidden",
+                      display: "block",
+                    }}>
+                      {item.preview && (
                         <img
                           src={item.preview}
                           alt={item.label}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          style={{
+                            position: "absolute",
+                            top: 0,
+                            left: 0,
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "cover",
+                            objectPosition: "top center",
+                            display: "block",
+                            transform: isHov ? "scale(1.04)" : "scale(1)",
+                            transition: "transform 0.4s ease",
+                          }}
                         />
-                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
-                      </>
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs font-mono">
-                        NO PREVIEW
+                      )}
+
+                      {!item.preview && (
+                        <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                          <span style={{ fontSize: 10, color: "#9ca3af", fontFamily: "monospace", textTransform: "uppercase", letterSpacing: "0.15em" }}>
+                            No Preview
+                          </span>
+                        </div>
+                      )}
+
+                      {/* Premium badge */}
+                      {isPremium && (
+                        <div style={{ position: "absolute", top: 8, left: 8, zIndex: 2 }}
+                          className="flex items-center gap-1 bg-gradient-to-r from-amber-500 to-amber-600 text-white text-[9px] font-black px-2 py-1 rounded-full shadow uppercase tracking-wider"
+                        >
+                          <Crown size={8} className="fill-white" /> Premium
+                        </div>
+                      )}
+
+                      {/* Hover overlay */}
+                      <div style={{
+                        position: "absolute",
+                        inset: 0,
+                        zIndex: 3,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        backgroundColor: "rgba(0,0,0,0.42)",
+                        backdropFilter: "blur(2px)",
+                        opacity: isHov ? 1 : 0,
+                        transition: "opacity 0.2s ease",
+                      }}>
+                        <div className="flex items-center gap-2 bg-white text-gray-900 px-4 py-2 rounded-full text-[12px] font-bold shadow-lg">
+                          {isPremium ? "Try Premium" : "Use Template"}
+                          <ChevronRight size={13} />
+                        </div>
                       </div>
-                    )}
-                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      <span className="bg-white text-black px-4 py-2 rounded-full text-sm font-bold shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform">
-                        {isPremium ? "Try Premium" : "Use Template"}
-                      </span>
                     </div>
-                  </div>
-                  <div className="px-1">
-                    <span className="text-lg font-bold text-gray-900 block">
-                      {item.label}
-                    </span>
-                    <span className="text-xs text-gray-500">
-                      Perfect for Portfolios & Resumes
-                    </span>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
+
+                    {/* Info */}
+                    <div className={`flex items-center justify-between px-3.5 py-2.5 ${isPremium ? "bg-amber-50/60" : "bg-white"}`}>
+                      <div>
+                        <p className="text-[12px] font-bold text-gray-900">{item.label}</p>
+                        <p className="text-[10px] text-gray-400 mt-0.5">{isPremium ? "Premium" : "Free"}</p>
+                      </div>
+                      <div className={`w-6 h-6 rounded-lg flex items-center justify-center transition-all ${isHov ? isPremium ? "bg-amber-500" : "bg-gray-900" : "bg-gray-100"}`}>
+                        <ChevronRight size={12} className={isHov ? "text-white" : "text-gray-400"} />
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
-        
+
+        {/* Footer */}
+        <div className="shrink-0 px-5 py-3 border-t border-gray-100 bg-gray-50/50 flex items-center justify-between">
+          <p className="text-[10px] text-gray-400">Switching templates keeps your content — only the design changes.</p>
+          <button type="button" onClick={onClose} className="text-[11px] font-semibold text-gray-500 hover:text-gray-800 transition-colors">
+            Cancel
+          </button>
+        </div>
       </div>
     </div>
   );

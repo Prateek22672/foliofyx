@@ -77,6 +77,11 @@ function App() {
             />
           )}
 
+          {/* GLOBAL UI ELEMENTS (Mounted when app is ready) */}
+          {/* Note: CustomCursor is placed outside SmoothScroll to stay fixed to viewport */}
+          {isAppReady && <CustomCursor />}
+          {isAppReady && !hideGlobalWidget && <ChatWidget />}
+
           {/* MAIN CONTENT */}
           {isAppReady && (
             <SmoothScroll>
@@ -91,7 +96,7 @@ function App() {
                   <Route path="/" element={<Landing />} />
                   <Route path="/portfolio/:id" element={<PortfolioView />} />
                   <Route path="/demo/:templateKey" element={<DemoView />} />
-                  <Route path="/templates" element={<ThemesPage />} />
+                  <Route path="/designs" element={<ThemesPage />} />
                   <Route path="/about" element={<AboutContactPage />} />
                   <Route path="/release" element={<NewRelease />} />
                   <Route path="/talent" element={<FindTalent />} />
@@ -111,8 +116,8 @@ function App() {
                   </Route>
 
                   {/* ==================================================== */}
-                  {/* 🔒 PROTECTED ROUTES (Only if logged in)              */}
-                  {/* Redirects to /login if user is not logged in         */}
+                  {/* 🔒 PROTECTED ROUTES (Only if logged in)               */}
+                  {/* Redirects to /login if user is not logged in          */}
                   {/* ==================================================== */}
                   <Route element={<ProtectedRoute />}>
                     <Route path="/dashboard" element={<Dashboard />} />
@@ -135,10 +140,6 @@ function App() {
               </div>
             </SmoothScroll>
           )}
-
-          {/* GLOBAL ELEMENTS */}
-          {isAppReady && <CustomCursor />}
-          {isAppReady && !hideGlobalWidget && <ChatWidget />}
 
         </ChatbotProvider>
       </SplashProvider>

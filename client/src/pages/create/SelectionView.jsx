@@ -4,11 +4,10 @@ import {
   Layers, ArrowRight, X, FileUp, Sparkles, 
   Code, PenTool, Image as ImageIcon 
 } from "lucide-react";
-// 1. Import Auth Context
 import { useAuth } from "../../context/AuthContext"; 
 
 export default function SelectionView({ onSelectAI, onSelectControl, onSelectResume }) {
-  const { user } = useAuth(); // 2. Get User Data
+  const { user } = useAuth();
   const [activeMode, setActiveMode] = useState(null); 
   const [prompt, setPrompt] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -16,10 +15,12 @@ export default function SelectionView({ onSelectAI, onSelectControl, onSelectRes
   const fileInputRef = useRef(null);
 
   const suggestionChips = [
-    { icon: <ImageIcon size={16} className="text-blue-400" />, text: "Visual Portfolio", prompt: "Create a visual heavy portfolio for a photographer" },
-    { icon: <Code size={16} className="text-green-400" />, text: "Dev Landing", prompt: "Interactive developer experience with 3D elements" },
-    { icon: <PenTool size={16} className="text-purple-400" />, text: "Copywriter Bio", prompt: "Minimalist portfolio for a copywriter focusing on typography" },
-    { icon: <Sparkles size={16} className="text-yellow-400" />, text: "SaaS Product", prompt: "Dark mode SaaS landing page for a startup" }
+    { icon: <Code size={16} className="text-blue-400" />, text: "Dark Dev Portfolio", prompt: "Dark developer portfolio with smooth animations and code showcase" },
+    { icon: <FileUp size={16} className="text-teal-400" />, text: "Minimal Resume", prompt: "Clean minimal resume site for a professional with a subtle layout" },
+    { icon: <ImageIcon size={16} className="text-pink-400" />, text: "Creative Photographer", prompt: "Visual portfolio for a photographer with bold imagery and hero sections" },
+    { icon: <Sparkles size={16} className="text-amber-400" />, text: "SaaS Landing Page", prompt: "Dark modern landing page for a startup SaaS product" },
+    { icon: <PenTool size={16} className="text-purple-400" />, text: "Luxury Brand", prompt: "Premium editorial boutique personal brand site" },
+    { icon: <Layers size={16} className="text-green-400" />, text: "Student Starter", prompt: "Bright simple portfolio for a student or beginner" },
   ];
 
   const handleAISubmit = async (e) => {
@@ -37,7 +38,6 @@ export default function SelectionView({ onSelectAI, onSelectControl, onSelectRes
   return (
     <div className="w-full relative flex flex-col items-center justify-center min-h-[80vh] px-4 font-sans">
 
-      {/* HEADER LOGO */}
       <motion.nav
         initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}
         className="fixed top-4 md:top-6 left-0 right-0 z-50 flex justify-center pointer-events-none"
@@ -47,7 +47,6 @@ export default function SelectionView({ onSelectAI, onSelectControl, onSelectRes
         </div>
       </motion.nav>
 
-      {/* HEADER TEXT */}
       <motion.div
         layout
         initial={{ opacity: 0, y: 20 }}
@@ -68,7 +67,6 @@ export default function SelectionView({ onSelectAI, onSelectControl, onSelectRes
         </p>
       </motion.div>
 
-      {/* CARDS GRID */}
       <div className={`w-full transition-all duration-500 grid gap-6 ${activeMode === 'ai' ? 'max-w-4xl grid-cols-1' : 'max-w-6xl grid-cols-1 md:grid-cols-3'}`}>
         
         {/* --- CARD 1: AI BUILD --- */}
@@ -100,8 +98,7 @@ export default function SelectionView({ onSelectAI, onSelectControl, onSelectRes
                         <X size={24} />
                     </motion.button>
 
-                    <div className="w-full max-w-2xl pb-20 ">
-                        {/* 3. DYNAMIC GREETING WITH USER NAME */}
+                    <div className="w-full max-w-2xl pb-20">
                         <motion.div 
                             initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }}
                             className="text-left mb-6 ml-2"
@@ -111,7 +108,6 @@ export default function SelectionView({ onSelectAI, onSelectControl, onSelectRes
                              </h2>
                         </motion.div>
 
-                        {/* GEMINI INPUT BAR */}
                         <motion.div
                             initial={{ scale: 0.95, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
@@ -130,7 +126,6 @@ export default function SelectionView({ onSelectAI, onSelectControl, onSelectRes
                                 <div className="flex justify-between items-center px-4 pb-2 mt-2">
                                     <div className="flex gap-4 text-gray-400">
                                        <span className="flex items-center gap-2 text-xs font-medium border border-white/10 px-3 py-1 rounded-full bg-white/5 hover:bg-white/10 cursor-pointer transition-colors">
-                                            {/*<Sparkles size={14} className="text-purple-400"/> Pro */}
                                             <img className="w-8" src="/fyxlogow.png"/> Ai
                                        </span>
                                     </div>
@@ -146,7 +141,6 @@ export default function SelectionView({ onSelectAI, onSelectControl, onSelectRes
                             </form>
                         </motion.div>
 
-                        {/* SUGGESTION CHIPS */}
                         {!isSubmitting && (
                             <motion.div 
                                 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
@@ -172,7 +166,6 @@ export default function SelectionView({ onSelectAI, onSelectControl, onSelectRes
                     </div>
                </motion.div>
             ) : (
-              /* --- COLLAPSED AI CARD --- */
               <motion.div layoutId="ai-content" className="h-full flex flex-col justify-between">
                 <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-900/20 to-black border border-purple-500/30 flex items-center justify-center shadow-[0_0_30px_rgba(168,85,247,0.15)] mb-4">
                      <img src="/ai.svg" className="w-7 h-7" alt="AI Icon" />
@@ -200,22 +193,17 @@ export default function SelectionView({ onSelectAI, onSelectControl, onSelectRes
               <div className="absolute top-6 right-6 px-3 py-1 rounded-full border border-blue-500/30 bg-blue-500/10 text-[10px] font-bold tracking-widest text-white/80 shadow-[0_0_10px_rgba(59,130,246,0.2)]">
                 BETA
               </div>
-
               <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 blur-[80px] rounded-full -translate-y-1/2 translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity" />
-              
               <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-blue-900/20 to-black border border-blue-500/30 flex items-center justify-center mb-4">
                 <FileUp className="text-blue-400 w-7 h-7" />
               </div>
-              
               <div>
                 <h3 className="text-3xl font-medium text-white mb-2 group-hover:text-blue-300 transition-colors">Upload Resume</h3>
                 <p className="text-gray-400 text-sm leading-relaxed">
                   Upload your CV (PDF/Image). We'll extract your skills and experience to auto-fill the builder.
                 </p>
               </div>
-
               <input type="file" ref={fileInputRef} onChange={handleFileChange} accept=".pdf,.png,.jpg,.jpeg" className="hidden" />
-              
               <div className="flex justify-end mt-4">
                 <ArrowRight className="text-blue-400 opacity-0 group-hover:opacity-100 -translate-x-4 group-hover:translate-x-0 transition-all duration-300" />
               </div>
@@ -232,18 +220,15 @@ export default function SelectionView({ onSelectAI, onSelectControl, onSelectRes
               className="relative group w-full overflow-hidden rounded-3xl border border-white/10 bg-[#0a0a0a] p-8 cursor-pointer hover:border-white/30 hover:bg-white/5 flex flex-col justify-between transition-all duration-500 min-h-[320px]"
             >
               <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 blur-[80px] rounded-full -translate-y-1/2 translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity" />
-              
               <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-gray-800/40 to-black border border-white/20 flex items-center justify-center mb-4">
                 <Layers className="text-white w-7 h-7" />
               </div>
-              
               <div>
                 <h3 className="text-3xl font-medium text-white mb-2">Manual Control</h3>
                 <p className="text-gray-400 text-sm leading-relaxed">
                   Start from a blank canvas. Select a template and fill in every detail step-by-step yourself.
                 </p>
               </div>
-              
               <div className="flex justify-end mt-4">
                 <ArrowRight className="text-white opacity-0 group-hover:opacity-100 -translate-x-4 group-hover:translate-x-0 transition-all duration-300" />
               </div>

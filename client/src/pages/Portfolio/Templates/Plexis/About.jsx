@@ -2,96 +2,104 @@ import React from "react";
 import { usePortfolio } from "../../../../context/PortfolioContext";
 import DownArrow from "../../../../components/DownArrow";
 import useFadeInOnScroll from "../../../../hooks/useFadeInOnScroll";
+import EditableText from "../EditableText";
 
-const About = ({ portfolioData: propData }) => {
-  const { portfolioData: contextData } = usePortfolio();
+const About = ({ portfolioData: propData, isReadOnly }) => {
+  const { portfolioData: contextData, setPortfolioData } = usePortfolio();
   const data = propData || contextData || {};
   useFadeInOnScroll();
 
   const bg = data.themeBg || "#ffffff";
   const fg = data.themeFont || "#111827";
-  const borderColor = `${fg}20`;
+  const accent = data.accentColor || "#D97706";
+  const borderColor = `${fg}15`;
 
-  // --- SAFE DATA ---
-  const safeBio = typeof data.bio === "string" ? data.bio : "I am a creative developer focusing on digital products.";
-  const safeEducation = typeof data.education === "string" ? data.education : "University";
-  
-  // Safe Skills (for the mini preview)
+  // Safe Skills logic
   const rawSkills = Array.isArray(data.skills) ? data.skills : [];
   const safeSkills = rawSkills.map(s => (typeof s === 'string' ? s : s?.name)).filter(Boolean);
-
-  // Safe Experience Summary (Prevents Object Crash)
-  let experienceSummary = "Fresher / Available";
-  if (Array.isArray(data.experience) && data.experience.length > 0) {
-      experienceSummary = `${data.experience.length} Roles Recorded`;
-  } else if (typeof data.experience === 'string' && data.experience.trim() !== "") {
-      experienceSummary = data.experience;
-  }
 
   return (
     <section
       id="about"
-      className="relative min-h-screen flex flex-col"
+      className="relative min-h-screen flex flex-col overflow-hidden"
       style={{ backgroundColor: bg, color: fg, borderBottom: `1px solid ${borderColor}` }} 
     >
-      <div className="flex-grow grid md:grid-cols-2 h-full">
+      <div className="flex-grow grid md:grid-cols-12 h-full">
         
-        {/* LEFT COL: Sticky Title */}
-        <div className="p-8 md:p-16 border-b md:border-b-0 md:border-r border-gray-100" style={{ borderColor: borderColor }}>
-           <div className="sticky top-32 fade-up">
-              <span className="text-sm font-bold uppercase tracking-widest opacity-50 mb-4 block">01 / Profile</span>
-              <h2 className="text-5xl md:text-7xl font-bold uppercase leading-none">
-                About<br/>Me.
+        {/* LEFT COL: Sticky Title (Span 5) */}
+        <div className="md:col-span-5 p-8 md:p-20 border-b md:border-b-0 md:border-r" style={{ borderColor: borderColor }}>
+            <div className="sticky top-40 fade-up">
+              <span className="text-xs font-black uppercase tracking-[0.4em] opacity-30 mb-6 block">01 / Profile</span>
+              <h2 className="text-6xl md:text-8xl font-black uppercase leading-[0.8] tracking-tighter">
+                Self<br/>
+                <span style={{ color: accent }}>Taught.</span>
               </h2>
-           </div>
+            </div>
         </div>
 
-        {/* RIGHT COL: Content */}
-        <div className="p-8 md:p-16 flex flex-col justify-center">
+        {/* RIGHT COL: Content (Span 7) */}
+        <div className="md:col-span-7 p-8 md:p-20 flex flex-col justify-center">
           
           {/* Bio */}
-          <div className="mb-16 fade-up">
-            <h3 className="text-xl font-bold mb-6 uppercase tracking-wide opacity-50">Biography</h3>
-            <p className="text-xl md:text-2xl leading-relaxed font-light">
-              {safeBio}
-            </p>
+          <div className="mb-20 fade-up">
+            <h3 className="text-xs font-black mb-8 uppercase tracking-[0.3em] opacity-40">The Narrative</h3>
+            <div className="text-2xl md:text-4xl leading-tight font-bold tracking-tight">
+              <EditableText
+                value={data.bio || "Crafting digital systems with a focus on usability."}
+                onChange={(val) => setPortfolioData({ ...data, bio: val })}
+                readOnly={isReadOnly}
+                multiline
+              />
+            </div>
           </div>
 
-          {/* Info Grid */}
-          <div className="grid grid-cols-1 gap-12 fade-up">
+          {/* Info Blocks */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 fade-up">
             
-            {/* Experience Summary */}
-            <div className="pt-8 border-t" style={{ borderColor: borderColor }}>
-               <h4 className="text-lg font-bold mb-2">Experience</h4>
-               <p className="opacity-70 text-lg">{experienceSummary}</p>
-            </div>
-
             {/* Education Block */}
-            <div className="pt-8 border-t" style={{ borderColor: borderColor }}>
-               <h4 className="text-lg font-bold mb-2">Education</h4>
-               <p className="opacity-70 text-lg">{safeEducation}</p>
-            </div>
-
-            {/* Quick Skills Block */}
-            <div className="pt-8 border-t" style={{ borderColor: borderColor }}>
-               <h4 className="text-lg font-bold mb-4">Skills Overview</h4>
-               <div className="flex flex-wrap gap-2">
-                  {safeSkills.length > 0
-                    ? safeSkills.slice(0, 8).map((name, i) => (
-                        <span key={i} className="px-3 py-1 border rounded-full text-sm font-medium" style={{ borderColor: fg }}>
-                          {name}
-                        </span>
-                      ))
-                    : <span className="opacity-50">No skills added yet</span> }
+            <div className="pt-10 border-t" style={{ borderColor: borderColor }}>
+               <h4 className="text-xs font-black uppercase tracking-widest mb-4 opacity-40">Academic Path</h4>
+               <div className="text-xl font-bold uppercase">
+                 <EditableText
+                    value={data.education || "University of Arts"}
+                    onChange={(val) => setPortfolioData({ ...data, education: val })}
+                    readOnly={isReadOnly}
+                 />
                </div>
             </div>
-            
+
+            {/* Experience Block */}
+            <div className="pt-10 border-t" style={{ borderColor: borderColor }}>
+               <h4 className="text-xs font-black uppercase tracking-widest mb-4 opacity-40">Status</h4>
+               <div className="text-xl font-bold uppercase">
+                 <EditableText
+                    value={data.experienceSummary || "Available for Hire"}
+                    onChange={(val) => setPortfolioData({ ...data, experienceSummary: val })}
+                    readOnly={isReadOnly}
+                 />
+               </div>
+            </div>
+
+            {/* Skills Block (Dynamic) */}
+            <div className="md:col-span-2 pt-10 border-t" style={{ borderColor: borderColor }}>
+               <h4 className="text-xs font-black uppercase tracking-widest mb-6 opacity-40">Selected Stack</h4>
+               <div className="flex flex-wrap gap-3">
+                  {safeSkills.map((name, i) => (
+                    <span 
+                      key={i} 
+                      className="px-6 py-3 border-2 rounded-full text-xs font-black uppercase tracking-widest transition-colors hover:bg-current hover:text-white" 
+                      style={{ borderColor: borderColor }}
+                    >
+                      {name}
+                    </span>
+                  ))}
+               </div>
+            </div>
           </div>
 
-          <div className="mt-16 fade-up">
+          <div className="mt-24">
              <DownArrow targetId="experience" />
           </div>
-
         </div>
       </div>
     </section>

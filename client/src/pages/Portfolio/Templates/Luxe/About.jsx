@@ -3,23 +3,28 @@ import { motion } from "framer-motion";
 import { usePortfolio } from "../../../../context/PortfolioContext";
 import { ArrowDown } from "lucide-react";
 
-const About = ({ portfolioData: propData }) => {
-  const { portfolioData: contextData } = usePortfolio();
+// Components
+import EditableText from "../EditableText";
+
+const About = ({ portfolioData: propData, isReadOnly }) => {
+  const { portfolioData: contextData, setPortfolioData } = usePortfolio();
   const data = propData || contextData || {};
   
+  // Theme Config
+  const bg = data.themeBg || "#ffffff";
+  const fg = data.themeFont || "#111827";
+  const accent = data.accentColor || "#D97706";
+
   // Safe Data Extraction
   const skills = Array.isArray(data?.skills) ? data.skills : [];
   
-  // Safe Experience Summary (Prevents Object Crash)
+  // Safe Experience Summary
   let experienceSummary = "N/A";
   if (Array.isArray(data.experience) && data.experience.length > 0) {
       experienceSummary = `${data.experience.length} Roles`;
   } else if (typeof data.experience === 'string') {
       experienceSummary = data.experience;
   }
-
-  const bg = data.themeBg || "#ffffff";
-  const fg = data.themeFont || "#111827";
 
   return (
     <section 
@@ -38,11 +43,15 @@ const About = ({ portfolioData: propData }) => {
              viewport={{ once: true }}
              transition={{ duration: 0.6 }}
            >
-             <span className="text-xs font-bold uppercase tracking-widest" style={{ color: fg, opacity: 0.4 }}>
-               Biography
+             <span className="text-xs font-black uppercase tracking-[0.4em] mb-4 block" style={{ color: fg, opacity: 0.3 }}>
+               (02) / Biography
              </span>
-             <h2 className="text-4xl md:text-6xl font-medium mt-4 leading-[1.1] tracking-tight">
-               Beyond <br/> the code.
+             <h2 className="text-4xl md:text-6xl font-black mt-4 leading-[1] tracking-tighter uppercase">
+                <EditableText
+                  value={data.aboutTitle || "Beyond the code."}
+                  onChange={(val) => setPortfolioData({ ...data, aboutTitle: val })}
+                  readOnly={isReadOnly}
+                />
              </h2>
            </motion.div>
         </div>
@@ -57,9 +66,14 @@ const About = ({ portfolioData: propData }) => {
                 viewport={{ once: true, margin: "-10%" }}
                 transition={{ duration: 0.7 }}
             >
-               <p className="text-2xl md:text-3xl leading-relaxed font-light" style={{ color: fg, opacity: 0.9 }}>
-                  {data?.bio || "Write something about yourself…"}
-               </p>
+               <div className="text-2xl md:text-4xl leading-tight font-bold tracking-tight" style={{ color: fg }}>
+                  <EditableText
+                    value={data.bio || "Write something about yourself…"}
+                    onChange={(val) => setPortfolioData({ ...data, bio: val })}
+                    readOnly={isReadOnly}
+                    multiline
+                  />
+               </div>
             </motion.div>
 
             {/* 2. Stats Grid */}
@@ -71,15 +85,19 @@ const About = ({ portfolioData: propData }) => {
                 viewport={{ once: true, margin: "-10%" }}
                 transition={{ duration: 0.7, delay: 0.2 }}
             >
-               {/* Experience */}
-               <div>
-                  <h3 className="text-[10px] font-bold uppercase tracking-widest mb-6" style={{ color: fg, opacity: 0.4 }}>
-                    Experience
+               {/* Experience Status */}
+               <div className="pt-8">
+                  <h3 className="text-xs font-black uppercase tracking-[0.3em] mb-6 opacity-40">
+                    Status
                   </h3>
-                  <p className="text-xl font-medium mb-3">
-                    {experienceSummary}
-                  </p>
-                  <p className="text-sm leading-relaxed" style={{ opacity: 0.6 }}>
+                  <div className="text-xl font-bold uppercase mb-3">
+                    <EditableText
+                      value={data.experienceSummary || experienceSummary}
+                      onChange={(val) => setPortfolioData({ ...data, experienceSummary: val })}
+                      readOnly={isReadOnly}
+                    />
+                  </div>
+                  <p className="text-sm font-mono leading-relaxed opacity-50">
                     {skills.length > 0
                         ? skills.slice(0, 6).map((s) => typeof s === 'string' ? s : s.name).join(" • ")
                         : "Add skills to display here"
@@ -88,13 +106,17 @@ const About = ({ portfolioData: propData }) => {
                </div>
 
                {/* Education */}
-               <div>
-                  <h3 className="text-[10px] font-bold uppercase tracking-widest mb-6" style={{ color: fg, opacity: 0.4 }}>
-                    Education
+               <div className="pt-8">
+                  <h3 className="text-xs font-black uppercase tracking-[0.3em] mb-6 opacity-40">
+                    Academic Path
                   </h3>
-                  <p className="text-xl font-medium">
-                    {data?.education || "Add education"}
-                  </p>
+                  <div className="text-xl font-bold uppercase">
+                    <EditableText
+                      value={data?.education || "Add education"}
+                      onChange={(val) => setPortfolioData({ ...data, education: val })}
+                      readOnly={isReadOnly}
+                    />
+                  </div>
                </div>
             </motion.div>
             
@@ -104,10 +126,10 @@ const About = ({ portfolioData: propData }) => {
                 initial={{ opacity: 0 }}
                 whileInView={{ opacity: 1 }}
                 transition={{ delay: 0.6 }}
-                className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest transition-opacity hover:opacity-60"
+                className="inline-flex items-center gap-4 text-xs font-black uppercase tracking-[0.2em] transition-opacity hover:opacity-60"
                 style={{ color: fg }}
             >
-               Scroll for Services <ArrowDown size={14} />
+                Next Section <ArrowDown size={14} style={{ color: accent }} />
             </motion.a>
         </div>
       </div>

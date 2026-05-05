@@ -1,7 +1,7 @@
 // src/pages/Customize/customize-editor/EditorPanel.jsx
 import React from "react";
 import { LayoutTemplate, X } from "lucide-react";
-import LeftPanel from "../leftpanel/index"; // Adjust import path if needed
+import LeftPanel from "../leftpanel/index";
 
 const EditorPanel = ({
   width,
@@ -9,40 +9,46 @@ const EditorPanel = ({
   isPanelOpen,
   onClose,
   isDragging,
-  // Props passed to LeftPanel
   portfolioData, setPortfolioData,
   handleGenerateBio, handleSave, handlePreview,
-  formLogic, // From our custom hook
+  formLogic,
   themeBg, setThemeBg,
-  themeFont, setThemeFont
+  themeFont, setThemeFont,
 }) => {
-
   return (
     <div
       style={{
         width: width,
-        transition: isDragging ? "none" : "width 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)",
+        transition: isDragging ? "none" : "width 0.35s cubic-bezier(0.4, 0, 0.2, 1)",
         opacity: isVisible ? 1 : 0,
         pointerEvents: isVisible ? "auto" : "none",
+        willChange: "width",
       }}
-      className="flex flex-col bg-white border-r border-gray-200  z-30 min-h-0 h-full"
+      className="flex flex-col bg-white border-l border-gray-100 z-30 min-h-0 h-full shadow-[-4px_0_24px_-8px_rgba(0,0,0,0.04)]"
     >
-      {/* Header */}
-      <div className="flex-none flex justify-between items-center p-4 border-b border-gray-200 bg-white sticky top-0 z-10">
-        <h3 className="font-bold text-gray-800 flex items-center gap-2">
-          <LayoutTemplate size={18} className="text-purple-600" />
+      {/* ── Header ── */}
+      <div className="flex-none flex justify-between items-center px-5 py-3.5 border-b border-gray-100 bg-white/95 backdrop-blur-sm sticky top-0 z-10">
+        <h3 className="font-semibold text-gray-800 flex items-center gap-2 text-[13px]">
+          <span className="w-6 h-6 rounded-lg bg-violet-100 flex items-center justify-center">
+            <LayoutTemplate size={13} className="text-violet-600" />
+          </span>
           Editor
         </h3>
         <button
-          type="button" // ✅ FIX: Added type="button"
+          type="button"
           onClick={onClose}
-          className="p-1.5 rounded-md hover:bg-gray-100 text-gray-400 hover:text-red-500 transition-colors"
+          className="w-7 h-7 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-700 transition-all flex items-center justify-center"
+          aria-label="Close editor"
         >
-          <X size={20} />
+          <X size={15} />
         </button>
       </div>
-      {/* Scrollable Content - The Fix for Freezing */}
-      <div className="flex-1  overscroll-contain touch-pan-y scroll-smooth relative">
+
+      {/* ── Scrollable content ── */}
+      <div
+        className="flex-1 overflow-y-auto overscroll-contain touch-pan-y"
+        style={{ scrollBehavior: "smooth" }}
+      >
         <LeftPanel
           width={width}
           portfolioData={portfolioData}
@@ -51,7 +57,7 @@ const EditorPanel = ({
           handleGenerateBio={handleGenerateBio}
           handleSave={handleSave}
           handlePreview={handlePreview}
-          {...formLogic} // Spreads all skills/project handlers
+          {...formLogic}
           themeBg={themeBg} setThemeBg={setThemeBg}
           themeFont={themeFont} setThemeFont={setThemeFont}
         />

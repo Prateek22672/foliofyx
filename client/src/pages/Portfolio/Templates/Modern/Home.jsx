@@ -1,120 +1,152 @@
-// src/components/Home.jsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef } from "react";
+import { motion } from "framer-motion";
 import { usePortfolio } from "../../../../context/PortfolioContext";
-import linkedinLogo from "../../../../assets/linkedin.png"; 
+import linkedinLogo from "../../../../assets/linkedin.png";
 import githubLogo from "../../../../assets/github.png";
-import VideoBackground from "./VideoBackground"; 
-import { ArrowDownCircle } from "lucide-react"; 
+import { ArrowDownCircle, Sparkles, ExternalLink, FileText } from "lucide-react";
+import EditableText from "../EditableText";
+import EditableImage from "../EditableImage";
 
-// ✅ Defined default DP (Display Picture) constant
-const dp = "/themes/john-wick-3-parabellum-action.avif";
+const Home = ({ portfolioData: propData, isReadOnly }) => {
+  const { portfolioData: contextData, setPortfolioData } = usePortfolio();
+  
+  // Data merging: prioritizes deployed data, then context
+  const data = (propData && Object.keys(propData).length > 0) ? propData : (contextData || {});
 
-const Home = ({ portfolioData: propData, isMobileView }) => {
-  const { portfolioData: contextData } = usePortfolio();
-  const data = propData || contextData;
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const bg = data.themeBg || "#0a0a0a";
+  const fg = data.themeFont || "#f0f0f0";
+  const accent = data.accentColor || "#e8ff47";
 
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
-  // ✅ Helper to ensure links are absolute (fixes the "main url/cv link" issue)
-  const getSafeLink = (link) => {
-    if (!link) return "#";
-    if (link.startsWith("http://") || link.startsWith("https://")) {
-      return link;
-    }
-    return `https://${link}`;
-  };
+  const firstName = data.name ? data.name.split(" ")[0] : "CREATIVE";
 
   return (
-    <section
-      id="home"
-      className="relative min-h-screen flex flex-col justify-center items-center text-center overflow-hidden"
-      style={{
-        backgroundColor: data?.themeBg || "#000",
-        color: data?.themeFont || "#fff",
-      }}
+    <section 
+      id="home" 
+      className="relative min-h-screen flex items-center justify-center overflow-hidden transition-colors duration-700"
+      style={{ backgroundColor: bg, color: fg }}
     >
-      <VideoBackground blur="0px" opacity={1} /> 
+      {/* ── BACKGROUND LAYER: GIANT KINETIC TEXT ── */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden">
+        <motion.h1 
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 0.03, scale: 1 }}
+          transition={{ duration: 2 }}
+          className="text-[40vw] font-black uppercase tracking-tighter leading-none italic"
+          style={{ color: fg }}
+        >
+          {firstName}
+        </motion.h1>
+      </div>
 
-      <div className="relative z-10 flex flex-col md:flex-row items-center gap-10 md:gap-20 px-6 max-w-6xl mx-auto mt-20">
+      {/* ── AMBIENT GLOW ── */}
+      <div 
+        className="absolute top-0 right-0 w-[60vw] h-[60vw] rounded-full blur-[120px] opacity-20 pointer-events-none"
+        style={{ background: `radial-gradient(circle, ${accent}33 0%, transparent 70%)` }}
+      />
+
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-6 grid lg:grid-cols-12 gap-12 items-center">
         
-        {/* Profile Image */}
-        <div className="relative group">
-            <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-tilt"></div>
-            <img
-                src={
-                  data?.image
-                    ? data.image.startsWith("/uploads")
-                      ? `http://localhost:5000${data.image}`
-                      : data.image
-                    : dp // ✅ Uses 'dp' constant if no image is found
-                }
-                alt={data?.name}
-                className="relative w-48 h-48 md:w-80 md:h-80 object-cover rounded-full border-4 border-black shadow-2xl"
+        {/* ── LEFT SIDE: REFINED CONTENT (Col 1-7) ── */}
+        <div className="lg:col-span-7 space-y-10 order-2 lg:order-1">
+
+
+          <div className="space-y-4 mt-30">
+            <h1 className="text-6xl md:text-[8vw] font-black leading-[0.85] tracking-tighter uppercase italic">
+              <EditableText
+                value={data.name || "YOUR NAME"}
+                onChange={(val) => setPortfolioData({ ...data, name: val })}
+                readOnly={isReadOnly}
+              />
+              <span style={{ color: accent }}>.</span>
+            </h1>
+            
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-[1px] opacity-30" style={{ backgroundColor: fg }} />
+              <h2 className="text-xl md:text-3xl font-light tracking-tight opacity-70">
+                <EditableText
+                  value={data.role || "Creative Developer"}
+                  onChange={(val) => setPortfolioData({ ...data, role: val })}
+                  readOnly={isReadOnly}
+                />
+              </h2>
+            </div>
+          </div>
+
+          <p className="text-lg md:text-xl font-medium max-w-xl leading-relaxed opacity-50">
+            <EditableText
+              value={data.bio || "Architecting high-performance digital systems with minimal aesthetics."}
+              onChange={(val) => setPortfolioData({ ...data, bio: val })}
+              readOnly={isReadOnly}
+              multiline
             />
-        </div>
+          </p>
 
-        {/* Text Content */}
-        <div className="flex flex-col items-center md:items-start text-center md:text-left space-y-4">
-          <p className="text-gray-400 font-medium text-lg">Hello, I'm</p>
-          <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-white">
-            {data?.name || "Your Name"}
-          </h1>
-          <h2 className="text-2xl md:text-3xl font-semibold text-gray-300">
-            {data?.role || "Web Developer"}
-          </h2>
-          
-          {/* ✅ UPDATED: Single row with Icons BETWEEN the buttons */}
-          <div className="flex flex-wrap items-center justify-center md:justify-start gap-6 mt-6">
-              
-              {/* 1. Download CV Button */}
-              {data?.cvLink && (
-                <a
-                  href={getSafeLink(data.cvLink)} // ✅ Fixed link logic here
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-6 py-3 rounded-full bg-white text-black font-bold hover:bg-purple-500 hover:text-white transition-all duration-300 shadow-lg"
-                >
-                  Download CV
-                </a>
-              )}
-              
-              {/* 3. Contact Info Button */}
-              <a
-                href="#contact"
-                className="px-6 py-3 rounded-full border border-white/30 text-white font-bold hover:bg-white hover:text-black transition-all duration-300"
+          {/* Action Buttons */}
+          <div className="flex flex-wrap gap-6 pt-6">
+            <a 
+              href="#projects" 
+              className="group flex items-center gap-3 px-8 py-4 rounded-full font-black text-[11px] uppercase tracking-[0.2em] transition-all hover:scale-105 shadow-2xl active:scale-95"
+              style={{ backgroundColor: fg, color: bg }}
+            >
+              View Work <ExternalLink size={14} className="transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
+            </a>
+
+            {data.cvLink && (
+              <a 
+                href={data.cvLink} 
+                target="_blank" 
+                rel="noreferrer"
+                className="flex items-center gap-3 px-8 py-4 rounded-full border-2 font-black text-[11px] uppercase tracking-[0.2em] transition-all hover:bg-white/5 active:scale-95"
+                style={{ borderColor: `${fg}20`, color: fg }}
               >
-                Contact Info
+                Resume <FileText size={14} />
               </a>
+            )}
           </div>
-
-
-          <div className="flex gap-4 mt-6 sm:ml-30">
-              {data?.linkedin && (
-                <a href={data.linkedin} target="_blank" rel="noreferrer">
-                   {/* Added brightness-0 to force white silhouette */}
-                   <img src={linkedinLogo} alt="LinkedIn" className="w-8 h-8 brightness-0 invert hover:opacity-80 transition-opacity" />
-                </a>
-              )}
-              {data?.github && (
-                <a href={data.github} target="_blank" rel="noreferrer">
-                   {/* ✅ UPDATED: Added brightness-0 invert to force pure white */}
-                   <img src={githubLogo} alt="GitHub" className="w-8 h-8 brightness-0 invert hover:opacity-80 transition-opacity" />
-                </a>
-              )}
-          </div>
-
         </div>
+
+        {/* ── RIGHT SIDE: PORTRAIT PORTAL (Col 8-12) ── */}
+        <motion.div 
+          initial={{ opacity: 0, x: 50 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="lg:col-span-5 order-1 lg:order-2 flex justify-center lg:justify-end"
+        >
+          <div className="relative group">
+            {/* Architectural Frame */}
+            <div className="absolute inset-0 border border-current opacity-10 rounded-[2.5rem] translate-x-4 translate-y-4 -z-10" />
+            
+            <div className="relative w-64 h-80 md:w-[400px] md:h-[520px] overflow-hidden rounded-[2rem] shadow-2xl">
+              <EditableImage
+                src={data?.image}
+                fallbackSrc="/themes/default-dp.avif"
+                onImageUpload={(url) => setPortfolioData({ ...data, image: url })}
+                isReadOnly={isReadOnly}
+                className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-1000 group-hover:scale-105"
+              />
+              
+              {/* Floating Social Pill */}
+              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-black/40 backdrop-blur-2xl border border-white/10 px-6 py-3 rounded-full flex gap-6 shadow-2xl items-center">
+                <a href={data?.linkedin} target="_blank" rel="noreferrer" className="hover:scale-110 transition-transform">
+                  <img src={linkedinLogo} className="w-5 h-5 invert" alt="LinkedIn" />
+                </a>
+                <div className="w-[1px] h-4 bg-white/20" />
+                <a href={data?.github} target="_blank" rel="noreferrer" className="hover:scale-110 transition-transform">
+                  <img src={githubLogo} className="w-5 h-5 invert" alt="GitHub" />
+                </a>
+              </div>
+            </div>
+          </div>
+        </motion.div>
       </div>
-      
-      {/* Scroll Down Indicator */}
-      <div className="absolute bottom-10 animate-bounce cursor-pointer" onClick={() => document.getElementById('about').scrollIntoView({ behavior: 'smooth'})}>
-         <ArrowDownCircle size={32} className="text-gray-400" />
-      </div>
+
+      {/* Scroll Hint */}
+      <motion.div 
+        animate={{ y: [0, 8, 0] }} 
+        transition={{ repeat: Infinity, duration: 2.5 }}
+        className="absolute bottom-10 left-1/2 -translate-x-1/2 opacity-20"
+      >
+        <ArrowDownCircle size={32} strokeWidth={1} />
+      </motion.div>
     </section>
   );
 };

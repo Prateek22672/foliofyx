@@ -1,121 +1,114 @@
 import React from "react";
 import { usePortfolio } from "../../../../context/PortfolioContext";
 import useFadeInOnScroll from "../../../../hooks/useFadeInOnScroll";
+import EditableText from "../EditableText";
 
 const DEFAULT_FG = "#111827";
+const GRADIENTS = ["from-violet-200 to-pink-200", "from-blue-200 to-cyan-200", "from-teal-200 to-emerald-200", "from-orange-200 to-amber-200"];
 
-// A set of "Aurora" gradients to rotate through for the project covers
-const GRADIENTS = [
-  "from-violet-200 to-pink-200",
-  "from-blue-200 to-cyan-200",
-  "from-teal-200 to-emerald-200",
-  "from-orange-200 to-amber-200",
-  "from-fuchsia-200 to-purple-200",
-  "from-gray-200 to-slate-300",
-];
-
-const Projects = ({ portfolioData: propData }) => {
-  const { portfolioData: contextData } = usePortfolio();
+const Projects = ({ portfolioData: propData, isReadOnly }) => {
+  const { portfolioData: contextData, setPortfolioData } = usePortfolio();
   const data = propData || contextData || {};
   const fg = data.themeFont || DEFAULT_FG;
   const projects = Array.isArray(data.projects) ? data.projects : [];
 
   useFadeInOnScroll([projects.length]);
 
+  const handleUpdateProject = (index, field, value) => {
+    const updatedProjects = [...projects];
+    updatedProjects[index] = { ...updatedProjects[index], [field]: value };
+    setPortfolioData({ ...data, projects: updatedProjects });
+  };
+
   return (
     <section id="projects" className="py-32 px-6 sm:px-12 lg:px-24 font-[Switzer]">
       <div className="max-w-7xl mx-auto">
         
-        {/* Section Header */}
         <div className="flex flex-col md:flex-row justify-between items-end mb-20 fade-up">
           <div>
             <h2 className="text-5xl md:text-7xl font-bold tracking-tight mb-4" style={{ color: fg }}>
-              Selected Work
+              <EditableText 
+                value={data.projectHeader || "Selected Work"} 
+                onChange={(v) => setPortfolioData({...data, projectHeader: v})} 
+                readOnly={isReadOnly} 
+              />
             </h2>
             <div className="h-1.5 w-24 bg-purple-500 rounded-full"></div>
           </div>
-          <p className="text-lg text-gray-500 mt-6 md:mt-0 max-w-sm text-right leading-relaxed font-medium">
-            Crafted with precision. <br /> Focused on functionality and aesthetics.
-          </p>
         </div>
 
-        {/* Projects Grid */}
-        {projects.length === 0 ? (
-           <div className="py-24 text-center border border-dashed border-gray-300 rounded-3xl opacity-60 fade-up">
-             <p className="text-xl">No projects added yet.</p>
-           </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-            {projects.map((p, i) => {
-              // 1. Get a distinct gradient for this card
-              const gradient = GRADIENTS[i % GRADIENTS.length];
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+          {projects.map((p, i) => (
+            <div key={i} className="group relative flex flex-col h-full fade-up">
               
-              // 2. Get the "Symbol" (First letter or default)
-              const symbol = p.title ? p.title.charAt(0) : "</>";
+              {/* --- THUMBNAIL AREA --- */}
+              <div className={`relative aspect-[5/4] w-full overflow-hidden rounded-[2.5rem] bg-gradient-to-br ${GRADIENTS[i % GRADIENTS.length]} mb-8 transition-all duration-700 shadow-sm group-hover:shadow-xl`}>
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  <span className="text-[12rem] md:text-[15rem] font-black text-white mix-blend-overlay opacity-60 transition-transform duration-700 group-hover:scale-110">
+                    {p.title?.charAt(0) || "</>"}
+                  </span>
+                </div>
+              </div>
 
-              return (
-                <div
-                  key={i}
-                  className="group relative flex flex-col h-full fade-up"
-                >
-                  {/* --- THUMBNAIL AREA (Typographic Poster) --- */}
-                  <div className={`relative aspect-[5/4] w-full overflow-hidden rounded-[2rem] bg-gradient-to-br ${gradient} mb-6 transition-all duration-700 hover:shadow-2xl hover:shadow-purple-500/20 group-hover:-translate-y-2`}>
-                    
-                    {/* The Big Artistic Letter/Symbol */}
-                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                      <span className="text-[12rem] md:text-[15rem] font-black text-white mix-blend-overlay opacity-60 select-none group-hover:scale-110 transition-transform duration-700 ease-in-out">
-                        {symbol}
-                      </span>
-                    </div>
-
-                    {/* Overlay Content (Hidden by default, slides up on hover) */}
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 backdrop-blur-[2px] flex items-center justify-center gap-4">
-                       {p.github && (
-                         <a 
-                           href={p.github} 
-                           target="_blank" 
-                           rel="noreferrer" 
-                           className="bg-white text-black px-6 py-3 rounded-full font-bold text-sm hover:scale-105 transition-transform"
-                         >
-                           GitHub
-                         </a>
-                       )}
-                       {p.demo && (
-                         <a 
-                           href={p.demo} 
-                           target="_blank" 
-                           rel="noreferrer" 
-                           className="bg-black text-white border border-white/20 px-6 py-3 rounded-full font-bold text-sm hover:scale-105 transition-transform"
-                         >
-                           Live Demo
-                         </a>
-                       )}
-                    </div>
+              {/* --- INFO AREA --- */}
+              <div className="flex flex-col flex-grow px-2">
+                <div className="flex justify-between items-start mb-4">
+                  <div className="flex-1">
+                    <h3 className="text-3xl font-black uppercase tracking-tighter" style={{ color: fg }}>
+                      <EditableText value={p.title} onChange={(v) => handleUpdateProject(i, 'title', v)} readOnly={isReadOnly} />
+                    </h3>
                   </div>
-
-                  {/* --- INFO AREA --- */}
-                  <div className="flex justify-between items-start px-2">
-                    <div>
-                      <h3 className="text-3xl font-bold leading-tight group-hover:text-purple-600 transition-colors" style={{ color: fg }}>
-                        {p.title}
-                      </h3>
-                      <p className="mt-2 text-gray-500 text-lg leading-relaxed line-clamp-2">
-                        {p.description || "A showcase of technical proficiency and design thinking."}
-                      </p>
-                    </div>
-                    
-                    {/* Tech Badge */}
-                    <div className="shrink-0 ml-4">
-                       <span className="inline-block px-3 py-1 rounded-full border border-gray-200 text-xs font-bold uppercase tracking-wider text-gray-500 bg-white">
-                         {p.tech || "Dev"}
-                       </span>
-                    </div>
+                  <div className="shrink-0 ml-4">
+                     <span className="inline-block px-3 py-1 rounded-full border border-current opacity-30 text-[10px] font-bold uppercase tracking-widest">
+                       <EditableText value={p.tech || "Dev"} onChange={(v) => handleUpdateProject(i, 'tech', v)} readOnly={isReadOnly} />
+                     </span>
                   </div>
                 </div>
-              );
-            })}
-          </div>
-        )}
+
+                <div className="text-lg leading-relaxed opacity-60 mb-8 flex-grow font-medium">
+                  <EditableText value={p.description} onChange={(v) => handleUpdateProject(i, 'description', v)} readOnly={isReadOnly} multiline />
+                </div>
+
+                {/* --- ALWAYS VISIBLE ACTION BUTTONS --- */}
+                <div className="flex flex-wrap items-center gap-4 mt-auto">
+                   <a 
+                      href={p.github || "#"} 
+                      target="_blank" 
+                      rel="noreferrer" 
+                      className={`flex-1 min-w-[140px] py-4 rounded-full font-black text-[10px] uppercase tracking-[0.2em] text-center transition-all hover:scale-105 active:scale-95 shadow-lg ${!p.github && isReadOnly ? 'pointer-events-none opacity-20' : ''}`}
+                      style={{ backgroundColor: fg, color: data.themeBg || "#fff" }}
+                   >
+                     Source Code
+                   </a>
+                   
+                   <a 
+                      href={p.demo || "#"} 
+                      target="_blank" 
+                      rel="noreferrer" 
+                      className={`flex-1 min-w-[140px] py-4 rounded-full border-2 font-black text-[10px] uppercase tracking-[0.2em] text-center transition-all hover:bg-current hover:text-white ${!p.demo && isReadOnly ? 'pointer-events-none opacity-20' : ''}`}
+                      style={{ borderColor: `${fg}20`, color: fg }}
+                   >
+                     Live Demo
+                   </a>
+                </div>
+
+                {/* --- EDITOR URL INPUTS (Only visible in Editor Mode) --- */}
+                {!isReadOnly && (
+                  <div className="mt-8 pt-6 border-t border-dashed border-current/10 flex flex-col gap-3">
+                    <div className="flex items-center gap-2 text-[9px] font-mono opacity-40">
+                      <span className="font-bold">GH:</span>
+                      <EditableText value={p.github || ""} placeholder="https://github.com/..." onChange={(v) => handleUpdateProject(i, 'github', v)} readOnly={isReadOnly} />
+                    </div>
+                    <div className="flex items-center gap-2 text-[9px] font-mono opacity-40">
+                      <span className="font-bold">WEB:</span>
+                      <EditableText value={p.demo || ""} placeholder="https://..." onChange={(v) => handleUpdateProject(i, 'demo', v)} readOnly={isReadOnly} />
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );

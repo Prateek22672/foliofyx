@@ -124,32 +124,61 @@ axiosInstance.interceptors.response.use(
 // src/api/axiosInstance.js
 import axios from "axios";
 
+/* ============================
+   ✅ BASE URL
+============================ */
+const BASE_URL =
+  import.meta.env.MODE === "development"
+    ? "http://localhost:5000/api"
+    : "https://foliofyx-backend.onrender.com/api"; // ⚠️ make sure this matches your Render URL
+
 const axiosInstance = axios.create({
-  withCredentials: true,
+  baseURL: BASE_URL,
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-// ✅ REQUEST INTERCEPTOR
+/* ============================
+   ✅ REQUEST INTERCEPTOR
+============================ */
 axiosInstance.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("accessToken");
+
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+
     return config;
   },
   (error) => Promise.reject(error)
 );
 
-// ✅ RESPONSE INTERCEPTOR
+/* ============================
+   ✅ RESPONSE INTERCEPTOR
+============================ */
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response && error.response.status === 401) {
-      // optional handling
+    const status = error.response?.status;
+
+    // 🔥 Handle unauthorized globally
+    if (status === 401) {
+      console.warn("🔒 Unauthorized → redirecting to login");
+
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+
+      window.location.href = "/login";
     }
+
+    // 🔥 Helpful debug log
+    console.error(
+      "❌ API Error:",
+      error.response?.data || error.message
+    );
+
     return Promise.reject(error);
   }
 );

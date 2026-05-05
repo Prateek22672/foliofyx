@@ -1,47 +1,53 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { Sparkles, Code, Palette, Cpu, FileJson, ScanLine, Check } from "lucide-react";
+import { Sparkles, Code, Palette, Cpu, FileJson, ScanLine } from "lucide-react";
 
 import Background from "./Background";
 import SelectionView from "./SelectionView";
-import WizardForm from "./WizardForm"; 
+import WizardForm from "./WizardForm";
 import ThemePopup from "../Portfolio/Customize/ThemePopup";
 import PopupMessage from "../../components/PopupMessage";
+import ResumePreviewModal from "./ResumePreviewModal";
 
 import { useAuth } from "../../context/AuthContext";
-import { usePortfolio } from "../../context/PortfolioContext"; 
-import { saveOrUpdatePortfolio } from "../../api/portfolioAPI"; 
+import { usePortfolio } from "../../context/PortfolioContext";
+import { saveOrUpdatePortfolio } from "../../api/portfolioAPI";
 import { DUMMY_DATA } from "./constants";
-import { TEMPLATE_LIST } from "../Portfolio/Templates/index"; 
-import { parseResumeFile } from "./resumeParser"; 
+import { TEMPLATE_LIST } from "../Portfolio/Templates/index";
+import { parseResumeFile } from "./resumeParser";
 
-// --- 1. RESUME LOADING ANIMATION ---
+// ─── LOADERS ─────────────────────────────────────────────────────────────────
+
 const ResumeLoadingOverlay = () => (
-  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-[#030303]/95 backdrop-blur-md">
-     <div className="flex flex-col items-center">
-        <div className="relative w-24 h-32 mb-8 bg-white/5 border border-white/10 rounded-lg overflow-hidden flex items-center justify-center">
-           <div className="space-y-2 w-16 opacity-30">
-                <div className="h-2 w-10 bg-white rounded-full"></div>
-                <div className="h-1 w-14 bg-white rounded-full"></div>
-                <div className="h-1 w-12 bg-white rounded-full"></div>
-                <div className="h-1 w-14 bg-white rounded-full"></div>
-           </div>
-           <motion.div 
-             animate={{ top: ["0%", "100%", "0%"] }} 
-             transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-             className="absolute left-0 w-full h-1 bg-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.8)]"
-           />
+  <motion.div
+    initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+    className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-[#030303]/95 backdrop-blur-md"
+  >
+    <div className="flex flex-col items-center">
+      <div className="relative w-24 h-32 mb-8 bg-white/5 border border-white/10 rounded-lg overflow-hidden flex items-center justify-center">
+        <div className="space-y-2 w-16 opacity-30">
+          <div className="h-2 w-10 bg-white rounded-full" />
+          <div className="h-1 w-14 bg-white rounded-full" />
+          <div className="h-1 w-12 bg-white rounded-full" />
+          <div className="h-1 w-14 bg-white rounded-full" />
         </div>
-        <h3 className="text-2xl font-medium text-white mb-2 flex items-center gap-2">
-            <ScanLine className="w-5 h-5 text-blue-400 animate-pulse" /> Analyzing Resume
-        </h3>
-        <p className="text-gray-400 font-mono text-xs tracking-widest uppercase">Extracting Skills • Experience • Projects</p>
-     </div>
+        <motion.div
+          animate={{ top: ["0%", "100%", "0%"] }}
+          transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+          className="absolute left-0 w-full h-1 bg-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.8)]"
+        />
+      </div>
+      <h3 className="text-2xl font-medium text-white mb-2 flex items-center gap-2">
+        <ScanLine className="w-5 h-5 text-blue-400 animate-pulse" /> Analyzing Resume
+      </h3>
+      <p className="text-gray-400 font-mono text-xs tracking-widest uppercase">
+        AI is extracting all data from your resume...
+      </p>
+    </div>
   </motion.div>
 );
 
-// --- 2. AI LOADING ANIMATION ---
 const AILoadingOverlay = ({ prompt }) => {
   const [currentPhase, setCurrentPhase] = useState(0);
   const phases = [
@@ -53,53 +59,51 @@ const AILoadingOverlay = ({ prompt }) => {
   ];
 
   useEffect(() => {
-    const interval = setInterval(() => setCurrentPhase((prev) => (prev < phases.length - 1 ? prev + 1 : prev)), 800);
+    const interval = setInterval(() =>
+      setCurrentPhase((prev) => (prev < phases.length - 1 ? prev + 1 : prev)), 800);
     return () => clearInterval(interval);
   }, []);
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-[#050505]">
-      <div className="absolute inset-0 opacity-10 pointer-events-none">
-         <div className="absolute inset-0 bg-[linear-gradient(to_bottom,transparent,rgba(168,85,247,0.1)_50%,transparent)] animate-scan" />
-      </div>
+    <motion.div
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-[#050505]"
+    >
       <div className="flex flex-col items-center z-10 px-6 w-full max-w-md">
-         <AnimatePresence mode="wait">
-            <motion.div 
-               key={currentPhase}
-               initial={{ opacity: 0, y: 10, filter: "blur(5px)" }}
-               animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-               exit={{ opacity: 0, y: -10, filter: "blur(5px)" }}
-               transition={{ duration: 0.4 }}
-               className="flex flex-col items-center text-center"
-            >
-               <div className="mb-6 p-4 rounded-full bg-white/5 border border-white/10 ring-1 ring-white/5 shadow-2xl">
-                   {phases[currentPhase].icon}
-               </div>
-               <h3 className="text-2xl md:text-3xl font-medium tracking-tight text-white mb-2">
-                   {phases[currentPhase].text}
-               </h3>
-               <p className="text-gray-500 font-mono text-sm tracking-wider uppercase">
-                   {phases[currentPhase].sub}
-               </p>
-            </motion.div>
-         </AnimatePresence>
-         <div className="w-full h-1 bg-gray-800 rounded-full mt-12 overflow-hidden">
-            <motion.div 
-               animate={{ width: `${((currentPhase + 1) / phases.length) * 100}%` }}
-               className="h-full bg-purple-500 shadow-[0_0_10px_#a855f7]"
-            />
-         </div>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentPhase}
+            initial={{ opacity: 0, y: 10, filter: "blur(5px)" }}
+            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            exit={{ opacity: 0, y: -10, filter: "blur(5px)" }}
+            transition={{ duration: 0.4 }}
+            className="flex flex-col items-center text-center"
+          >
+            <div className="mb-6 p-4 rounded-full bg-white/5 border border-white/10">
+              {phases[currentPhase].icon}
+            </div>
+            <h3 className="text-2xl md:text-3xl font-medium tracking-tight text-white mb-2">
+              {phases[currentPhase].text}
+            </h3>
+            <p className="text-gray-500 font-mono text-sm tracking-wider uppercase">
+              {phases[currentPhase].sub}
+            </p>
+          </motion.div>
+        </AnimatePresence>
+        <div className="w-full h-1 bg-gray-800 rounded-full mt-12 overflow-hidden">
+          <motion.div
+            animate={{ width: `${((currentPhase + 1) / phases.length) * 100}%` }}
+            className="h-full bg-purple-500 shadow-[0_0_10px_#a855f7]"
+          />
+        </div>
       </div>
     </motion.div>
   );
 };
 
-// --- 3. NEW: SUCCESS/SAVED ANIMATION ---
 const SuccessView = () => (
-  <motion.div 
-    initial={{ opacity: 0 }} 
-    animate={{ opacity: 1 }} 
-    exit={{ opacity: 0 }} 
+  <motion.div
+    initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
     className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/90 backdrop-blur-xl"
   >
     <motion.div
@@ -109,115 +113,151 @@ const SuccessView = () => (
       transition={{ type: "spring", stiffness: 200, damping: 15 }}
     >
       <svg className="w-12 h-12 text-black" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={4} strokeLinecap="round" strokeLinejoin="round">
-        <motion.path
-          d="M20 6L9 17l-5-5"
-          initial={{ pathLength: 0 }}
-          animate={{ pathLength: 1 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-        />
+        <motion.path d="M20 6L9 17l-5-5" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.5, delay: 0.2 }} />
       </svg>
     </motion.div>
-    
-    <motion.h2 
-      initial={{ opacity: 0, y: 20 }} 
-      animate={{ opacity: 1, y: 0 }} 
-      transition={{ delay: 0.4 }}
-      className="text-4xl font-bold text-white mb-2"
-    >
+    <motion.h2 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="text-4xl font-bold text-white mb-2">
       Setup Complete
     </motion.h2>
-    
-    <motion.p 
-      initial={{ opacity: 0 }} 
-      animate={{ opacity: 1 }} 
-      transition={{ delay: 0.6 }}
-      className="text-gray-400"
-    >
+    <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }} className="text-gray-400">
       Launching customization studio...
     </motion.p>
   </motion.div>
 );
 
-// --- MAIN CONTROLLER ---
+// ─── KEYWORD & BLACKLIST CONFIG ───────────────────────────────────────────────
+
+const KEYWORD_MAP = {
+  dark: ["Dark"],
+  developer: ["Developer"],
+  minimal: ["Minimal", "Clean", "Simple"],
+  resume: ["Resume", "Professional"],
+  creative: ["Creative", "Animated"],
+  photographer: ["Hero", "Creative", "Bright"],
+  student: ["Student", "Beginner", "Simple"],
+  corporate: ["Business", "Corporate", "Formal"],
+  startup: ["Modern", "Bold", "Dark"],
+  saas: ["Modern", "Clean", "Dark", "Bold"],
+  luxury: ["Premium", "Editorial", "Boutique"],
+  personal: ["Personal", "Personal Brand"],
+  animated: ["Animated", "Gradient", "Smooth UI"],
+  cinematic: ["Cinematic", "Bold", "Dark"],
+  editorial: ["Editorial", "Boutique", "Minimal"],
+  bright: ["Bright"],
+  portfolio: ["Portfolio", "Modern", "Hero"],
+};
+
+const TEMPLATE_BLACKLIST = {
+  student: ["modern", "business", "thegrandera", "luxe", "plexis", "neonix"],
+  corporate: ["studentbright", "neonix", "pulse", "canvas"],
+  luxury: ["studentbright", "minimal", "canvas"],
+};
+
+const STUDENT_TRIGGER_WORDS = ["student", "beginner", "starter", "college", "university", "fresher", "graduate", "intern"];
+const CORPORATE_TRIGGER_WORDS = ["corporate", "enterprise", "formal", "executive", "law", "finance", "banking"];
+const LUXURY_TRIGGER_WORDS = ["luxury", "boutique", "premium", "high-end", "exclusive", "editorial"];
+
+// ─── MAIN ─────────────────────────────────────────────────────────────────────
+
 const CreatePage = () => {
   const navigate = useNavigate();
   const { user, loading } = useAuth();
-  const { setPortfolioData } = usePortfolio(); 
+  const { setPortfolioData } = usePortfolio();
 
-  // Added "success" to viewMode states
-  const [viewMode, setViewMode] = useState("selection"); 
+  const [viewMode, setViewMode] = useState("selection");
   const [showThemePopup, setShowThemePopup] = useState(false);
+  const [extractedData, setExtractedData] = useState(null);
+  const [showResumePreview, setShowResumePreview] = useState(false);
   const [message, setMessage] = useState("");
   const [aiPrompt, setAiPrompt] = useState("");
-  const [formData, setFormData] = useState({ name: "", role: "", bio: "", experience: "", skills: [], education: "", projects: [], linkedin: "", github: "", email: "", cvLink: "" });
+  const [formData, setFormData] = useState({
+    name: "", role: "", bio: "", experience: "", skills: [],
+    education: "", projects: [], linkedin: "", github: "",
+    email: "", cvLink: ""
+  });
 
   useEffect(() => { if (!loading && !user) navigate("/login"); }, [user, loading, navigate]);
 
+  // ─── TEMPLATE MATCHING ───────────────────────────────────────────────────
+
   const findBestTemplateMatch = (prompt) => {
-    const input = prompt.toLowerCase();
-    if (input.includes("3d") || input.includes("animate")) return "veloura";
-    if (input.includes("minimal") || input.includes("clean")) return "minimal";
-    if (input.includes("dark")) return "luxe";
-    return "modern";
+    const words = prompt.toLowerCase().split(/\s+/).filter(w => w.length > 2);
+
+    // Resolve which blacklist category applies (if any)
+    const blacklisted = new Set();
+    if (words.some(w => STUDENT_TRIGGER_WORDS.includes(w))) {
+      TEMPLATE_BLACKLIST.student.forEach(k => blacklisted.add(k));
+    }
+    if (words.some(w => CORPORATE_TRIGGER_WORDS.includes(w))) {
+      TEMPLATE_BLACKLIST.corporate.forEach(k => blacklisted.add(k));
+    }
+    if (words.some(w => LUXURY_TRIGGER_WORDS.includes(w))) {
+      TEMPLATE_BLACKLIST.luxury.forEach(k => blacklisted.add(k));
+    }
+
+    const scores = {};
+
+    Object.entries(TEMPLATE_LIST).forEach(([key, tmpl]) => {
+      if (blacklisted.has(key)) return; // skip blacklisted templates
+
+      let score = 0;
+      const tagLower = tmpl.tags.map(t => t.toLowerCase());
+      words.forEach(word => {
+        tagLower.forEach(tag => { if (tag.includes(word) || word.includes(tag)) score += 2; });
+        (KEYWORD_MAP[word] || []).forEach(hint => {
+          if (tagLower.some(t => t.includes(hint.toLowerCase()))) score += 1;
+        });
+      });
+      scores[key] = score;
+    });
+
+    const best = Object.entries(scores).sort((a, b) => b[1] - a[1])[0];
+
+    // Fallback: for students default to studentbright, otherwise minimal
+    if (!best || best[1] === 0) {
+      return words.some(w => STUDENT_TRIGGER_WORDS.includes(w)) ? "studentbright" : "minimal";
+    }
+    return best[0];
   };
+
+  // ─── FINALIZE & NAVIGATE ─────────────────────────────────────────────────
 
   const finalizeCreation = async (templateKey, sourceMode) => {
     setShowThemePopup(false);
-    
-    let baseData = sourceMode === 'ai' 
-      ? { 
-          ...DUMMY_DATA, 
-          name: user?.displayName || "Creator", 
-          bio: `Building digital experiences. Focused on ${aiPrompt}.`, 
-          role: "Creative Developer", 
-          skills: DUMMY_DATA.skills || [], 
-          projects: DUMMY_DATA.projects || [] 
-        } 
-      : { 
-          ...formData, 
-          skills: formData.skills || [], 
-          projects: formData.projects || [] 
-        };
-        
-    const finalPayload = { 
-        ...baseData, 
-        template: templateKey, 
-        isPublic: false, 
-        themeBg: TEMPLATE_LIST[templateKey]?.themeBg || "#ffffff", 
-        themeFont: TEMPLATE_LIST[templateKey]?.themeFont || "#000000" 
+
+    let baseData =
+      sourceMode === "ai"
+        ? { ...DUMMY_DATA, name: user?.displayName || "Creator", bio: `Building digital experiences. Focused on ${aiPrompt}.`, role: "Creative Developer", skills: DUMMY_DATA.skills || [], projects: DUMMY_DATA.projects || [] }
+        : { ...formData, skills: formData.skills || [], projects: formData.projects || [] };
+
+    const finalPayload = {
+      ...baseData,
+      template: templateKey,
+      isPublic: false,
+      themeBg: TEMPLATE_LIST[templateKey]?.themeBg || "#ffffff",
+      themeFont: TEMPLATE_LIST[templateKey]?.themeFont || "#000000",
     };
 
     try {
-      // 1. Save Data
       const savedPortfolio = await saveOrUpdatePortfolio(finalPayload);
       setPortfolioData(savedPortfolio);
-      
-      // 2. Trigger Success Animation instead of immediate navigation
       setViewMode("success");
-
-      // 3. Wait for animation, then navigate
-      setTimeout(() => {
-        navigate(`/customize/${templateKey}`, { state: { portfolioData: savedPortfolio } });
-      }, 2500);
-
-    } catch (error) {
-      console.warn("⚠️ Using Fallback Navigation.");
-      // Fallback flow
+      setTimeout(() => navigate(`/customize/${templateKey}`, { state: { portfolioData: savedPortfolio } }), 2500);
+    } catch {
       setPortfolioData(finalPayload);
       setViewMode("success");
-      
-      setTimeout(() => {
-        navigate(`/customize/${templateKey}`, { state: { portfolioData: finalPayload } });
-      }, 2500);
+      setTimeout(() => navigate(`/customize/${templateKey}`, { state: { portfolioData: finalPayload } }), 2500);
     }
   };
+
+  // ─── HANDLERS ────────────────────────────────────────────────────────────
 
   const handleAIStart = (prompt) => {
     setAiPrompt(prompt);
     setViewMode("ai-loading");
     setTimeout(() => {
-       const matchedTemplate = findBestTemplateMatch(prompt);
-       finalizeCreation(matchedTemplate, "ai");
+      const matchedTemplate = findBestTemplateMatch(prompt);
+      finalizeCreation(matchedTemplate, "ai");
     }, 4500);
   };
 
@@ -226,17 +266,22 @@ const CreatePage = () => {
   const handleResumeUpload = async (file) => {
     setViewMode("resume-loading");
     try {
-      const extractedData = await parseResumeFile(file);
-      setFormData((prev) => ({ ...prev, ...extractedData }));
-      setTimeout(() => {
-          setMessage("✅ Resume parsed successfully.");
-          setViewMode("wizard");
-      }, 2000);
+      const data = await parseResumeFile(file);
+      setExtractedData(data);
+      setViewMode("selection");
+      setShowResumePreview(true);
     } catch (error) {
       console.error("Parsing failed:", error);
-      setMessage("❌ Failed to parse resume. Please enter manually.");
+      setMessage("❌ Failed to analyze resume. Please fill in manually.");
       setViewMode("selection");
     }
+  };
+
+  const handleResumeConfirm = (confirmedData) => {
+    setFormData({ ...confirmedData });
+    setShowResumePreview(false);
+    setViewMode("wizard");
+    setMessage("✅ Resume loaded! Review your details and proceed.");
   };
 
   if (loading) return <div className="min-h-screen bg-[#030303]" />;
@@ -246,7 +291,7 @@ const CreatePage = () => {
     <div className="relative min-h-screen w-full flex flex-col items-center justify-center overflow-hidden bg-[#030303] text-white font-sans selection:bg-purple-500/30">
       <Background />
       <PopupMessage message={message} onClose={() => setMessage("")} />
-      
+
       <div className="relative z-10 w-full h-full flex flex-col items-center justify-center">
         <AnimatePresence mode="wait">
           {viewMode === "selection" && (
@@ -254,7 +299,7 @@ const CreatePage = () => {
               <SelectionView onSelectAI={handleAIStart} onSelectControl={handleControlStart} onSelectResume={handleResumeUpload} />
             </motion.div>
           )}
-          
+
           {viewMode === "wizard" && (
             <motion.div key="wizard" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 1.05, filter: "blur(10px)" }} className="w-full h-full">
               <WizardForm formData={formData} setFormData={setFormData} onSave={() => setShowThemePopup(true)} onExit={() => setViewMode("selection")} />
@@ -263,14 +308,23 @@ const CreatePage = () => {
 
           {viewMode === "ai-loading" && <AILoadingOverlay key="ai-loading" prompt={aiPrompt} />}
           {viewMode === "resume-loading" && <ResumeLoadingOverlay key="resume-loading" />}
-          
-          {/* NEW SUCCESS STATE */}
           {viewMode === "success" && <SuccessView key="success" />}
-
         </AnimatePresence>
       </div>
 
-      {showThemePopup && <ThemePopup onSelect={(key) => finalizeCreation(key, "manual")} onClose={() => setShowThemePopup(false)} />}
+      {showThemePopup && (
+        <ThemePopup onSelect={(key) => finalizeCreation(key, "manual")} onClose={() => setShowThemePopup(false)} />
+      )}
+
+      <AnimatePresence>
+        {showResumePreview && extractedData && (
+          <ResumePreviewModal
+            data={extractedData}
+            onConfirm={handleResumeConfirm}
+            onClose={() => { setShowResumePreview(false); setViewMode("selection"); }}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 };

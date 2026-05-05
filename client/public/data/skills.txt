@@ -98,109 +98,488 @@ SaaS Development
 API Monetization
 Customer Support
 Continuous Learning
-
-React
-Node.js
-Express.js
-Next.js
-Vue.js
-Angular
-Svelte
-TypeScript
-JavaScript
-Python
-Django
-Flask
-FastAPI
-Ruby on Rails
-Spring Boot
-Java
-Kotlin
-C#
-ASP.NET
-C++
-C
-Go
-Rust
-PHP
-Laravel
-Symfony
-CodeIgniter
-MySQL
-PostgreSQL
-SQLite
-MongoDB
-Redis
-Firebase
-Supabase
-GraphQL
-REST API
-Docker
-Kubernetes
-AWS
-Azure
-Google Cloud
-DigitalOcean
-Heroku
-Terraform
-Ansible
-Git
-GitHub Actions
-CI/CD Pipelines
-Linux
-Nginx
-Apache
-Tailwind CSS
-Bootstrap
-Material UI
-Chakra UI
-SASS
-LESS
-HTML5
-CSS3
-Webpack
-Vite
-Babel
-ESLint
-Prettier
-Jest
-Mocha
-Chai
-Cypress
-Playwright
-Selenium
-Pandas
-NumPy
-Matplotlib
-Seaborn
-Scikit-learn
-TensorFlow
-PyTorch
-OpenCV
-Keras
-NLTK
-Hugging Face Transformers
-LangChain
-OpenAI API
-Pinecone
-Elasticsearch
-RabbitMQ
-Kafka
-Celery
-Power BI
-Tableau
-Figma
-Adobe XD
-Unity
-Unreal Engine
-Three.js
-WebGL
-Blender
-Vercel
-Netlify
-Shopify API
-Stripe API
-Twilio API
-OpenWeather API
-Notion API
-Slack API
+Prompt Chaining
+Multi-Agent System Design
+Tool Use in LLMs
+Context Window Management
+Vector Database Integration
+Embedding Generation
+Semantic Search
+Knowledge Graph Construction
+Entity Extraction
+Coreference Resolution
+Named Entity Recognition (NER)
+Relation Extraction
+Text Summarization
+Machine Translation
+Question Answering Systems
+Dialogue Management
+Intent Classification
+Slot Filling
+Sentiment Analysis
+Emotion Detection
+Toxicity Detection
+Bias Detection in Models
+Explainable AI (XAI)
+Model Interpretability
+SHAP Values Analysis
+LIME Explanations
+Counterfactual Analysis
+Fairness in ML
+Privacy-Preserving ML
+Federated Learning
+Differential Privacy
+Homomorphic Encryption
+Secure Multi-Party Computation
+Adversarial Robustness
+Model Compression
+Quantization
+Pruning
+Knowledge Distillation
+Neural Architecture Search
+Transfer Learning
+Few-Shot Learning
+Zero-Shot Learning
+Meta-Learning
+Self-Supervised Learning
+Contrastive Learning
+Generative Adversarial Networks
+Diffusion Models
+Variational Autoencoders
+Transformer Architecture
+Attention Mechanisms
+Positional Encoding
+BERT Fine-tuning
+GPT Architecture Understanding
+Llama Model Deployment
+Mistral Integration
+Multimodal Model Development
+Vision-Language Models
+Audio-Language Models
+Speech Recognition
+Text-to-Speech Synthesis
+Audio Classification
+Sound Event Detection
+Music Information Retrieval
+Video Understanding
+Action Recognition
+Pose Estimation
+Object Detection
+Instance Segmentation
+Semantic Segmentation
+Depth Estimation
+3D Point Cloud Processing
+LiDAR Data Analysis
+Optical Flow Estimation
+Face Recognition
+Emotion Recognition from Video
+Gesture Recognition
+Gaze Estimation
+Document Understanding
+OCR (Optical Character Recognition)
+Table Extraction
+Layout Analysis
+Chart Understanding
+Handwriting Recognition
+Anomaly Detection
+Fraud Detection
+Predictive Maintenance
+Time Series Forecasting
+Sales Forecasting
+Demand Forecasting
+Customer Churn Prediction
+Credit Scoring
+Risk Modeling
+Insurance Actuarial Modeling
+Survival Analysis
+Causal Inference
+A/B Testing
+Bayesian Inference
+Monte Carlo Simulation
+Reinforcement Learning
+Q-Learning
+Policy Gradient Methods
+Reward Engineering
+Simulation Environments
+Multi-Agent Reinforcement Learning
+RLHF (Reinforcement Learning from Human Feedback)
+Game AI Development
+Planning and Search Algorithms
+Graph Neural Networks
+Graph Analytics
+Network Analysis
+Community Detection
+Link Prediction
+Recommendation Systems
+Collaborative Filtering
+Content-Based Filtering
+Matrix Factorization
+Session-Based Recommendations
+Cold Start Problem Solving
+Ranking Algorithms
+Information Retrieval
+Indexing Strategies
+Inverted Index Construction
+BM25 Implementation
+Dense Retrieval
+Hybrid Search
+Data Pipeline Development
+Data Lake Architecture
+Data Warehouse Modeling
+Star Schema Design
+Snowflake Schema Design
+Data Mesh Implementation
+Data Catalog Management
+Metadata Management
+Data Lineage Tracking
+Data Quality Monitoring
+Great Expectations Framework
+dbt (Data Build Tool)
+Apache Spark Development
+Apache Flink Development
+Apache Kafka Streaming
+Apache Airflow Orchestration
+Apache Beam Development
+Prefect Workflow Management
+Dagster Pipeline Development
+Delta Lake Development
+Apache Iceberg Implementation
+Parquet Format Optimization
+Avro Schema Design
+ORC File Handling
+MLflow Experiment Tracking
+Weights and Biases Integration
+Kubeflow Pipeline Development
+BentoML Deployment
+Triton Inference Server
+TorchServe Deployment
+ONNX Model Export
+TensorRT Optimization
+Edge AI Deployment
+TensorFlow Lite Development
+Core ML Development
+OpenVINO Deployment
+Model Monitoring
+Data Drift Detection
+Concept Drift Handling
+Model Retraining Automation
+CI/CD for ML Models
+Infrastructure as Code
+Terraform Development
+Pulumi Development
+Ansible Playbook Writing
+Chef Cookbook Development
+Puppet Manifest Writing
+GitOps Practices
+ArgoCD Management
+FluxCD Management
+Helm Chart Development
+Kustomize Configuration
+Service Mesh Configuration
+Istio Service Mesh
+Envoy Proxy Configuration
+Consul Service Discovery
+Vault Secret Management
+OpenTelemetry Integration
+Prometheus Monitoring
+Grafana Dashboard Creation
+Loki Log Aggregation
+Jaeger Distributed Tracing
+ELK Stack Configuration
+Datadog Integration
+New Relic APM
+PagerDuty Alerting
+Chaos Engineering
+LitmusChaos Implementation
+Gremlin Experimentation
+Fault Injection Testing
+Game Days Planning
+Disaster Recovery Planning
+Business Continuity Planning
+RTO/RPO Planning
+Multi-Region Architecture
+Active-Active Deployment
+Blue-Green Deployment
+Canary Deployment
+Feature Flag Management
+LaunchDarkly Integration
+Rollout Strategy Design
+Contract Testing
+Consumer-Driven Contract Testing
+Pact Framework
+API Versioning
+API Gateway Configuration
+Rate Limiting Implementation
+OAuth 2.0 Integration
+OpenID Connect Implementation
+JWT Token Management
+mTLS Configuration
+SAML Integration
+SSO Implementation
+LDAP Integration
+Active Directory Management
+Identity Federation
+RBAC Implementation
+ABAC Implementation
+Zero Trust Architecture
+Network Segmentation
+Firewall Rule Management
+Intrusion Detection Systems
+SIEM Configuration
+Log Correlation
+Threat Hunting
+Incident Response
+Forensic Analysis
+Malware Reverse Engineering
+Binary Exploitation
+Memory Forensics
+Disk Forensics
+Network Forensics
+Mobile Forensics
+Cloud Forensics
+OSINT (Open Source Intelligence)
+Social Engineering Awareness
+Physical Security Assessment
+Supply Chain Risk Analysis
+Third-Party Risk Assessment
+Vulnerability Management
+Patch Management
+Security Baseline Configuration
+CIS Benchmarks Implementation
+NIST Framework Implementation
+ISO 27001 Compliance
+SOC 2 Compliance
+GDPR Compliance
+HIPAA Compliance
+PCI DSS Compliance
+Smart Contract Development
+Solidity Programming
+Rust for Blockchain
+Hardhat Development Environment
+Truffle Framework
+OpenZeppelin Libraries
+DeFi Protocol Integration
+NFT Minting Logic
+IPFS Storage Integration
+The Graph Protocol
+Chainlink Oracle Integration
+Layer 2 Rollup Integration
+Zero-Knowledge Proofs
+Merkle Tree Verification
+Consensus Algorithm Design
+Tokenomics Modeling
+DAO Smart Contract Design
+Multi-Signature Wallet Development
+Cross-Chain Bridge Development
+Flash Loan Implementation
+AMM (Automated Market Maker) Design
+Yield Farming Protocol Development
+Staking Mechanism Design
+AR Development with ARKit
+AR Development with ARCore
+VR Development with Oculus SDK
+WebXR Development
+Spatial Anchor Implementation
+Simultaneous Localization and Mapping (SLAM)
+3D Scene Reconstruction
+Holographic Interface Design
+Hand Tracking Implementation
+Eye Tracking Integration
+Haptic Feedback Design
+Digital Twin Development
+Simulation Physics Engine
+Procedural World Generation
+Adaptive Difficulty Systems
+AI Game Agent Design
+Shader Programming
+Geometry Processing
+Voxel Rendering
+Ray Tracing Implementation
+Global Illumination
+Level of Detail (LOD) Systems
+Animation Rigging
+Inverse Kinematics
+Motion Capture Processing
+Physics-Based Animation
+Particle System Development
+Audio Spatialization
+IoT Protocol Implementation (MQTT, CoAP)
+Edge Inference Deployment
+Firmware Programming
+RTOS Development
+CAN Bus Communication
+Modbus Protocol Integration
+OPC-UA Implementation
+Digital Signal Processing
+Sensor Calibration
+Hardware-Software Co-design
+PCB Design Awareness
+Power Optimization for IoT
+OTA Update Management
+Fleet Management Systems
+Quantum Circuit Design
+Quantum Gate Programming
+Quantum Error Correction
+Post-Quantum Cryptography Implementation
+Lattice-Based Cryptography
+Zero-Knowledge Proof Construction
+zk-SNARKs Implementation
+zk-STARKs Implementation
+Recursive Proof Composition
+Homomorphic Encryption Application
+Secure Multi-Party Computation
+Differential Privacy Implementation
+Synthetic Data Generation
+Privacy Impact Assessment
+Data Anonymization Techniques
+Re-identification Risk Assessment
+Consent Management Platforms
+Cookie Compliance Implementation
+DSAR (Data Subject Access Request) Automation
+AI Governance Frameworks
+Responsible AI Design
+Bias Auditing in Models
+Algorithmic Accountability
+AI Risk Assessment
+Red Teaming AI Systems
+LLM Security Evaluation
+Prompt Injection Defense
+Jailbreak Resistance Design
+Watermarking AI Outputs
+Deepfake Detection
+Media Provenance Verification
+Multimodal Retrieval
+Cross-Modal Search
+Text-to-Image Prompt Engineering
+Image-to-Text Description
+Audio Transcription
+Speaker Diarization
+Real-Time Translation
+Lip Sync Generation
+Avatar Synthesis
+Voice Cloning Ethics
+Neural Codec Language Models
+Diffusion Model Fine-tuning
+LoRA (Low-Rank Adaptation) Training
+QLoRA Training
+PEFT (Parameter-Efficient Fine-Tuning)
+Instruction Tuning
+Constitutional AI Alignment
+RLHF Implementation
+DPO (Direct Preference Optimization)
+PPO for LLMs
+Model Merging Techniques
+Sparse Mixture of Experts
+Flash Attention Implementation
+Rotary Positional Embedding
+ALiBi Positional Encoding
+KV Cache Optimization
+Speculative Decoding
+Continuous Batching
+PagedAttention Implementation
+Quantization-Aware Training
+GPTQ Quantization
+AWQ Quantization
+GGUF Format Handling
+Distributed Training (DDP, FSDP)
+Pipeline Parallelism
+Tensor Parallelism
+Model Sharding
+ZeRO Optimization
+Mixed Precision Training
+Gradient Checkpointing
+Curriculum Learning
+Data Augmentation for NLP
+Synthetic Data for Vision
+Label Noise Handling
+Imbalanced Dataset Strategies
+Oversampling and Undersampling
+Class Weighting Techniques
+Focal Loss Implementation
+Domain Adaptation
+Domain Generalization
+Test-Time Augmentation
+Ensemble Methods
+Boosting (XGBoost, LightGBM, CatBoost)
+Random Forest Optimization
+Support Vector Machine Tuning
+Hyperparameter Optimization (Optuna, Ray Tune)
+AutoML Pipeline Design
+Neural Architecture Search
+Tabular Data Modeling
+Feature Store Management
+Online Feature Engineering
+Stream Processing for ML
+Batch Inference Optimization
+Shadow Deployment
+A/B Model Testing
+Multi-Armed Bandit for Serving
+Bandit Algorithms
+Explore-Exploit Tradeoffs
+Offline Reinforcement Learning
+Imitation Learning
+Inverse Reinforcement Learning
+World Model Building
+Model-Based RL
+Value Function Approximation
+Actor-Critic Methods
+SAC (Soft Actor-Critic)
+TD3 (Twin Delayed DDPG)
+Dreamer Algorithm
+AlphaZero-style Self-Play
+Monte Carlo Tree Search
+Heuristic Search
+Constraint Satisfaction
+Integer Programming
+Linear Programming
+Convex Optimization
+Stochastic Optimization
+Gradient-Free Optimization
+Evolutionary Algorithms
+Genetic Programming
+Swarm Intelligence
+Particle Swarm Optimization
+Ant Colony Optimization
+Simulated Annealing
+Bayesian Optimization
+Gaussian Processes
+Probabilistic Programming
+Pyro (Probabilistic Programming)
+Stan Modeling
+MCMC Sampling
+Variational Inference
+Normalizing Flows
+Neural ODE
+Physics-Informed Neural Networks
+Scientific Machine Learning
+Graph Representation Learning
+Node Classification
+Edge Prediction
+Graph Generation
+Molecular Property Prediction
+Drug-Target Interaction Modeling
+Protein Structure Prediction
+Protein Language Models
+AlphaFold Usage
+SMILES Parsing
+Molecular Dynamics Simulation
+Cheminformatics
+Genomics Variant Calling
+RNA-Seq Analysis
+Single-Cell RNA Analysis
+Spatial Transcriptomics
+CRISPR Data Analysis
+Epigenomics Analysis
+Microbiome Data Analysis
+Metabolomics Data Analysis
+Medical Imaging Preprocessing
+DICOM File Handling
+HL7 FHIR Integration
+ICD Coding Automation
+Clinical NLP
+De-identification of PHI
+Electronic Health Record Analysis
+Patient Risk Stratification
+Hospital Readmission Prediction
+Medical Coding Automation
+Claims Processing Automation

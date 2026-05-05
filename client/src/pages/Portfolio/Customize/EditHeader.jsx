@@ -5,97 +5,77 @@ import { usePortfolio } from "../../../context/PortfolioContext";
 import { saveOrUpdatePortfolio } from "../../../api/portfolioAPI";
 import { useAuth } from "../../../context/AuthContext";
 import UserProfileMenu from "../../../components/UserProfileMenu";
-import { 
-  Monitor, Columns2, Smartphone, Menu, X, Palette, Plus, Save, Rocket, 
-  Crown, QrCode, Globe, Lock, Loader2, Check, AlertCircle, Sparkles,
-  User, RefreshCcw, PaintBucket
-} from "lucide-react"; 
+import {
+  Monitor, Smartphone, Save, Rocket, Loader2, Check, AlertCircle,
+  Sparkles, HelpCircle, Eye, EyeOff, Menu, X, Palette, LayoutTemplate,
+  Globe, Lock, Crown, QrCode, Briefcase
+} from "lucide-react";
 import { useSplash } from "../../../context/SplashContext";
 
-// Popups
 import ThemePopup from "./ThemePopup";
 import ElementPopup from "./ElementPopup";
-import ChatbotPromoPopup from "./ChatbotPromoPopup"; 
+import ChatbotPromoPopup from "./ChatbotPromoPopup";
 import UpgradePopup from "../../../components/UpgradePopup";
-import TalentVisibilityPopup from "./TalentVisibilityPopup";
-import FyxCardPopup from "./FyxCardPopup"; 
-import DomainPopup from "./DomainPopup"; 
+import FyxCardPopup from "./FyxCardPopup";
+import DomainPopup from "./DomainPopup";
+import OnboardingTutorial from "./customize-editor/OnboardingTutorial";
 
-import { TEMPLATE_LIST } from "../Templates"; 
+import { TEMPLATE_LIST } from "../Templates";
 
 const PREMIUM_TEMPLATES = ["neo-brutalism", "3d-portfolio", "agency-grid", "artist-gallery"];
 
-// ✅ Plan Badge Component
 const PlanBadge = ({ plan }) => {
-  const isPro = plan === 'max';
-  
+  const isPro = plan === "max";
   return (
-    <div className={`
-      flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[10px] font-semibold tracking-wider uppercase select-none border backdrop-blur-sm
-      ${isPro 
-        ? "border-[#D4AF37] text-[#D4AF37] bg-[#D4AF37]/5" 
-        : "border-neutral-300 text-neutral-500"
-      }
-    `}>
-      {isPro && <div className="w-1.5 h-1.5 rounded-full bg-[#D4AF37] shadow-[0_0_5px_#D4AF37]" />} 
-      {isPro ? "Max Active" : "Free Plan"}
+    <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold tracking-wider uppercase select-none border ${
+      isPro ? "border-amber-300 text-amber-600 bg-amber-50" : "border-gray-200 text-gray-400 bg-gray-50"
+    }`}>
+      {isPro && <div className="w-1.5 h-1.5 rounded-full bg-amber-400" />}
+      {isPro ? "Pro" : "Free"}
     </div>
   );
 };
 
-// ✅ FIX 1: Added type="button" to reusable HeaderBtn
-const HeaderBtn = ({ icon: Icon, onClick, active, label, isPremium }) => (
-  <div className="group relative flex items-center">
-    <button 
-      type="button" 
-      onClick={onClick}
-      className={`p-2 rounded-lg transition-all ${active ? "bg-black/5 text-black" : "text-gray-500 hover:bg-black/5 hover:text-black"}`}
-    >
-      <Icon size={18} strokeWidth={active ? 2.5 : 2} />
-      {isPremium && <Crown size={10} className="absolute top-1 right-1 text-[#D4AF37] fill-[#D4AF37]" />}
-    </button>
-    <span className="absolute top-full mt-2 left-1/2 -translate-x-1/2 px-2 py-1 bg-black text-white text-[10px] font-medium rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
-      {label}
-    </span>
-  </div>
+const ViewBtn = ({ icon: Icon, label, active, onClick }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all ${
+      active ? "bg-gray-900 text-white shadow-sm" : "text-gray-500 hover:bg-gray-100 hover:text-gray-800"
+    }`}
+  >
+    <Icon size={13} strokeWidth={active ? 2.5 : 1.8} />
+    {label}
+  </button>
 );
 
 function EditHeader({ setViewMode, viewMode }) {
   const navigate = useNavigate();
-  const location = useLocation();
   const { showSplash } = useSplash();
   const { portfolioData, setPortfolioData } = usePortfolio();
   const { user } = useAuth();
 
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [showThemePopup, setShowThemePopup] = useState(false);
+  const [showThemePopup, setShowThemePopup]   = useState(false);
   const [showElementPopup, setShowElementPopup] = useState(false);
-  const [showTalentPopup, setShowTalentPopup] = useState(false);
-  
-  const [showCardPopup, setShowCardPopup] = useState(false);
-  const [showDomainPopup, setShowDomainPopup] = useState(false); 
+  const [showCardPopup, setShowCardPopup]     = useState(false);
+  const [showDomainPopup, setShowDomainPopup] = useState(false);
+  const [showAiPromo, setShowAiPromo]         = useState(false);
+  const [showUpgrade, setShowUpgrade]         = useState(false);
+  const [upgradeReason, setUpgradeReason]     = useState("premium_template");
+  const [showOnboarding, setShowOnboarding]   = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen]   = useState(false);
+  const [saveStatus, setSaveStatus]           = useState("idle");
+  const [lastSavedTime, setLastSavedTime]     = useState(null);
 
-  const [showAiPromo, setShowAiPromo] = useState(false);
-  const [showUpgrade, setShowUpgrade] = useState(false);
-  const [upgradeReason, setUpgradeReason] = useState("premium_template");
-
-  const [saveStatus, setSaveStatus] = useState("idle"); 
-  const [lastSavedTime, setLastSavedTime] = useState(null);
-
-  const isCustomizePage = location.pathname.includes("/customize");
-  const isFreeUser = user?.plan === 'free';
+  const isFreeUser = user?.plan === "free";
 
   const checkRestrictions = () => {
     if (isFreeUser && PREMIUM_TEMPLATES.includes(portfolioData.template)) {
       setUpgradeReason("premium_template"); setShowUpgrade(true); return false;
     }
-    const isCustomColor = (portfolioData.themeBg && portfolioData.themeBg !== "#000000" && portfolioData.themeBg !== "#ffffff");
-    if (isFreeUser && isCustomColor) {
-      setUpgradeReason("premium_feature"); setShowUpgrade(true); return false;
-    }
-    if (isFreeUser && portfolioData.enableChatbot) {
-      setUpgradeReason("ai_chatbot"); setShowUpgrade(true); return false;
-    }
+    const isCustomColor = portfolioData.themeBg && portfolioData.themeBg !== "#000000" && portfolioData.themeBg !== "#ffffff";
+    if (isFreeUser && isCustomColor) { setUpgradeReason("premium_feature"); setShowUpgrade(true); return false; }
+    if (isFreeUser && portfolioData.enableChatbot) { setUpgradeReason("ai_chatbot"); setShowUpgrade(true); return false; }
     return true;
   };
 
@@ -108,271 +88,290 @@ function EditHeader({ setViewMode, viewMode }) {
   });
 
   const handleSave = async () => {
-    if (!checkRestrictions()) return; 
-    setSaveStatus("saving"); 
+    if (!checkRestrictions()) return;
+    setSaveStatus("saving");
     try {
-      const cleanData = buildCleanData();
-      const saved = await saveOrUpdatePortfolio(cleanData);
+      const saved = await saveOrUpdatePortfolio(buildCleanData());
       setPortfolioData(saved);
       setSaveStatus("success");
-      const timeString = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      setLastSavedTime(timeString);
+      setLastSavedTime(new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }));
       setTimeout(() => setSaveStatus("idle"), 3000);
-      setMenuOpen(false);
-    } catch (err) { 
-      console.error("Save Failed:", err);
+    } catch {
       setSaveStatus("error");
       setTimeout(() => setSaveStatus("idle"), 3000);
     }
   };
 
-  const handleDeployClick = async () => {
+  const handleDeployClick = () => {
     if (!checkRestrictions()) return;
     setShowDomainPopup(true);
+    setMobileMenuOpen(false);
   };
 
   const onDomainSaved = (savedData) => {
-      setPortfolioData(savedData);
-      setShowDomainPopup(false);
-      const targetId = savedData.username || savedData._id;
-      showSplash(1200, () => navigate(`/portfolio/${targetId}`));
+    setPortfolioData(savedData);
+    setShowDomainPopup(false);
+    const targetId = savedData.username || savedData._id;
+    showSplash(1200, () => navigate(`/portfolio/${targetId}`));
   };
 
   const toggleChatbot = async () => {
     if (portfolioData.enableChatbot) {
-      const updatedData = { ...buildCleanData(), enableChatbot: false };
-      setPortfolioData(updatedData); 
-      try { await saveOrUpdatePortfolio(updatedData); } catch (err) {}
+      const updated = { ...buildCleanData(), enableChatbot: false };
+      setPortfolioData(updated);
+      try { await saveOrUpdatePortfolio(updated); } catch (_) {}
       return;
     }
     setShowAiPromo(true);
-    setMenuOpen(false);
+    setMobileMenuOpen(false);
   };
 
   const handleConfirmEnableAi = async () => {
     setShowAiPromo(false);
     if (isFreeUser) { setUpgradeReason("ai_chatbot"); setShowUpgrade(true); return; }
-    const updatedData = { ...buildCleanData(), enableChatbot: true };
-    setPortfolioData(updatedData);
-    try { await saveOrUpdatePortfolio(updatedData); showSplash(1000); } catch (err) {}
+    const updated = { ...buildCleanData(), enableChatbot: true };
+    setPortfolioData(updated);
+    try { await saveOrUpdatePortfolio(updated); showSplash(1000); } catch (_) {}
   };
 
   const toggleVisibility = async () => {
-      const newStatus = !portfolioData.isPublic;
-      setPortfolioData(prev => ({ ...prev, isPublic: newStatus }));
-      try { await saveOrUpdatePortfolio({ ...portfolioData, isPublic: newStatus }); } catch(e) {}
+    const next = !portfolioData.isPublic;
+    setPortfolioData(prev => ({ ...prev, isPublic: next }));
+    try { await saveOrUpdatePortfolio({ ...portfolioData, isPublic: next }); } catch (_) {}
+    setMobileMenuOpen(false);
   };
 
-  const handleColorChange = (key, val) => {
-      setPortfolioData(prev => ({ ...prev, [key]: val }));
-  };
-
-  const resetColors = () => {
-      setPortfolioData(prev => ({ ...prev, themeBg: "#ffffff", themeFont: "#000000" }));
-  };
+  const SaveIcon = saveStatus === "saving" ? Loader2 : saveStatus === "success" ? Check : saveStatus === "error" ? AlertCircle : Save;
+  const saveLabel = saveStatus === "saving" ? "Saving…" : saveStatus === "success" ? "Saved!" : saveStatus === "error" ? "Failed" : "Save";
+  const saveCls = saveStatus === "success" ? "bg-emerald-50 text-emerald-600 border-emerald-200"
+    : saveStatus === "error" ? "bg-red-50 text-red-500 border-red-200"
+    : "text-gray-600 border-gray-200 hover:border-gray-300 hover:bg-gray-50";
 
   return (
     <>
+      {/* Popups */}
       <UpgradePopup isOpen={showUpgrade} onClose={() => setShowUpgrade(false)} reason={upgradeReason} />
-
       {showCardPopup && <FyxCardPopup onClose={() => setShowCardPopup(false)} portfolioData={portfolioData} />}
       {showDomainPopup && <DomainPopup isOpen={showDomainPopup} onClose={() => setShowDomainPopup(false)} portfolioData={portfolioData} onSaveSuccess={onDomainSaved} />}
+      {showThemePopup && (
+        <ThemePopup
+          onSelect={(k) => { setPortfolioData({ ...portfolioData, template: k }); navigate(`/customize/${k}`); setShowThemePopup(false); }}
+          onClose={() => setShowThemePopup(false)}
+        />
+      )}
+      {showElementPopup && <ElementPopup onClose={() => setShowElementPopup(false)} />}
+      {showAiPromo && <ChatbotPromoPopup onClose={() => setShowAiPromo(false)} onEnable={handleConfirmEnableAi} />}
+      {showOnboarding && <OnboardingTutorial onComplete={() => setShowOnboarding(false)} />}
 
-      <header className={`${isCustomizePage ? "relative" : "fixed top-0 left-0 z-50"} w-full h-16 bg-white/80 backdrop-blur-md z-40 border-b border-gray-100 flex items-center justify-between px-4 md:px-6 transition-all`}>
-        
-        <div className="flex items-center">
-          <button 
-            type="button" 
-            onClick={() => navigate("/")}
-            className="bg-transparent border-none p-0 cursor-pointer hover:opacity-70 transition-opacity focus:outline-none"
+      {/* ── Top Bar ── */}
+      <header className="w-full h-14 bg-white border-b border-gray-100 flex items-center justify-between px-4 gap-3 relative z-50">
+
+        {/* Logo */}
+        <div className="flex items-center shrink-0">
+          <img src="/studiox.svg" alt="Foliofy" className="h-32 w-auto" />
+        </div>
+
+        {/* Desktop: view toggle */}
+        <div className="hidden md:flex items-center gap-1 bg-gray-100 p-1 rounded-xl">
+          <ViewBtn icon={Monitor} label="Desktop" active={viewMode === "desktop" || viewMode === "dual"} onClick={() => setViewMode("dual")} />
+          <ViewBtn icon={Smartphone} label="Mobile" active={viewMode === "mobile"} onClick={() => setViewMode("mobile")} />
+        </div>
+
+        {/* Desktop: right actions */}
+        <div className="hidden md:flex items-center gap-2">
+          <button
+            type="button"
+            onClick={toggleChatbot}
+            className={`flex items-center gap-2 px-3 py-2 rounded-xl text-[11px] font-bold transition-all border ${
+              portfolioData.enableChatbot
+                ? "bg-blue-600 text-white border-blue-500"
+                : "bg-gray-50 text-gray-500 border-gray-200 hover:border-gray-300"
+            }`}
           >
-            <img src="/studiox.svg" alt="Foliofy Logo" className="h-35 w-auto" />
+            {isFreeUser && !portfolioData.enableChatbot && <Crown size={11} className="text-amber-400" />}
+            <Sparkles size={13} className={portfolioData.enableChatbot ? "text-white" : "text-gray-400"} />
+            {portfolioData.enableChatbot ? "AI On" : "AI Off"}
           </button>
-        </div>
 
-        {/* DESKTOP TOOLBAR */}
-        <div className="hidden md:flex items-center justify-center gap-1 bg-gray-100/50 p-1 rounded-xl border border-gray-200/50">
-            <button type="button" onClick={toggleVisibility} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all mr-1 ${portfolioData.isPublic ? "bg-green-100 text-green-700 hover:bg-green-200" : "bg-gray-200 text-gray-600 hover:bg-gray-300"}`}>
-               {portfolioData.isPublic ? <Globe size={14} /> : <Lock size={14} />}
-               <span>{portfolioData.isPublic ? "Public" : "Private"}</span>
-            </button>
-            <div className="w-[1px] h-6 bg-gray-200 mx-1"></div>
-            <HeaderBtn icon={Palette} label="Templates" onClick={() => setShowThemePopup(true)} />
-            <div className="w-[1px] h-6 bg-gray-200 mx-1"></div>
-            <HeaderBtn icon={Smartphone} label="Mobile View" active={viewMode === "mobile"} onClick={() => setViewMode("mobile")} />
-            <HeaderBtn icon={Columns2} label="Split View" active={viewMode === "dual"} onClick={() => setViewMode("dual")} />
-            <HeaderBtn icon={Monitor} label="Desktop View" active={viewMode === "desktop"} onClick={() => setViewMode("desktop")} />
-            <div className="w-[1px] h-6 bg-gray-200 mx-1"></div>
-            <HeaderBtn icon={QrCode} label="FYX Card" onClick={() => setShowCardPopup(true)} />
-            <div className="w-[1px] h-6 bg-gray-200 mx-1"></div>
-            <HeaderBtn icon={Plus} label="Add Element" onClick={() => setShowElementPopup(true)} />
-            <div className="w-[1px] h-6 bg-gray-200 mx-1"></div>
-            <button type="button" onClick={toggleChatbot} className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-[10px] font-bold transition-all shadow-sm border ${portfolioData.enableChatbot ? "bg-blue-600 text-white border-blue-500 shadow-blue-200 hover:bg-blue-700" : "bg-white text-gray-500 border-gray-200 hover:text-gray-800 hover:border-gray-300"}`}>
-              {!portfolioData.enableChatbot && user?.plan === 'free' && <Crown size={10} className="text-yellow-500 mr-[-4px]" />}
-              {portfolioData.enableChatbot ? <Sparkles size={12} className="text-white fill-white" /> : <img src="/fyxlogow.png" alt="FYX" className="w-3.5 h-auto object-contain opacity-40 brightness-0" />}
-              <div className={`w-[1px] h-3 ${portfolioData.enableChatbot ? "bg-white/30" : "bg-gray-200"}`}></div>
-              <span className="tracking-wide">{portfolioData.enableChatbot ? "AI Active" : "Enable AI"}</span>
-            </button>
-        </div>
+          <button
+            type="button"
+            onClick={toggleVisibility}
+            className={`flex items-center gap-2 px-3 py-2 rounded-xl text-[11px] font-bold transition-all border ${
+              portfolioData.isPublic
+                ? "bg-green-50 text-green-700 border-green-200"
+                : "bg-gray-50 text-gray-500 border-gray-200 hover:border-gray-300"
+            }`}
+          >
+            {portfolioData.isPublic ? <Eye size={13} /> : <EyeOff size={13} />}
+            {portfolioData.isPublic ? "Public" : "Private"}
+          </button>
 
-        {/* RIGHT ACTIONS */}
-        <div className="flex items-center gap-3 md:gap-4">
-          <div className="hidden md:flex flex-col items-end justify-center">
-             <div className="flex items-center gap-1 bg-gray-100/50 p-1 rounded-xl border border-gray-200/50">
-               <button type="button" onClick={handleSave} disabled={saveStatus === "saving"} className={`relative flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-bold transition-all ${saveStatus === "error" ? "bg-red-50 text-red-600" : "text-gray-600 hover:bg-black/5"}`}>
-                  {saveStatus === "saving" && <Loader2 size={16} className="animate-spin text-gray-500" />}
-                  {saveStatus === "success" && <Check size={16} className="text-green-600" />}
-                  {saveStatus === "error" && <AlertCircle size={16} className="text-red-600" />}
-                  {saveStatus === "idle" && <Save size={16} />}
-                  <span>{saveStatus === "saving" ? "Saving..." : saveStatus === "success" ? "Saved" : saveStatus === "error" ? "Failed" : "Save"}</span>
-               </button>
-               <button type="button" onClick={handleDeployClick} className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-bold transition-all bg-black text-white hover:bg-gray-800 shadow-sm">
-                  <Rocket size={14} /><span>Publish</span>{PREMIUM_TEMPLATES.includes(portfolioData.template) && <Crown size={10} className="text-[#D4AF37] fill-[#D4AF37] ml-1" />}
-               </button>
-             </div>
-             {lastSavedTime && <span className="text-[9px] text-gray-400 font-medium mt-1 mr-1">Last saved {lastSavedTime}</span>}
-          </div>
-          
-          {/* ✅ MOBILE: Quick Save Button */}
-          <button 
-            type="button" 
+          <div className="w-px h-6 bg-gray-200" />
+
+          <button
+            type="button"
             onClick={handleSave}
             disabled={saveStatus === "saving"}
-            className="md:hidden p-2 text-gray-600 hover:bg-gray-100 rounded-full transition-colors active:scale-95 flex items-center justify-center"
-            aria-label="Quick Save"
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-[11px] font-bold transition-all border disabled:opacity-60 ${saveCls}`}
           >
-            {saveStatus === "saving" ? (
-              <Loader2 size={20} className="animate-spin text-gray-400" />
-            ) : saveStatus === "success" ? (
-              <Check size={20} className="text-green-600" />
-            ) : (
-              <Save size={20} strokeWidth={2} />
-            )}
+            <SaveIcon size={14} className={saveStatus === "saving" ? "animate-spin" : ""} />
+            {saveLabel}
           </button>
-          
-          {/* ✅ MOBILE: Better Menu Button (Pill with Text) */}
-          <button 
-            type="button" 
-            className={`
-              md:hidden px-4 py-2 rounded-full flex items-center gap-2 text-xs font-bold transition-all duration-200 active:scale-95 shadow-sm
-              ${menuOpen 
-                ? "bg-gray-100 text-gray-900 border border-gray-200" 
-                : "bg-black text-white border border-transparent"
-              }
-            `} 
-            onClick={() => setMenuOpen(!menuOpen)}
-          >
-            {menuOpen ? <X size={14} /> : <Menu size={14} />}
-            <span>{menuOpen ? "Close" : "Menu"}</span>
-          </button>
-          
-          <div className="hidden md:block">
-             <PlanBadge plan={user?.plan} />
-          </div>
 
-          <div className="pl-0 md:pl-2"><UserProfileMenu /></div>
+          <button
+            type="button"
+            onClick={handleDeployClick}
+            className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-[11px] font-bold bg-gray-900 text-white hover:bg-gray-700 transition-all shadow-sm"
+          >
+            <Rocket size={14} /> Publish
+          </button>
+
+          <div className="w-px h-6 bg-gray-200" />
+
+          <button
+            type="button"
+            onClick={() => { localStorage.removeItem("fyx_onboarding_seen"); setShowOnboarding(true); }}
+            className="p-2 rounded-xl text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-all"
+            title="Take a tour"
+          >
+            <HelpCircle size={15} />
+          </button>
+
+          <PlanBadge plan={user?.plan} />
+          {lastSavedTime && <span className="hidden lg:block text-[9px] text-gray-400 whitespace-nowrap">Saved {lastSavedTime}</span>}
         </div>
+
+        {/* Mobile: save + menu */}
+        <div className="flex md:hidden items-center gap-2">
+          {/* Quick save */}
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={saveStatus === "saving"}
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-[11px] font-bold border transition-all ${saveCls}`}
+          >
+            <SaveIcon size={14} className={saveStatus === "saving" ? "animate-spin" : ""} />
+            {saveLabel}
+          </button>
+
+          {/* Publish */}
+          <button
+            type="button"
+            onClick={handleDeployClick}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-[11px] font-bold bg-gray-900 text-white shadow-sm"
+          >
+            <Rocket size={13} /> Publish
+          </button>
+
+          {/* Menu toggle */}
+          <button
+            type="button"
+            onClick={() => setMobileMenuOpen(o => !o)}
+            className="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center text-gray-600 transition-all"
+          >
+            {mobileMenuOpen ? <X size={16} /> : <Menu size={16} />}
+          </button>
+        </div>
+
+        <div className="hidden md:block"><UserProfileMenu /></div>
       </header>
 
-      {/* ================= MOBILE MENU DRAWER ================= */}
-      <div className={`md:hidden fixed top-16 left-0 w-full bg-white/95 backdrop-blur-xl border-b border-gray-200 shadow-2xl transition-all duration-300 ease-in-out overflow-hidden z-40 ${menuOpen ? "max-h-[85vh] opacity-100" : "max-h-0 opacity-0"}`}>
-        <div className="p-6 flex flex-col gap-4 overflow-y-auto max-h-[80vh]">
-          
-          <div className="flex justify-between items-center mb-2">
-             <span className="text-xs font-bold text-gray-400">YOUR PLAN</span>
-             <PlanBadge plan={user?.plan} />
-          </div>
+      {/* ── Mobile dropdown menu ── */}
+      {mobileMenuOpen && (
+        <div className="md:hidden fixed top-14 left-0 right-0 z-[500] bg-white border-b border-gray-200 shadow-xl">
+          <div className="p-4 flex flex-col gap-3">
 
-          {/* 1. View Modes */}
-          <div className="grid grid-cols-2 gap-3">
-            <button type="button" onClick={() => { setViewMode("mobile"); setMenuOpen(false); }} className={`flex-1 py-2.5 rounded-lg flex items-center justify-center gap-2 text-xs font-bold transition-all ${viewMode === "mobile" ? "bg-purple-100 text-purple-700 border border-purple-200" : "bg-gray-100 text-gray-500"}`}><Smartphone size={16} /> Mobile</button>
-            <button type="button" onClick={() => { setViewMode("desktop"); setMenuOpen(false); }} className={`flex-1 py-2.5 rounded-lg flex items-center justify-center gap-2 text-xs font-bold transition-all ${viewMode === "desktop" ? "bg-purple-100 text-purple-700 border border-purple-200" : "bg-gray-100 text-gray-500"}`}><Monitor size={16} /> Desktop</button>
-          </div>
-
-          {/* 2. Visibility & Talent Page */}
-          <div className="grid grid-cols-2 gap-3">
-             <button type="button" onClick={toggleVisibility} className={`py-3 border rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-sm transition-all ${portfolioData.isPublic ? "bg-green-50 text-green-700 border-green-200" : "bg-gray-50 text-gray-600 border-gray-200"}`}>
-                {portfolioData.isPublic ? <Globe size={16} /> : <Lock size={16} />}
-                {portfolioData.isPublic ? "Public" : "Private"}
-             </button>
-             <button type="button" onClick={() => { setShowTalentPopup(true); setMenuOpen(false); }} className="py-3 bg-white border border-gray-200 text-gray-700 rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-sm">
-                <User size={16} /> Talent Page
-             </button>
-          </div>
-
-          {/* 3. Templates & FYX Card */}
-          <div className="grid grid-cols-2 gap-3">
-             <button type="button" onClick={() => { setShowThemePopup(true); setMenuOpen(false); }} className="py-3 bg-white border border-gray-200 text-gray-900 rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-sm">
-                <Palette size={16} /> Templates
-             </button>
-             <button type="button" onClick={() => { setShowCardPopup(true); setMenuOpen(false); }} className="py-3 bg-black text-white border border-black rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-sm">
-                <QrCode size={16} /> FYX Card
-             </button>
-          </div>
-
-          {/* 4. Color Controls */}
-          <div className="p-4 bg-gray-50 rounded-xl border border-gray-200 space-y-3">
-             <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                    <PaintBucket size={14} className="text-gray-400"/>
-                    <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Theme Colors</span>
-                </div>
-                <button type="button" onClick={resetColors} className="text-[10px] font-bold text-red-500 flex items-center gap-1 hover:bg-red-50 px-2 py-1 rounded transition-colors">
-                    <RefreshCcw size={10} /> Reset
+            {/* View mode */}
+            <div>
+              <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Preview Mode</p>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => { setViewMode("dual"); setMobileMenuOpen(false); }}
+                  className={`flex items-center justify-center gap-2 py-2.5 rounded-xl text-[12px] font-bold transition-all ${
+                    viewMode === "dual" || viewMode === "desktop" ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-500"
+                  }`}
+                >
+                  <Monitor size={14} /> Desktop
                 </button>
-             </div>
-             
-             <div className="grid grid-cols-2 gap-3">
-                <div className="flex flex-col gap-1">
-                    <label className="text-[10px] font-semibold text-gray-400">Background</label>
-                    <div className="flex items-center gap-2 bg-white p-2 rounded-lg border border-gray-200 shadow-sm">
-                        <input type="color" value={portfolioData.themeBg || "#ffffff"} onChange={(e) => handleColorChange("themeBg", e.target.value)} className="w-8 h-8 rounded border-none p-0 cursor-pointer" />
-                        <span className="text-[10px] font-mono text-gray-500">{portfolioData.themeBg || "#fff"}</span>
-                    </div>
-                </div>
+                <button
+                  type="button"
+                  onClick={() => { setViewMode("mobile"); setMobileMenuOpen(false); }}
+                  className={`flex items-center justify-center gap-2 py-2.5 rounded-xl text-[12px] font-bold transition-all ${
+                    viewMode === "mobile" ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-500"
+                  }`}
+                >
+                  <Smartphone size={14} /> Mobile
+                </button>
+              </div>
+            </div>
 
-                <div className="flex flex-col gap-1">
-                    <label className="text-[10px] font-semibold text-gray-400">Text Color</label>
-                    <div className="flex items-center gap-2 bg-white p-2 rounded-lg border border-gray-200 shadow-sm">
-                        <input type="color" value={portfolioData.themeFont || "#000000"} onChange={(e) => handleColorChange("themeFont", e.target.value)} className="w-8 h-8 rounded border-none p-0 cursor-pointer" />
-                        <span className="text-[10px] font-mono text-gray-500">{portfolioData.themeFont || "#000"}</span>
-                    </div>
-                </div>
-             </div>
-          </div>
+            {/* Design */}
+            <div>
+              <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Design</p>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => { setShowThemePopup(true); setMobileMenuOpen(false); }}
+                  className="flex items-center justify-center gap-2 py-2.5 rounded-xl text-[12px] font-bold bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all"
+                >
+                  <LayoutTemplate size={14} /> Templates
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setShowCardPopup(true); setMobileMenuOpen(false); }}
+                  className="flex items-center justify-center gap-2 py-2.5 rounded-xl text-[12px] font-bold bg-gray-900 text-white transition-all"
+                >
+                  <QrCode size={14} /> FYX Card
+                </button>
+              </div>
+            </div>
 
-          {/* 5. AI Button */}
-          <button
-              type="button"
-              onClick={toggleChatbot}
-              className={`w-full py-3 rounded-xl text-xs font-bold transition-all flex justify-center items-center gap-2 ${
-                portfolioData.enableChatbot 
-                  ? "bg-blue-600 text-white" 
-                  : "bg-gray-50 text-gray-600 border border-gray-200"
-              }`}
-            >
-               {portfolioData.enableChatbot ? <Sparkles size={16} /> : <img src="/fyxlogow.png" alt="logo" className="w-4 h-4 opacity-40 brightness-0"/>}
-               {portfolioData.enableChatbot ? "AI Assistant Active" : "Enable AI Assistant"}
-          </button>
-          
-          {/* 6. Save & Publish */}
-          <div className="flex gap-3 pt-2 mt-auto border-t border-gray-100">
-            <button type="button" onClick={handleSave} className="flex-1 py-3 bg-white border border-gray-200 text-gray-700 rounded-xl text-xs font-bold flex justify-center items-center gap-2 shadow-sm">
-                {saveStatus === "saving" ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
-                {saveStatus === "saving" ? "Saving..." : "Save"}
-            </button>
-            <button type="button" onClick={handleDeployClick} className="flex-1 py-3 bg-black text-white rounded-xl text-xs font-bold flex justify-center items-center gap-2 shadow-lg">
-                <Rocket size={16} /> Publish
-            </button>
+            {/* Settings */}
+            <div>
+              <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Settings</p>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={toggleVisibility}
+                  className={`flex items-center justify-center gap-2 py-2.5 rounded-xl text-[12px] font-bold transition-all ${
+                    portfolioData.isPublic ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-600"
+                  }`}
+                >
+                  {portfolioData.isPublic ? <Globe size={14} /> : <Lock size={14} />}
+                  {portfolioData.isPublic ? "Public" : "Private"}
+                </button>
+                <button
+                  type="button"
+                  onClick={toggleChatbot}
+                  className={`flex items-center justify-center gap-2 py-2.5 rounded-xl text-[12px] font-bold transition-all ${
+                    portfolioData.enableChatbot ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-600"
+                  }`}
+                >
+                  {isFreeUser && !portfolioData.enableChatbot && <Crown size={11} className="text-amber-400" />}
+                  <Sparkles size={14} />
+                  {portfolioData.enableChatbot ? "AI On" : "AI Off"}
+                </button>
+              </div>
+            </div>
+
+            {/* Help + Profile */}
+            <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+              <button
+                type="button"
+                onClick={() => { localStorage.removeItem("fyx_onboarding_seen"); setShowOnboarding(true); setMobileMenuOpen(false); }}
+                className="flex items-center gap-2 text-[12px] font-semibold text-gray-500 hover:text-gray-800 px-2 py-1.5 rounded-xl hover:bg-gray-100 transition-all"
+              >
+                <HelpCircle size={14} /> How to use
+              </button>
+              <div className="flex items-center gap-2">
+                <PlanBadge plan={user?.plan} />
+                <UserProfileMenu />
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-
-      {/* Popups Rendering */}
-      {showThemePopup && <ThemePopup onSelect={(k) => { setPortfolioData({ ...portfolioData, template: k }); navigate(`/customize/${k}`); setShowThemePopup(false); }} onClose={() => setShowThemePopup(false)} />}
-      {showElementPopup && <ElementPopup onClose={() => setShowElementPopup(false)} />}
-      {showTalentPopup && <TalentVisibilityPopup isOpen={showTalentPopup} onClose={() => setShowTalentPopup(false)} portfolioData={portfolioData} setPortfolioData={setPortfolioData} />}
-      {showAiPromo && <ChatbotPromoPopup onClose={() => setShowAiPromo(false)} onEnable={handleConfirmEnableAi} />}
+      )}
     </>
   );
 }

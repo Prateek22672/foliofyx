@@ -5,6 +5,7 @@ Next.js
 Vue.js
 Angular
 Svelte
+SvelteKit
 TypeScript
 JavaScript
 Python
@@ -16,7 +17,7 @@ Spring Boot
 Java
 Kotlin
 C#
-ASP.NET
+ASP.NET Core
 C++
 C
 Go
@@ -25,6 +26,7 @@ PHP
 Laravel
 Symfony
 CodeIgniter
+Lumen
 MySQL
 PostgreSQL
 SQLite
@@ -34,6 +36,10 @@ Firebase
 Supabase
 GraphQL
 REST API
+gRPC
+tRPC
+WebSockets
+Server-Sent Events (SSE)
 Docker
 Kubernetes
 AWS
@@ -43,12 +49,18 @@ DigitalOcean
 Heroku
 Terraform
 Ansible
+Pulumi
 Git
 GitHub Actions
-CI/CD Pipelines
+GitLab CI/CD
+CircleCI
+Jenkins
+Bitbucket Pipelines
+Travis CI
 Linux
 Nginx
 Apache
+Caddy Server
 Tailwind CSS
 Bootstrap
 Material UI
@@ -80,16 +92,28 @@ Keras
 NLTK
 Hugging Face Transformers
 LangChain
+LangGraph
+LlamaIndex
 OpenAI API
+Anthropic Claude API
 Pinecone
+Weaviate
+Qdrant
+Chroma
+Milvus
 Elasticsearch
+OpenSearch
 RabbitMQ
-Kafka
+Apache Kafka
 Celery
 Power BI
 Tableau
 Figma
 Adobe XD
+Adobe Illustrator
+Adobe Photoshop
+Adobe After Effects
+Adobe Premiere Pro
 Unity
 Unreal Engine
 Three.js
@@ -103,3 +127,510 @@ Twilio API
 OpenWeather API
 Notion API
 Slack API
+GitHub API
+Jira API
+Trello API
+Asana API
+Zapier
+Make (Integromat)
+n8n
+Retool
+Bubble
+Webflow
+Framer
+Remix
+Astro
+Nuxt.js
+Gatsby
+Eleventy
+Qwik
+Solid.js
+Preact
+Alpine.js
+HTMX
+Lit
+Stencil
+Web Components
+Shadow DOM
+React Server Components
+Next.js App Router
+Turbopack
+esbuild
+Rollup
+Parcel
+Bun
+Deno
+Fastify
+Hono
+Elysia
+NestJS
+AdonisJS
+Hapi
+Koa
+Feathers.js
+Strapi
+Directus
+Payload CMS
+Sanity
+Contentful
+Ghost CMS
+Prismic
+Netlify CMS
+KeystoneJS
+Hasura
+PostGraphile
+Prisma ORM
+Drizzle ORM
+TypeORM
+Sequelize
+SQLAlchemy
+Tortoise ORM
+Peewee
+Pydantic
+Marshmallow
+Alembic
+Flyway
+Liquibase
+CockroachDB
+TiDB
+YugabyteDB
+PlanetScale
+Neon
+Turso (LibSQL)
+SingleStore
+ClickHouse
+Apache Druid
+Apache Pinot
+Snowflake
+BigQuery
+Amazon Redshift
+Azure Synapse Analytics
+Databricks
+Apache Spark
+Apache Flink
+Apache Beam
+Apache Airflow
+Prefect
+Dagster
+dbt (Data Build Tool)
+Great Expectations
+Delta Lake
+Apache Iceberg
+Apache Hudi
+Apache Parquet
+Apache Avro
+Apache ORC
+Apache Hive
+Apache HBase
+Apache Cassandra
+Amazon DynamoDB
+Azure Cosmos DB
+Google Firestore
+Amazon Neptune
+Neo4j
+ArangoDB
+TigerGraph
+JanusGraph
+Amazon QLDB
+InfluxDB
+TimescaleDB
+QuestDB
+VictoriaMetrics
+Prometheus
+Grafana
+Grafana Loki
+Grafana Tempo
+OpenTelemetry
+Jaeger
+Zipkin
+Datadog
+New Relic
+Dynatrace
+Splunk
+ELK Stack (Elasticsearch, Logstash, Kibana)
+Fluentd
+Filebeat
+Vector
+Cribl
+PagerDuty
+Opsgenie
+AWS CloudWatch
+Azure Monitor
+Google Cloud Operations
+MLflow
+Weights and Biases (W&B)
+Kubeflow
+ZenML
+Metaflow
+Vertex AI (Google)
+Amazon SageMaker
+Azure Machine Learning
+Comet ML
+Neptune.ai
+Evidently AI
+Arize AI
+WhyLabs
+Seldon Core
+BentoML
+Triton Inference Server
+TorchServe
+ONNX Runtime
+TensorFlow Serving
+Ray Serve
+Mosaic ML
+Together AI
+Replicate
+Hugging Face Hub
+Ollama
+LM Studio
+Jan.ai
+vLLM
+Text Generation Inference (TGI)
+Llama.cpp
+OpenLLM
+Modal
+Groq
+Mistral AI API
+Cohere API
+Stability AI API
+ElevenLabs API
+AssemblyAI
+Deepgram
+Whisper (OpenAI)
+Speechify API
+Resemble AI
+Synthesia API
+RunwayML API
+Pika API
+Sora API
+Midjourney API
+DALL-E API
+Stable Diffusion
+ComfyUI
+Automatic1111
+Fooocus
+InvokeAI
+ControlNet
+LoRA Training
+DreamBooth
+Textual Inversion
+Segment Anything Model (SAM)
+Grounding DINO
+CLIP
+BLIP2
+LLaVA
+Florence-2
+Phi-3
+Gemma
+Mistral
+Llama 3
+DeepSeek
+Qwen
+Falcon
+Claude 3
+GPT-4o
+Gemini Pro
+Grok
+Phi-4
+SmolLM
+TinyLlama
+Mixtral
+React Native
+Flutter
+Ionic
+Capacitor
+Expo
+SwiftUI
+UIKit
+Jetpack Compose
+Kotlin Multiplatform (KMP)
+Xamarin
+MAUI (.NET)
+Cordova
+NativeScript
+Tauri
+Electron
+Neutralinojs
+Wails
+PWA (Progressive Web Apps)
+Service Workers
+Web Push API
+IndexedDB
+Web Crypto API
+WebAssembly (WASM)
+Emscripten
+WABT
+Wasmer
+Wasmtime
+AssemblyScript
+Spin (Fermyon)
+AWS Lambda
+Azure Functions
+Google Cloud Functions
+Cloudflare Workers
+Fastly Compute
+Deno Deploy
+Fly.io
+Railway
+Render
+AWS Amplify
+AWS CDK
+AWS SAM
+AWS Step Functions
+AWS EventBridge
+AWS SNS
+AWS SQS
+AWS Kinesis
+AWS Glue
+AWS Athena
+AWS Lake Formation
+AWS OpenSearch
+AWS Bedrock
+Azure OpenAI Service
+Azure Bot Service
+Azure Cognitive Services
+Azure Form Recognizer
+Azure Logic Apps
+Azure Service Bus
+Azure Event Hubs
+Azure Data Factory
+Azure Databricks
+Google Vertex AI
+Google Cloud Pub/Sub
+Google Cloud Dataflow
+Google Cloud Composer
+Google Cloud Functions
+Google BigTable
+Google AlloyDB
+Google Spanner
+Redis Stack
+Redis Pub/Sub
+Redis Streams
+KeyDB
+Dragonfly
+Apache ZooKeeper
+etcd
+Consul
+Vault (HashiCorp)
+AWS Secrets Manager
+Azure Key Vault
+Google Secret Manager
+Envoy Proxy
+Istio
+Linkerd
+Cilium
+Calico
+CoreDNS
+Nginx Ingress Controller
+Traefik
+Kong API Gateway
+AWS API Gateway
+Azure API Management
+Google Apigee
+Tyk
+Gravitee
+Mulesoft
+WSO2
+Moesif
+Postman
+Bruno
+Insomnia
+Hoppscotch
+HTTPie
+Swagger/OpenAPI
+AsyncAPI
+JSON Schema
+Protocol Buffers (Protobuf)
+FlatBuffers
+MessagePack
+Apache Thrift
+WSDL/SOAP
+GraphQL Federation
+Apollo Server
+Apollo Client
+Relay
+urql
+Strawberry GraphQL
+Ariadne
+Graphene
+Pothos GraphQL
+Prisma GraphQL
+React Query (TanStack Query)
+SWR
+Zustand
+Redux Toolkit
+Jotai
+Recoil
+MobX
+XState
+Zod
+Yup
+Valibot
+React Hook Form
+Formik
+Storybook
+Chromatic
+Ladle
+Histoire
+Vitest
+Testing Library
+MSW (Mock Service Worker)
+WireMock
+Pact
+Karate
+Gatling
+k6
+Locust
+Artillery
+JMeter
+Lighthouse
+WebPageTest
+Sentry
+BugSnag
+Rollbar
+LogRocket
+FullStory
+Mixpanel
+Amplitude
+Segment
+Heap Analytics
+PostHog
+Hotjar
+Google Analytics 4
+Meta Pixel
+TikTok Pixel
+Adobe Analytics
+LaunchDarkly
+Unleash
+GrowthBook
+Statsig
+Optimizely
+VWO
+Airship
+Braze
+Customer.io
+Intercom
+Zendesk
+Freshdesk
+HubSpot
+Salesforce
+Marketo
+Pardot
+Klaviyo
+Mailchimp
+SendGrid
+Resend
+Postmark
+Amazon SES
+Twilio
+Vonage
+Plivo
+Bandwidth
+Agora
+Daily.co
+LiveKit
+100ms
+Mux
+Cloudflare Stream
+AWS IVS
+Azure Media Services
+Wowza
+ffmpeg
+GStreamer
+OpenH264
+libvpx
+WebRTC
+TURN/STUN Servers
+PeerJS
+Socket.IO
+Ably
+Pusher
+Centrifuge
+Soketi
+Hardhat
+Truffle
+Foundry
+Brownie
+OpenZeppelin Contracts
+Ethers.js
+Web3.js
+Wagmi
+Viem
+RainbowKit
+ConnectKit
+WalletConnect
+MetaMask SDK
+Alchemy SDK
+Infura
+Moralis
+The Graph Protocol
+Chainlink
+IPFS
+Filecoin
+Arweave
+Ceramic Network
+Lit Protocol
+Polybase
+ARKit
+ARCore
+Vuforia
+Wikitude
+8thwall
+Spark AR (Meta)
+Lens Studio (Snapchat)
+OpenXR
+OpenVR
+WebXR API
+A-Frame
+React Three Fiber
+Babylon.js
+PlayCanvas
+Godot Engine
+Defold
+Cocos2d
+LÖVE
+libGDX
+MonoGame
+Phaser.js
+PixiJS
+Konva.js
+ROS (Robot Operating System)
+ROS2
+Gazebo Simulator
+Isaac Sim (NVIDIA)
+OpenAI Gym
+Gymnasium
+Stable-Baselines3
+Ray RLlib
+CARLA Simulator
+AirSim
+MuJoCo
+PyBullet
+Drake
+MoveIt
+NAV2
+Micro-ROS
+Arduino
+Raspberry Pi SDK
+ESP-IDF
+Zephyr RTOS
+FreeRTOS
+CMSIS
+STM32 HAL
+nRF Connect SDK
+Eclipse Mosquitto (MQTT)
+EMQX
+HiveMQ
+AWS IoT Core
+Azure IoT Hub
+Google Cloud IoT
+Balena.io
+Mender
+Thingsboard
+Node-RED
+Home Assistant
+OpenHAB
+FIWARE Platform
+Eclipse Ditto
+Azure Digital Twins
+AWS IoT TwinMaker

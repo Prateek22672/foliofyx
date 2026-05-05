@@ -9,12 +9,9 @@ import * as Luxe from "./Luxe";
 import * as Veloura from "./Veloura";
 import * as Pulse from "./Pulse";
 import * as Neonix from "./Neonix";
-
-
-
+import * as Canvas from "./Canvas";
 
 export const TEMPLATE_LIST = {
-
   pulse: {
     module: Pulse,
     label: "Pulse",
@@ -42,28 +39,24 @@ export const TEMPLATE_LIST = {
     themeFont: "#ffffff"
   },
 
-
   luxe: {
     module: Luxe,
     label: "Luxe",
     preview: "/preview/luxe/luxe3.png",
-    tags: ["Premium", "Animation"],
-    // ✅ Add Defaults
-    themeBg: "#0f0f0f",
-    themeFont: "#f0f0f0"
+    // Refined tags for the Boutique Editorial style
+    tags: ["Premium", "Editorial", "Boutique", "Minimal", "Clean Layout"],
+    themeBg: "#ffffff",
+    themeFont: "#111827"
   },
 
   veloura: {
     module: Veloura,
     label: "Veloura",
     preview: "/preview/veloura/whiteDesktop.png",
-    tags: ["Premium", "Animation"],
     tags: ["Creative", "Gradient", "Modern", "Animated", "Smooth UI"],
     themeBg: "#ffffff",
     themeFont: "#000000"
   },
-
-
 
   thegrandera: {
     module: TheGrandEra,
@@ -82,6 +75,7 @@ export const TEMPLATE_LIST = {
     themeBg: "#ffffff",
     themeFont: "#000000"
   },
+
   minimal: {
     module: Minimal,
     label: "Minimal",
@@ -116,5 +110,14 @@ export const TEMPLATE_LIST = {
     tags: ["Business", "Corporate", "Professional", "Clean", "Formal"],
     themeBg: "#ffffff",
     themeFont: "#111827"
+  },
+
+  canvas: {
+    module: Canvas,
+    label: "Canvas",
+    preview: "/themes/image_landing.jpg",
+    tags: ["Developer", "Minimal", "Dark", "Full Control", "Smooth UI"],
+    themeBg: "#0a0a0a",
+    themeFont: "#f0f0f0"
   },
 };

@@ -1,10 +1,25 @@
-
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Space+Grotesk:wght@300;400;600&family=Outfit:wght@300;400;600&family=Oswald:wght@400;600&family=Fira+Code:wght@300;400;600&family=Syne:wght@400;500;700;800&display=swap');/* ✅ 1. TAILWIND & FONTS (MUST BE AT THE TOP) */
 @import "tailwindcss";
+
+
+
+*,
+*::before,
+*::after {
+  cursor: none !important;
+}
+
+/* ✅ Restore text cursor for typing fields */
+input, textarea {
+  cursor: text !important;
+}
+
 
 /* ===============================
    🎨 2. THEME VARIABLES
 ================================= */
+
+
 :root {
   --bg-dark: #0a0a0a;
   --accent: #ad0000;
@@ -35,14 +50,6 @@ h1, h2, h3, h4, h5, button {
     font-weight: 200;
 }
 
-/* Force Default Cursor */
-* {
-  cursor: default !important;
-}
-
-a, button, input, textarea, select {
-  cursor: pointer !important;
-}
 
 /* ===============================
    ✨ 4. ANIMATIONS & UTILITIES

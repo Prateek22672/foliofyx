@@ -1,119 +1,129 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "./CustomCursor.css";
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+const isDarkColor = (r, g, b) => {
+  // Perceived luminance — matches human eye weighting
+  const luminance = 0.299 * r + 0.587 * g + 0.114 * b;
+  return luminance < 128;
+};
+
+const parseRGB = (cssColor) => {
+  const m = cssColor.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+  if (!m) return null;
+  return { r: +m[1], g: +m[2], b: +m[3] };
+};
+
+const getBackgroundAtPoint = (x, y) => {
+  // Walk up from the element under the cursor to find a real background
+  let el = document.elementFromPoint(x, y);
+  while (el && el !== document.documentElement) {
+    const style = window.getComputedStyle(el);
+    const bg = style.backgroundColor;
+    if (bg && bg !== "rgba(0, 0, 0, 0)" && bg !== "transparent") {
+      return bg;
+    }
+    el = el.parentElement;
+  }
+  // Fallback: body background
+  return window.getComputedStyle(document.body).backgroundColor;
+};
+
+// ─── Component ────────────────────────────────────────────────────────────────
 
 const CustomCursor = () => {
   const cursorRef = useRef(null);
-  
-  // Use refs for values that change constantly to avoid re-renders
-  const position = useRef({ x: -100, y: -100 }); // Current cursor position
-  const mouse = useRef({ x: -100, y: -100 });    // Mouse target
-  const velocity = useRef({ x: 0, y: 0 });       // For physics
+  const [cursorSrc, setCursorSrc] = useState("/cursor/navigateBlack.png");
+
+  const position = useRef({ x: -100, y: -100 });
+  const mouse    = useRef({ x: -100, y: -100 });
+  const isHovering = useRef(false);
+
+  // Track last detected theme to avoid unnecessary state updates
+  const lastTheme = useRef("light");
 
   useEffect(() => {
     const cursor = cursorRef.current;
-    
-    // Config
-    const friction = 0.15; // 0.1 = loose, 0.2 = snappy. 0.15 is "Classic" smooth.
-    let isHovering = false; // Internal flag to disable stretch effect on hover
+    const friction = 0.12;
+    let animationId;
+
+    const detectTheme = () => {
+      const { x, y } = mouse.current;
+      if (x === -100) return;
+
+      const bgColor = getBackgroundAtPoint(x, y);
+      const parsed  = parseRGB(bgColor);
+      if (!parsed) return;
+
+      const dark   = isDarkColor(parsed.r, parsed.g, parsed.b);
+      const theme  = dark ? "dark" : "light";
+
+      if (theme !== lastTheme.current) {
+        lastTheme.current = theme;
+        setCursorSrc(dark ? "/cursor/cursorWhite.png" : "/cursor/navigateBlack.png");
+      }
+    };
 
     const animate = () => {
       if (!cursor) return;
 
-      // 1. Smooth Follow (Lerp)
       const distX = mouse.current.x - position.current.x;
       const distY = mouse.current.y - position.current.y;
 
       position.current.x += distX * friction;
       position.current.y += distY * friction;
 
-      // 2. Velocity Calculation (for stretch effect)
-      velocity.current.x = distX;
-      velocity.current.y = distY;
+      const scale = isHovering.current ? 1.2 : 1;
 
-      // 3. Calculate Stretch & Rotation
-      // We only stretch if we are NOT hovering something (keeps hover shapes clean)
-      let scaleX = 1;
-      let scaleY = 1;
-      let angle = 0;
-
-      if (!isHovering) {
-        const speed = Math.sqrt(
-          velocity.current.x ** 2 + velocity.current.y ** 2
-        );
-        const stretch = Math.min(speed / 600, 0.15); // Cap stretch for subtlety
-        
-        angle = Math.atan2(velocity.current.y, velocity.current.x);
-        scaleX = 1 + stretch;
-        scaleY = 1 - stretch;
-      }
-
-      // 4. Apply Styles
-      // using translate3d triggers GPU acceleration
       cursor.style.transform = `
         translate3d(${position.current.x}px, ${position.current.y}px, 0)
-        translate(-50%, -50%)
-        rotate(${angle}rad)
-        scale(${scaleX}, ${scaleY})
+        scale(${scale})
       `;
 
-      requestAnimationFrame(animate);
+      animationId = requestAnimationFrame(animate);
     };
 
     const handleMouseMove = (e) => {
       mouse.current.x = e.clientX;
       mouse.current.y = e.clientY;
 
-      // Instant start on load
       if (position.current.x === -100) {
         position.current.x = e.clientX;
         position.current.y = e.clientY;
       }
+
+      detectTheme();
     };
 
     const handleMouseOver = (e) => {
-      const target = e.target;
-      
-      // Check for clickable elements
-      const isLink = target.closest("a") || target.closest("button") || target.closest(".clickable");
-      
-      // Check for specific cursor shapes via data attributes
-      // Example: <div data-cursor="text"> or <div data-cursor="video">
-      const customShape = target.closest("[data-cursor]")?.getAttribute("data-cursor");
-
-      if (isLink || customShape) {
-        isHovering = true;
-        cursor.classList.add("is-hovering");
-      }
-
-      // Apply specific shape classes
-      if (customShape) {
-        cursor.classList.add(`shape-${customShape}`);
-      }
+      const interactive = e.target.closest("a, button, [role='button'], .clickable");
+      if (interactive) isHovering.current = true;
     };
 
-    const handleMouseOut = (e) => {
-      isHovering = false;
-      cursor.classList.remove("is-hovering");
-      
-      // Clean up all possible shape classes
-      cursor.classList.remove("shape-text", "shape-video", "shape-hide");
+    const handleMouseOut = () => {
+      isHovering.current = false;
     };
 
-    // Initialize
-    const animationId = requestAnimationFrame(animate);
+    animationId = requestAnimationFrame(animate);
+
     window.addEventListener("mousemove", handleMouseMove);
     window.addEventListener("mouseover", handleMouseOver);
-    window.addEventListener("mouseout", handleMouseOut);
+    window.addEventListener("mouseout",  handleMouseOut);
 
     return () => {
       cancelAnimationFrame(animationId);
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("mouseover", handleMouseOver);
-      window.removeEventListener("mouseout", handleMouseOut);
+      window.removeEventListener("mouseout",  handleMouseOut);
     };
   }, []);
 
-  return <div ref={cursorRef} className="custom-cursor" />;
+  return (
+    <div ref={cursorRef} className="custom-cursor">
+      <img src={cursorSrc} alt="cursor" className="cursor-img" />
+    </div>
+  );
 };
 
 export default CustomCursor;

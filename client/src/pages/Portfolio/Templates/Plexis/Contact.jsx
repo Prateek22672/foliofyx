@@ -44,7 +44,7 @@ return (
               {data.email ? (
                 <a 
                   href={`mailto:${data.email}`}
-                  className="text-3xl md:text-5xl font-bold underline decoration-2 underline-offset-8 hover:opacity-50 transition break-all"
+                  className="text-xl md:text-4xl font-bold underline decoration-2 underline-offset-8 hover:opacity-50 transition break-all"
                   style={{ textDecorationColor: borderColor }}
                 >
                   {data.email}

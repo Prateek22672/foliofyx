@@ -1,140 +1,150 @@
-import React, { useEffect, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { usePortfolio } from "../../../../context/PortfolioContext";
-import linkedinLogo from "../../../../assets/link.png";
-import githubLogo from "../../../../assets/git.webp";
-import DownArrow from "../../../../components/DownArrow";
-import useFadeInOnScroll from "../../../../hooks/useFadeInOnScroll";
+import '@fortawesome/fontawesome-free/css/all.min.css';
 
-// A clean, professional default placeholder image (Man in suit from previous request)
-const FALLBACK_IMAGE = "/themes/john-wick-4-and-5-confirmed-by-lionsgate-and-will-shoot-back-to-back-next-year-social.webp";
+// Components
+import EditableText from "../EditableText";
+import EditableImage from "../EditableImage";
 
-const DEFAULT_BG = "#ffffff";
-const DEFAULT_FG = "#111827";
-// UPDATED COLOR: A warm, versatile amber/gold that works on light and dark backgrounds.
-const DEFAULT_ACCENT = "#D97706"; 
+const FALLBACK_IMAGE = "/themes/john-wick-3-parabellum-action.avif";
 
-const Home = ({ portfolioData: propData, isMobileView }) => {
-  useFadeInOnScroll();
+const getBadgeContent = (roleString, userSkills) => {
+  const role = roleString?.toLowerCase() || "";
+  if (Array.isArray(userSkills) && userSkills.length > 0) {
+    const skillNames = userSkills.map(s => typeof s === 'string' ? s : s.name);
+    return { icon: "fa-layer-group", color: "text-blue-400", label: "Expertise & Stack", skills: skillNames };
+  }
+  return { icon: "fa-laptop-code", color: "text-blue-400", label: "Building With", skills: ["Modern Tech", "Clean Code", "Scalable Ops"] };
+};
 
-  const { portfolioData: contextData } = usePortfolio();
+const Home = ({ portfolioData: propData, isReadOnly }) => {
+  const { portfolioData: contextData, setPortfolioData } = usePortfolio();
   const data = propData || contextData || {};
+  const containerRef = useRef(null);
 
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const bg = data.themeBg || "#ffffff";
+  const fg = data.themeFont || "#0f172a"; 
+  const accent = data.accentColor || "#2563eb"; 
+  const mutedFg = `${fg}CC`; 
+
+  const defaultName = "Your Name";
+  const defaultRole = "Software Engineer";
+  const defaultCaption = "Transforming complex problems into elegant digital solutions through clean code and purposeful design.";
+
+  const badgeDetails = getBadgeContent(data.role || defaultRole, data.skills);
+  const [text, setText] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [loopNum, setLoopNum] = useState(0);
+
   useEffect(() => {
-    const onResize = () => setIsMobile(window.innerWidth < 768);
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
-  }, []);
+    if (!badgeDetails.skills.length) return;
+    const handleType = () => {
+      const i = loopNum % badgeDetails.skills.length;
+      const fullText = badgeDetails.skills[i];
+      setText(isDeleting ? fullText.substring(0, text.length - 1) : fullText.substring(0, text.length + 1));
+      if (!isDeleting && text === fullText) setTimeout(() => setIsDeleting(true), 2000); 
+      else if (isDeleting && text === '') { setIsDeleting(false); setLoopNum(loopNum + 1); }
+    };
+    const timer = setTimeout(handleType, isDeleting ? 50 : 150);
+    return () => clearTimeout(timer);
+  }, [text, isDeleting, loopNum, badgeDetails.skills]);
 
-  const mobile = isMobile || isMobileView;
-
-  // THEME COLORS
-  const bg = data.themeBg || DEFAULT_BG;
-  const fg = data.themeFont || DEFAULT_FG;
-  const accent = data.accentColor || DEFAULT_ACCENT;
-
-  // Muted text must adjust to theme font (soft)
-  const muted = data.themeFont ? `${data.themeFont}99` : "#6b728099";
-  const borderColor = `${fg}20`;
+  const { scrollYProgress } = useScroll({ target: containerRef, offset: ["start start", "end start"] });
+  const parallaxY = useTransform(scrollYProgress, [0, 1], [0, -150]);
 
   return (
-    <section
-      id="home"
-      className="relative min-h-screen flex flex-col pt-16"
-      style={{ background: bg, color: fg, borderBottom: `1px solid ${borderColor}` }}
+    <section 
+      ref={containerRef}
+      id="home" 
+      className="relative min-h-screen flex items-center overflow-hidden pt-32 pb-20 px-6 transition-colors duration-500"
+      style={{ backgroundColor: bg }}
     >
-      {/* GRID LAYOUT 
-        - Left: Name
-        - Right: Role, Image, Details
-      */}
-      <div className="flex-grow grid md:grid-cols-2 h-full items-center">
-        
-        {/* LEFT COLUMN: Name */}
-        <div className="relative flex flex-col justify-center px-8 md:px-16 mt-0 sm:-mt-100 py-12 md:py-20 fade-up">
-           <p className="text-lg md:text-xl font-bold tracking-widest mb-6 uppercase" style={{ color: muted }}>
-             Hello, I'am
-           </p>
-           
-           {/* Big, Clean Font */}
-           <h1 className="text-7xl md:text-9xl font-extrabold leading-none tracking-tighter">
-             {data?.name?.split(" ")[0] || "Your"}
-             <br />
-             <span style={{ color: accent }}>
-                {data?.name?.split(" ").slice(1).join(" ") || "Name"}
-             </span>
-           </h1>
-        </div>
-
-        {/* RIGHT COLUMN: Role & Details */}
-        <div 
-          className="flex flex-col justify-center px-8 md:px-16 py-12 md:py-20 gap-10"
-          style={{ borderLeft: mobile ? "none" : `1px solid ${borderColor}` }}
-        >
-          {/* Image - SIGNIFICANTLY INCREASED SIZE */}
-          <div className="fade-up slide-left">
-             <img
-               // LOGIC: Uses data.image if available, otherwise uses FALLBACK_IMAGE
-               src={data?.image || FALLBACK_IMAGE}
-               // Updated size classes for much larger image
-               className="w-64 h-64 md:w-[450px] md:h-[450px] object-cover rounded-2xl border-2 shadow-lg"
-               style={{ borderColor: accent }}
-               alt="Profile"
-             />
-          </div>
-
-          <div className="stagger slide-left">
-            {/* Increased Font Size for Role */}
-            <h2 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
-              {data?.role || "Web Developer"}
-            </h2>
-
-            {/* Increased Font Size for Bio */}
-            <p className="max-w-xl text-xl md:text-2xl leading-relaxed mb-10" style={{ color: muted }}>
-              {data?.bio ? data.bio.slice(0, 120) + "..." : "Crafting digital experiences with focus, precision, and modern aesthetics."}
-            </p>
-
-            {/* Buttons */}
-            <div className="flex flex-wrap gap-6">
-               {data?.cvLink && (
-                <a
-                  href={data.cvLink}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="px-10 py-4 text-base md:text-lg font-bold hover:opacity-90 transition rounded-md shadow-sm"
-                  style={{ backgroundColor: accent, color: bg }} 
-                >
-                  Download CV
-                </a>
-              )}
-               <a
-                href="#contact"
-                className="px-10 py-4 border-2 text-base md:text-lg font-bold hover:bg-black/5 transition rounded-md"
-                style={{ borderColor: fg, color: fg }}
-              >
-                Contact Me
-              </a>
+      {/* Background Decor */}
+      <div className="absolute top-[-20%] right-[-10%] w-[600px] h-[600px] rounded-full blur-[120px] opacity-20 pointer-events-none" style={{ backgroundColor: accent }} />
+      
+      <div className="max-w-7xl mx-auto w-full z-10">
+        <div className="grid lg:grid-cols-2 gap-16 items-center">
+          
+          {/* Left Text Content */}
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="flex flex-col items-center lg:items-start text-center lg:text-left"
+          >
+            <div className="mb-6">
+              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm border backdrop-blur-sm" style={{ borderColor: `${fg}20`, backgroundColor: `${fg}05`, color: fg }}>
+                <span className="relative flex h-2.5 w-2.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 bg-green-500"></span>
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
+                </span>
+                Available for Projects
+              </span>
             </div>
-          </div>
+
+            <h1 className="text-5xl sm:text-7xl lg:text-8xl font-bold tracking-tight mb-4 leading-[1.1]" style={{ color: fg }}>
+              <EditableText
+                value={data.name || defaultName}
+                onChange={(val) => setPortfolioData({ ...data, name: val })}
+                readOnly={isReadOnly}
+              />
+            </h1>
+
+            <div className="text-3xl sm:text-4xl lg:text-5xl font-extrabold mb-8 min-h-[1.2em]" style={{ color: accent }}>
+              <EditableText
+                value={data.role || defaultRole}
+                onChange={(val) => setPortfolioData({ ...data, role: val })}
+                readOnly={isReadOnly}
+              />
+            </div>
+
+            <div className="text-lg sm:text-xl max-w-2xl leading-relaxed mb-10 font-light" style={{ color: mutedFg }}>
+              <EditableText
+                value={data.caption || defaultCaption}
+                onChange={(val) => setPortfolioData({ ...data, caption: val })}
+                readOnly={isReadOnly}
+                multiline
+              />
+            </div>
+
+            <div className="flex flex-wrap gap-4 justify-center lg:justify-start">
+              <a href="#projects" className="group relative px-8 py-4 rounded-full overflow-hidden transition-transform active:scale-95 shadow-md" style={{ backgroundColor: fg, color: bg }}>
+                <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out" />
+                <span className="relative flex items-center gap-2">View Work <i className="fa-solid fa-arrow-right -rotate-45 group-hover:rotate-0 transition-transform duration-300"></i></span>
+              </a>
+              <a href="#contact" className="group px-8 py-4 rounded-full border transition-all hover:shadow-lg active:scale-95" style={{ borderColor: `${fg}30`, color: fg }}>Contact Me</a>
+            </div>
+          </motion.div>
+
+          {/* Right Image Content */}
+          <motion.div className="relative flex justify-center lg:justify-end" style={{ y: parallaxY }}>
+            <motion.div animate={{ y: [0, -15, 0] }} transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }} className="relative w-full max-w-[420px] aspect-square">
+              <div className="absolute inset-4 rounded-[3rem] opacity-20 blur-2xl transform rotate-6" style={{ backgroundColor: accent }}></div>
+              <div className="relative w-full h-full rounded-[3rem] overflow-hidden shadow-2xl border border-white/10 z-10">
+                <EditableImage
+                  src={data.image}
+                  onImageUpload={(url) => setPortfolioData({ ...data, image: url })}
+                  alt={data.name}
+                  className="w-full h-full object-cover"
+                  isReadOnly={isReadOnly}  
+                />
+                
+                <div className="absolute bottom-5 left-5 right-5 p-4 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/10 z-20 shadow-lg pointer-events-none">
+                    <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-full flex items-center justify-center bg-white/10 text-white border border-white/20 shrink-0">
+                             <i className={`${badgeDetails.icon.includes('fa-') ? 'fa-brands' : 'fa-solid'} ${badgeDetails.icon} text-xl ${badgeDetails.color}`}></i>
+                        </div>
+                        <div className="flex flex-col min-w-0">
+                            <p className="text-white/50 text-[10px] uppercase tracking-wider font-bold mb-0.5">{badgeDetails.label}</p>
+                            <p className="text-white font-bold text-base leading-tight truncate">{text}<span className="animate-pulse ml-0.5">|</span></p>
+                        </div>
+                    </div>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
         </div>
-      </div>
-
-      {/* Social Icons (Absolute Bottom Right) */}
-      <div className={`absolute bottom-8 right-8 flex gap-6 fade-up ${mobile ? "hidden" : ""}`}>
-        {data?.linkedin && (
-          <a href={data.linkedin} target="_blank" rel="noreferrer">
-             <img src={linkedinLogo} className="w-8 h-8 opacity-60 hover:opacity-100 transition" alt="LI" />
-          </a>
-        )}
-        {data?.github && (
-          <a href={data.github} target="_blank" rel="noreferrer">
-             <img src={githubLogo} className="w-8 h-8 opacity-60 hover:opacity-100 transition" alt="GH" />
-          </a>
-        )}
-      </div>
-
-      {/* Scroll Indicator */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 fade-up">
-        <DownArrow targetId="about" />
       </div>
     </section>
   );

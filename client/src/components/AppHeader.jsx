@@ -68,7 +68,7 @@ const AppHeader = () => {
   const isGlass = hasScrolled || mobileMenuOpen;
   const iconColor = isGlass ? "#171717" : "#FFFFFF"; 
   
-  const navLinks = ['Home', 'Templates', 'Talent', 'Benefits', 'About'];
+  const navLinks = ['Home', 'Designs', 'Talent', 'Benefits', 'About'];
 
   return (
     <>
@@ -213,7 +213,7 @@ const AppHeader = () => {
                         label="Create New" 
                         variant="primary" 
                         size="sm"
-                        onClick={() => handleNavigate("/templates", "Opening templates...")}
+                        onClick={() => handleNavigate("/designs", "Opening designs...")}
                         className={!hasScrolled ? "!bg-white !text-black hover:!bg-gray-200 border-none" : ""}
                       />
                       <div className={`pl-2 border-l ${hasScrolled ? "border-neutral-200" : "border-white/10"} h-6 flex items-center`}>
