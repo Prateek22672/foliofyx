@@ -2,7 +2,9 @@ import React, { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ChevronRight, ChevronLeft } from "lucide-react";
 
-// ─── Steps covering the new Dashboard UI ────────────────────────────────────
+// ─── Tutorial steps ───────────────────────────────────────────────────────────
+// `target`      → id of the DOM element to spotlight (null = centred overlay)
+// `fallbackDesc`→ shown when the target element doesn't exist in the DOM yet
 const STEPS = [
   {
     title: "Welcome to your Studio 👋",
@@ -13,66 +15,75 @@ const STEPS = [
   },
   {
     title: "It's your work, your name",
-    desc: "The greeting up top shows your first name so you always know you're in the right place. Your plan badge (Free / Plus / Max) sits right next to it.",
+    desc: "The greeting at the top shows your first name so you always know you're in the right place. Your plan badge (Free / Plus / Max) sits right next to it.",
     target: "plan-badge",
     position: "bottom",
     icon: "🏷️",
+    fallbackDesc: "Your plan badge (Free / Plus / Max) appears at the top of the dashboard next to your name.",
   },
   {
     title: "Quick stats at a glance",
-    desc: "The three stat pills show how many portfolios you've created, your current plan, and how many templates are available to you — all in one line.",
+    desc: "Three stat pills show how many portfolios you've created, your current plan, and how many templates are available — all in one line.",
     target: "stats-strip",
     position: "bottom",
     icon: "📊",
+    fallbackDesc: "A stats strip below your name shows your portfolio count, current plan, and total templates available.",
   },
   {
     title: "View Templates",
-    desc: "Click 'View Templates' to browse every available template. You can preview desktop & mobile layouts before committing to one.",
+    desc: "Click 'View Templates' to browse every available design. You can preview desktop and mobile layouts before committing to one.",
     target: "view-templates-btn",
     position: "bottom",
     icon: "🗂️",
+    fallbackDesc: "The 'View Templates' button (outlined) lets you browse and preview all available designs before picking one.",
   },
   {
     title: "Start Creating",
-    desc: "Ready to build? Hit 'Start Creating' to jump straight into the builder. On the Free plan you get 1 portfolio — once it's used, this button will prompt you to upgrade.",
+    desc: "Ready to build? Hit 'Start Creating' to jump straight into the builder. On the Free plan you get 1 portfolio — once used, this button prompts you to upgrade.",
     target: "create-btn",
     position: "bottom",
     icon: "✦",
+    fallbackDesc: "The 'Start Creating' button (solid black) launches the builder. Free plan allows 1 portfolio.",
   },
   {
-    title: "My Portfolios",
-    desc: "Every portfolio you've built lives here as a card. Each one shows a live template preview, your name, your role, and quick actions to manage it.",
+    title: "Portfolio cards",
+    desc: "Every portfolio you build appears here as a dark card showing a template preview, your name, your role, and action buttons.",
     target: "first-card",
     position: "top",
     icon: "🗃️",
+    fallbackDesc: "Once you create a portfolio, it appears here as a dark card with a preview image, your name, role, and action buttons.",
   },
   {
     title: "Copy link & Delete",
-    desc: "Hover (or tap on mobile) a card to reveal two icon buttons. The copy icon grabs the public URL for sharing. The red trash icon permanently deletes the portfolio after a confirmation step.",
+    desc: "Hover (or tap on mobile) a card to reveal two icon buttons in the top bar — a copy icon for the public URL, and a red trash icon to permanently delete the portfolio.",
     target: "card-actions",
     position: "bottom",
     icon: "🔗",
+    fallbackDesc: "Hovering a portfolio card reveals a copy-link icon and a red delete icon in its top bar.",
   },
   {
     title: "View Live",
-    desc: "Opens your portfolio exactly as visitors see it — your live, published page. Great for checking how it looks before sharing.",
+    desc: "Opens your portfolio exactly as visitors see it — your published, public-facing page. Great for checking how it looks before sharing.",
     target: "view-btn",
     position: "top",
     icon: "🌐",
+    fallbackDesc: "'View Live' opens your published portfolio exactly as the world sees it.",
   },
   {
     title: "Edit",
-    desc: "Takes you into the full customisation studio where you can change content, colours, fonts, sections, and even switch the template entirely.",
+    desc: "Takes you into the full customisation studio — change content, colours, fonts, sections, and even switch the template without losing your data.",
     target: "edit-btn",
     position: "top",
     icon: "✏️",
+    fallbackDesc: "'Edit' opens the customisation studio where you can change content, colours, fonts, and templates.",
   },
   {
     title: "Recommended Templates",
-    desc: "These are handpicked templates curated just for you. Click any card to open a full preview — see desktop and mobile views before you decide.",
+    desc: "Handpicked templates curated just for you. Click any card to open a full preview with desktop and mobile views before you decide.",
     target: "recommended-section",
     position: "top",
     icon: "✨",
+    fallbackDesc: "Below your portfolios you'll find recommended templates — click any to preview before building.",
   },
   {
     title: "Quick-use a Template",
@@ -80,6 +91,7 @@ const STEPS = [
     target: "recommended-card-0",
     position: "top",
     icon: "⚡",
+    fallbackDesc: "Each recommended template card has a '+ Use' button to jump straight into customising that design.",
   },
   {
     title: "You're all set! 🚀",
@@ -90,75 +102,133 @@ const STEPS = [
   },
 ];
 
-const SPOTLIGHT_PADDING = 12;
-const TOOLTIP_MAX_W = 340;
+const SPOTLIGHT_PAD = 12;
+const TOOLTIP_W     = 340;
 
+// ─── Measure a DOM element in absolute page coordinates ───────────────────────
 const getRect = (id) => {
   if (!id) return null;
   const el = document.getElementById(id);
   if (!el) return null;
   const r = el.getBoundingClientRect();
   return {
-    top:    r.top    + window.scrollY  - SPOTLIGHT_PADDING,
-    left:   r.left   + window.scrollX  - SPOTLIGHT_PADDING,
-    width:  r.width  + SPOTLIGHT_PADDING * 2,
-    height: r.height + SPOTLIGHT_PADDING * 2,
-    // raw viewport values for positioning logic
+    top:      r.top    + window.scrollY - SPOTLIGHT_PAD,
+    left:     r.left   + window.scrollX - SPOTLIGHT_PAD,
+    width:    r.width  + SPOTLIGHT_PAD * 2,
+    height:   r.height + SPOTLIGHT_PAD * 2,
     vpTop:    r.top,
     vpBottom: r.bottom,
-    vpLeft:   r.left,
-    vpRight:  r.right,
   };
 };
 
-// ─── Tooltip ─────────────────────────────────────────────────────────────────
-const Tooltip = ({ step, rect, onNext, onPrev, onClose, isFirst, isLast, current, total }) => {
-  const isMobile = typeof window !== "undefined" && window.innerWidth < 640;
+// ─── Shared tooltip body ──────────────────────────────────────────────────────
+const TooltipBody = ({ step, hasTarget, onNext, onPrev, onClose, isFirst, isLast, current, total }) => {
+  const desc = (!hasTarget && step.fallbackDesc) ? step.fallbackDesc : step.desc;
 
-  // On mobile: always pin to bottom of viewport as a sheet
+  return (
+    <>
+      {/* Progress dots */}
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex gap-1.5 flex-wrap">
+          {Array.from({ length: total }).map((_, i) => (
+            <div
+              key={i}
+              className={`h-1.5 rounded-full transition-all duration-300 ${
+                i === current ? "w-5 bg-gray-900" : "w-1.5 bg-gray-200"
+              }`}
+            />
+          ))}
+        </div>
+        <button
+          onClick={onClose}
+          className="p-1.5 rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-700 transition-colors shrink-0 ml-3"
+        >
+          <X size={14} />
+        </button>
+      </div>
+
+      {/* Icon + text */}
+      <div className="flex gap-3 mb-5">
+        <div className="w-10 h-10 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center text-lg flex-shrink-0">
+          {step.icon}
+        </div>
+        <div>
+          <h3 className="text-[15px] font-bold text-gray-900 mb-1 leading-tight">{step.title}</h3>
+          <p className="text-[13px] text-gray-500 leading-relaxed">{desc}</p>
+          {/* Hint badge when element isn't in the DOM yet */}
+          {!hasTarget && step.target && (
+            <span className="inline-block mt-2 text-[11px] text-amber-600 font-medium bg-amber-50 border border-amber-100 px-2 py-0.5 rounded-full">
+              Create a portfolio to see this live
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* Counter + nav */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={onClose}
+            className="text-[12px] text-gray-400 hover:text-gray-600 transition-colors font-medium"
+          >
+            Skip tour
+          </button>
+          <span className="text-[11px] text-gray-300 font-mono">{current + 1}/{total}</span>
+        </div>
+        <div className="flex gap-2">
+          {!isFirst && (
+            <button
+              onClick={onPrev}
+              className="flex items-center gap-1 px-3 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-600 text-[12px] font-semibold transition-all"
+            >
+              <ChevronLeft size={13} /> Back
+            </button>
+          )}
+          <button
+            onClick={onNext}
+            className="flex items-center gap-1 px-4 py-2 rounded-xl bg-gray-900 hover:bg-gray-800 text-white text-[12px] font-semibold transition-all active:scale-95"
+          >
+            {isLast ? "Done ✓" : "Next"} {!isLast && <ChevronRight size={13} />}
+          </button>
+        </div>
+      </div>
+    </>
+  );
+};
+
+// ─── Tooltip wrapper — mobile sheet vs desktop float ─────────────────────────
+const Tooltip = ({ step, rect, onNext, onPrev, onClose, isFirst, isLast, current, total }) => {
+  const isMobile  = typeof window !== "undefined" && window.innerWidth < 640;
+  const hasTarget = !!rect;
+  const bodyProps = { step, hasTarget, onNext, onPrev, onClose, isFirst, isLast, current, total };
+
+  // ── Mobile: fixed bottom sheet ──
   if (isMobile) {
     return (
       <motion.div
         key={current}
-        initial={{ opacity: 0, y: 40 }}
+        initial={{ opacity: 0, y: 60 }}
         animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: 40 }}
-        transition={{ type: "spring", stiffness: 300, damping: 30 }}
-        style={{
-          position: "fixed",
-          bottom: 0,
-          left: 0,
-          right: 0,
-          zIndex: 10001,
-        }}
+        exit={{ opacity: 0, y: 60 }}
+        transition={{ type: "spring", stiffness: 280, damping: 28 }}
+        style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 10001 }}
         className="bg-white rounded-t-3xl shadow-2xl border-t border-gray-100 p-5 pb-8 select-none"
+        onClick={(e) => e.stopPropagation()}
       >
-        <TooltipContent
-          step={step}
-          onNext={onNext}
-          onPrev={onPrev}
-          onClose={onClose}
-          isFirst={isFirst}
-          isLast={isLast}
-          current={current}
-          total={total}
-        />
+        <div className="w-10 h-1 bg-gray-200 rounded-full mx-auto mb-4" />
+        <TooltipBody {...bodyProps} />
       </motion.div>
     );
   }
 
-  // Desktop: position relative to spotlight rect
-  const tooltipW = TOOLTIP_MAX_W;
-  const tooltipH = 230;
-  const vw = window.innerWidth;
-  const vh = window.innerHeight;
-
+  // ── Desktop: absolutely positioned float ──
+  const vh       = window.innerHeight;
+  const tooltipH = 240;
   let top, left;
 
   if (!rect) {
-    // Centered
-    top  = vh / 2 - tooltipH / 2 + window.scrollY;
-    left = vw / 2 - tooltipW / 2;
+    top  = window.scrollY + vh / 2 - tooltipH / 2;
+    left = Math.max(12, window.innerWidth / 2 - TOOLTIP_W / 2);
   } else {
     const spaceBelow = vh - rect.vpBottom;
     const spaceAbove = rect.vpTop;
@@ -168,12 +238,11 @@ const Tooltip = ({ step, rect, onNext, onPrev, onClose, isFirst, isLast, current
     } else if (spaceAbove >= tooltipH + 16) {
       top = rect.top - tooltipH - 14;
     } else {
-      // Not enough room above or below — centre vertically on screen
       top = window.scrollY + vh / 2 - tooltipH / 2;
     }
 
-    left = rect.left + rect.width / 2 - tooltipW / 2;
-    left = Math.max(12, Math.min(left, vw - tooltipW - 12));
+    left = rect.left + rect.width / 2 - TOOLTIP_W / 2;
+    left = Math.max(12, Math.min(left, window.innerWidth - TOOLTIP_W - 12));
   }
 
   return (
@@ -182,98 +251,17 @@ const Tooltip = ({ step, rect, onNext, onPrev, onClose, isFirst, isLast, current
       initial={{ opacity: 0, y: 10, scale: 0.97 }}
       animate={{ opacity: 1, y: 0,  scale: 1 }}
       exit={{ opacity: 0,   y: -6,  scale: 0.97 }}
-      transition={{ duration: 0.22 }}
-      style={{
-        position: "absolute",
-        top,
-        left,
-        width: tooltipW,
-        zIndex: 10001,
-      }}
+      transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+      style={{ position: "absolute", top, left, width: TOOLTIP_W, zIndex: 10001 }}
       className="bg-white rounded-3xl shadow-2xl border border-gray-100 p-5 select-none"
+      onClick={(e) => e.stopPropagation()}
     >
-      <TooltipContent
-        step={step}
-        onNext={onNext}
-        onPrev={onPrev}
-        onClose={onClose}
-        isFirst={isFirst}
-        isLast={isLast}
-        current={current}
-        total={total}
-      />
+      <TooltipBody {...bodyProps} />
     </motion.div>
   );
 };
 
-// ─── Shared tooltip body ─────────────────────────────────────────────────────
-const TooltipContent = ({ step, onNext, onPrev, onClose, isFirst, isLast, current, total }) => (
-  <>
-    {/* Progress dots */}
-    <div className="flex items-center justify-between mb-4">
-      <div className="flex gap-1.5 flex-wrap">
-        {Array.from({ length: total }).map((_, i) => (
-          <div
-            key={i}
-            className={`h-1.5 rounded-full transition-all duration-300 ${
-              i === current ? "w-5 bg-gray-900" : "w-1.5 bg-gray-200"
-            }`}
-          />
-        ))}
-      </div>
-      <button
-        onClick={onClose}
-        className="p-1.5 rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-700 transition-colors shrink-0 ml-2"
-      >
-        <X size={14} />
-      </button>
-    </div>
-
-    {/* Icon + content */}
-    <div className="flex gap-3 mb-5">
-      <div className="w-10 h-10 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center text-lg flex-shrink-0">
-        {step.icon}
-      </div>
-      <div>
-        <h3 className="text-[15px] font-bold text-gray-900 mb-1 leading-tight">{step.title}</h3>
-        <p className="text-[13px] text-gray-500 leading-relaxed">{step.desc}</p>
-      </div>
-    </div>
-
-    {/* Step counter label */}
-    <p className="text-[11px] text-gray-300 font-mono mb-3">
-      {current + 1} / {total}
-    </p>
-
-    {/* Nav */}
-    <div className="flex items-center justify-between">
-      <button
-        onClick={onClose}
-        className="text-[12px] text-gray-400 hover:text-gray-600 transition-colors font-medium"
-      >
-        Skip tour
-      </button>
-      <div className="flex gap-2">
-        {!isFirst && (
-          <button
-            onClick={onPrev}
-            className="flex items-center gap-1 px-3 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-600 text-[12px] font-semibold transition-all"
-          >
-            <ChevronLeft size={13} /> Back
-          </button>
-        )}
-        <button
-          onClick={onNext}
-          className="flex items-center gap-1 px-4 py-2 rounded-xl bg-gray-900 hover:bg-gray-800 text-white text-[12px] font-semibold transition-all active:scale-95"
-        >
-          {isLast ? "Done ✓" : "Next"} {!isLast && <ChevronRight size={13} />}
-        </button>
-      </div>
-    </div>
-  </>
-);
-
-// ─── Main tutorial overlay ────────────────────────────────────────────────────
+// ─── Main overlay ─────────────────────────────────────────────────────────────
 const DashboardTutorial = ({ onClose }) => {
   const [current, setCurrent] = useState(0);
   const [rect, setRect]       = useState(null);
@@ -286,8 +274,7 @@ const DashboardTutorial = ({ onClose }) => {
 
     if (r) {
       const isMobile = window.innerWidth < 640;
-      // On mobile leave room for the bottom sheet tooltip (~240px)
-      const offset = isMobile ? window.innerHeight * 0.35 : window.innerHeight / 2;
+      const offset   = isMobile ? window.innerHeight * 0.5 : window.innerHeight / 2;
       window.scrollTo({
         top: Math.max(0, r.top - offset + r.height / 2),
         behavior: "smooth",
@@ -298,9 +285,13 @@ const DashboardTutorial = ({ onClose }) => {
   }, [step.target]);
 
   useEffect(() => {
-    updateRect();
+    // Small delay so DOM has settled after step change
+    const t = setTimeout(updateRect, 80);
     window.addEventListener("resize", updateRect);
-    return () => window.removeEventListener("resize", updateRect);
+    return () => {
+      clearTimeout(t);
+      window.removeEventListener("resize", updateRect);
+    };
   }, [updateRect]);
 
   const handleNext = () => {
@@ -309,24 +300,16 @@ const DashboardTutorial = ({ onClose }) => {
   };
   const handlePrev = () => setCurrent((c) => c - 1);
 
-  // Skip steps whose target element doesn't exist in the DOM
-  // (e.g., no portfolios yet → first-card, card-actions, view-btn, edit-btn won't exist)
-  useEffect(() => {
-    if (step.target && !document.getElementById(step.target)) {
-      // Auto-advance past steps with missing targets
-      if (current < STEPS.length - 1) setCurrent((c) => c + 1);
-    }
-  }, [current, step.target]);
-
   return (
     <AnimatePresence>
       <div style={{ position: "absolute", inset: 0, zIndex: 10000, pointerEvents: "none" }}>
 
-        {/* ── Overlay / spotlight ── */}
+        {/* ── Dark overlay with spotlight cutout ── */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
+          transition={{ duration: 0.25 }}
           style={{ position: "fixed", inset: 0, zIndex: 10000, pointerEvents: "auto" }}
           onClick={onClose}
         >
@@ -336,36 +319,22 @@ const DashboardTutorial = ({ onClose }) => {
                 <mask id="spotlight-mask">
                   <rect width="100%" height="100%" fill="white" />
                   <rect
-                    x={rect.left}
-                    y={rect.top}
-                    width={rect.width}
-                    height={rect.height}
-                    rx="14"
-                    fill="black"
+                    x={rect.left} y={rect.top}
+                    width={rect.width} height={rect.height}
+                    rx="14" fill="black"
                   />
                 </mask>
               </defs>
+              <rect width="100%" height="100%" fill="rgba(0,0,0,0.7)" mask="url(#spotlight-mask)" />
               <rect
-                width="100%"
-                height="100%"
-                fill="rgba(0,0,0,0.68)"
-                mask="url(#spotlight-mask)"
-              />
-              {/* Glowing ring around spotlight */}
-              <rect
-                x={rect.left}
-                y={rect.top}
-                width={rect.width}
-                height={rect.height}
-                rx="14"
-                fill="none"
-                stroke="white"
-                strokeWidth="1.5"
-                strokeOpacity="0.3"
+                x={rect.left} y={rect.top}
+                width={rect.width} height={rect.height}
+                rx="14" fill="none"
+                stroke="white" strokeWidth="1.5" strokeOpacity="0.25"
               />
             </svg>
           ) : (
-            <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.68)" }} />
+            <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.7)" }} />
           )}
         </motion.div>
 
@@ -388,6 +357,7 @@ const DashboardTutorial = ({ onClose }) => {
             </AnimatePresence>
           </div>
         </div>
+
       </div>
     </AnimatePresence>
   );
