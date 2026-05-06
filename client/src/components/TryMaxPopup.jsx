@@ -45,8 +45,8 @@ const TryMaxPopup = ({ onClose, onLogin }) => {
             <div className="text-center relative z-10 px-6">
                 {/* Small glowing icon above text */}
                 <div className="mb-3 flex justify-center">
-                    <div className="p-2 rounded-full bg-white/20 backdrop-blur-md shadow-[0_0_20px_rgba(255,255,255,0.3)]">
-                         <img src="/FYX/BlackClearBGNew.png" className="w-20 brightness-1000 invert-90"/>
+                    <div className="p-2  bg-white/0 ">
+                         <img src="/FYX/BlackClearBGNew.png" className="w-18 brightness-200"/>
                     </div>
                 </div>
                 {/* Main Text with Glow Shadow */}

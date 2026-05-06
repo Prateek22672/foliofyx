@@ -4,10 +4,10 @@ import { Search, RefreshCcw, Filter, Sparkles } from "lucide-react";
 
 const C = {
   lavender: "#cb9fd2",
-  indigo:   "#5551ff",
-  peach:    "#ffc9c1",
-  mint:     "#24cb71",
-  violet:   "#874fff",
+  indigo: "#5551ff",
+  peach: "#ffc9c1",
+  mint: "#24cb71",
+  violet: "#874fff",
 };
 
 const useIsMobile = (breakpoint = 768) => {
@@ -54,38 +54,38 @@ const LeftCollagePanel = () => (
   >
 
     {/* Wordmark Container */}
-<motion.div 
-  variants={fadeUp} 
-  style={{ 
-    display: "flex", 
-    alignItems: "center", 
-    justifyContent: "flex-end", // ✅ This pushes the contents to the right
-    gap: 10,
-    width: "100%",             // ✅ Ensures it takes up the full width of the card
-    marginBottom: 16            // Adds space between badge and content below
-  }}
->
-  {/* The Mint Dot */}
-  <div style={{ 
-    width: 8, 
-    height: 8, 
-    borderRadius: "50%", 
-    background: C.mint, 
-    flexShrink: 0 
-  }} />
+    <motion.div
+      variants={fadeUp}
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "flex-end", // ✅ This pushes the contents to the right
+        gap: 10,
+        width: "100%",             // ✅ Ensures it takes up the full width of the card
+        marginBottom: 16            // Adds space between badge and content below
+      }}
+    >
+      {/* The Mint Dot */}
+      <div style={{
+        width: 8,
+        height: 8,
+        borderRadius: "50%",
+        background: C.mint,
+        flexShrink: 0
+      }} />
 
-  {/* The Logo Image */}
-  <img
-    src="FYX/BlackClearBGNew.png"
-    alt="Foliofyx Studio Logo"
-    style={{ 
-      width: 80,               // Scaled down slightly to fit better in a 220px card
-      height: "auto", 
-      objectFit: "contain" 
-    }}
-    className="brightness-0 invert" // Ensures it shows up white on the indigo background
-  />
-</motion.div>
+      {/* The Logo Image */}
+      <img
+        src="FYX/BlackClearBGNew.png"
+        alt="Foliofyx Studio Logo"
+        style={{
+          width: 80,               // Scaled down slightly to fit better in a 220px card
+          height: "auto",
+          objectFit: "contain"
+        }}
+        className="brightness-0 invert" // Ensures it shows up white on the indigo background
+      />
+    </motion.div>
     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
       <span style={{ color: "#fff", fontWeight: 800, fontSize: 15, letterSpacing: "-0.02em" }}>Discover</span>
       <div style={{ display: "flex", gap: 6 }}>
@@ -127,16 +127,16 @@ const Particle = ({ x, y, color, dx, dy }) => (
 
 /* ── Interactive Right Collage Panel ── */
 const RightCollagePanel = ({ onPreviewClick }) => {
-  const [isHovered, setIsHovered]   = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
   const [activeTheme, setActiveTheme] = useState(0);
-  const [particles, setParticles]   = useState([]);
-  const [likeCount, setLikeCount]   = useState(247);
-  const [liked, setLiked]           = useState(false);
+  const [particles, setParticles] = useState([]);
+  const [likeCount, setLikeCount] = useState(247);
+  const [liked, setLiked] = useState(false);
 
   const previewThemes = [
     { name: "Veloura", sub: "Creative — Gradient", color: C.violet },
-    { name: "Plexis",  sub: "Developer — Dark",    color: C.indigo },
-    { name: "Luxe",    sub: "Premium — Bold",       color: "#e8a045" },
+    { name: "Plexis", sub: "Developer — Dark", color: C.indigo },
+    { name: "Luxe", sub: "Premium — Bold", color: "#e8a045" },
   ];
 
   /* cycle themes while hovered */
@@ -172,7 +172,7 @@ const RightCollagePanel = ({ onPreviewClick }) => {
 
   return (
 
-  
+
     <motion.div
       initial={{ opacity: 0, y: 40, rotate: 3 }}
       animate={{ opacity: 1, y: 0, rotate: isHovered ? 1 : 3 }}
@@ -191,7 +191,7 @@ const RightCollagePanel = ({ onPreviewClick }) => {
         transition: "box-shadow 0.3s",
       }}
     >
-      
+
       {/* Particles */}
       {particles.map(p => <Particle key={p.id} x={p.x} y={p.y} color={p.color} dx={p.dx} dy={p.dy} />)}
 
@@ -387,7 +387,7 @@ const themeTags = ["Minimal", "Modern", "Developer", "Dark Mode", "Creative", "S
 ───────────────────────────────────────────── */
 const ThemesLandingHero = ({
   searchTerm = "",
-  setSearchTerm = () => {},
+  setSearchTerm = () => { },
   onBrowseThemes,
   onPreviewFirst,
 }) => {
@@ -407,9 +407,9 @@ const ThemesLandingHero = ({
 
       {/* Marquee BG */}
       <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", justifyContent: "center", gap: "1.2rem", pointerEvents: "none", zIndex: 0, overflow: "hidden" }}>
-        <MarqueeRow direction="left"  speed={32} />
+        <MarqueeRow direction="left" speed={32} />
         <MarqueeRow direction="right" speed={44} />
-        <MarqueeRow direction="left"  speed={38} />
+        <MarqueeRow direction="left" speed={38} />
       </div>
 
       {/* Desktop collage panels */}
@@ -427,30 +427,32 @@ const ThemesLandingHero = ({
       >
 
         {/* Headline */}
-<h1 style={{ 
-  fontSize: isMobile ? "clamp(2rem, 10vw, 2.8rem)" : "clamp(2.8rem, 5vw, 4.6rem)", 
-  lineHeight: 1.08, 
-  letterSpacing: "-0.035em", 
-  color: "#0a0a0a", 
-  // ✅ Dynamic margin: 40px top for mobile, 0px top for desktop
-  margin: isMobile ? "40px 0 20px" : "0 0 20px", 
-  fontFamily: "'Georgia', serif" 
-}}>
-  {["Discover", "Top", "Designs", "for", "Your", "Portfolio"].map((word, i) => (
-    <motion.span key={i} variants={fadeUp} style={{ display: "inline-block", marginRight: "0.26em" }}>
-      {word === "Designs" ? (
-        <span style={{ 
-          background: `linear-gradient(135deg, #5551ff 0%, #cb9fd2 50%, #874fff 100%)`, 
-          WebkitBackgroundClip: "text", 
-          WebkitTextFillColor: "transparent", 
-          backgroundClip: "text" 
+        <h1 style={{
+          fontSize: isMobile ? "clamp(2rem, 10vw, 2.8rem)" : "clamp(2.8rem, 5vw, 4.6rem)",
+          lineHeight: 1.08,
+          letterSpacing: "-0.035em",
+          color: "#0a0a0a",
+          // ✅ Dynamic margin: 40px top for mobile, 0px top for desktop
+          margin: isMobile ? "40px 0 20px" : "0 0 20px",
+          fontFamily: "'Georgia', serif"
         }}>
-          {word}
-        </span>
-      ) : word}
-    </motion.span>
-  ))}
-</h1>
+          {["Discover", "Top", "Designs", "for", "Your", "Portfolio"].map((word, i) => (
+            <motion.span key={i} variants={fadeUp} style={{ display: "inline-block", marginRight: "0.26em" }}>
+              {word === "Designs" ? (
+                <span
+                  style={{
+                    background: `linear-gradient(135deg, #5551ff 0%, #a374ff 50%, #874fff 100%)`,
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    backgroundClip: "text",
+                  }}
+                >
+                  {word}
+                </span>
+              ) : word}
+            </motion.span>
+          ))}
+        </h1>
         {/* Subtitle */}
         <motion.p variants={fadeUp} style={{ fontSize: isMobile ? 15 : 17, lineHeight: 1.7, color: "#666", maxWidth: isMobile ? "100%" : 500, margin: "0 0 32px", fontFamily: "-apple-system, sans-serif", fontWeight: 400 }}>
           Handcrafted templates for developers, designers, and students.
