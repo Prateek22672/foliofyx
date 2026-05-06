@@ -99,18 +99,14 @@ const Footer = () => {
 
           {/* Social Icons */}
           <div className="flex space-x-5 mb-4 md:mb-0">
-            <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">
-                <FaFacebook className="hover:text-[#0d355c] transition-colors duration-200 cursor-pointer text-lg" />
-            </a>
-            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">
+
+            <a href="https://www.instagram.com/foliofyx" target="_blank" rel="noopener noreferrer">
                 <FaInstagram className="hover:text-[#0d355c] transition-colors duration-200 cursor-pointer text-lg" />
             </a>
-            <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer">
+            <a href="https://www.linkedin.com/company/foliofyx" target="_blank" rel="noopener noreferrer">
                 <FaLinkedin className="hover:text-[#0d355c] transition-colors duration-200 cursor-pointer text-lg" />
             </a>
-            <a href="https://youtube.com" target="_blank" rel="noopener noreferrer">
-                <FaYoutube className="hover:text-[#0d355c] transition-colors duration-200 cursor-pointer text-lg" />
-            </a>
+
             <a href="https://github.com/Prateek22672" target="_blank" rel="noopener noreferrer">
                 <FaGithub className="hover:text-[#0d355c] transition-colors duration-200 cursor-pointer text-lg" />
             </a>

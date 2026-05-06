@@ -177,6 +177,11 @@ export default function SectionHero({ message, handleNavigation }) {
             )}
 
             <h1 className={`text-5xl sm:text-6xl md:text-8xl font-black leading-[0.9] mb-8 mt-10 ${textColor} tracking-tighter uppercase relative`}>
+              <h2 className={`text-sm md:text-sm mt-4 font-medium tracking-wide ${
+  isDarkBg ? "text-white/60" : "text-black/60"
+}`}>
+  Resume to Portfolio Website Builder for Students & Developers
+</h2>
               <div>{fadeWords("BUILD A PORTFOLIO")}</div>
               <div className="mt-2">
                 {fadeWords("THAT GETS YOU HIRED.", shimmerStyle)}
@@ -184,7 +189,7 @@ export default function SectionHero({ message, handleNavigation }) {
             </h1>
 
             <p className={`text-base sm:text-lg md:text-xl ${isDarkBg ? "text-white/80" : "text-black/80"} max-w-2xl mx-auto mb-10 font-normal leading-relaxed`}>
-              {fadeWords("Stop sending boring PDF resumes. Create a stunning, AI-powered portfolio website in minutes. Stand out from the crowd.")}
+              {fadeWords("Stop sending boring PDF resumes. Create a stunning, AI-powered portfolio website in minutes with FolioFYX. Stand out from the crowd.")}
             </p>
 
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1, duration: 0.8 }} className="flex flex-col sm:flex-row w-full sm:w-auto gap-5 items-center justify-center">

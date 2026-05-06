@@ -39,6 +39,7 @@ import CustomCursor from "./components/CustomCursor";
 import ChatWidget from "./chatbot/ChatWidget"; 
 import WixAboutPage from "./pages/WixAbout/WixAboutPage";
 import CsStudentTemplates from "./pages/themes/CsStudentTemplates";
+import ResumeToPortfolio from "./pages/ResumeToPortfolio";
 
 function App() {
   const location = useLocation();
@@ -77,8 +78,7 @@ function App() {
             />
           )}
 
-          {/* GLOBAL UI ELEMENTS (Mounted when app is ready) */}
-          {/* Note: CustomCursor is placed outside SmoothScroll to stay fixed to viewport */}
+          {/* GLOBAL UI ELEMENTS */}
           {isAppReady && <CustomCursor />}
           {isAppReady && !hideGlobalWidget && <ChatWidget />}
 
@@ -91,13 +91,17 @@ function App() {
 
                 <Routes>
                   {/* ==================================================== */}
-                  {/* 🔓 OPEN ROUTES (Accessible by everyone)              */}
+                  {/* 🔓 OPEN ROUTES                                     */}
                   {/* ==================================================== */}
                   <Route path="/" element={<Landing />} />
                   <Route path="/portfolio/:id" element={<PortfolioView />} />
                   <Route path="/demo/:templateKey" element={<DemoView />} />
                   <Route path="/designs" element={<ThemesPage />} />
+                  
+                  {/* Both About and Contact point to the same page */}
                   <Route path="/about" element={<AboutContactPage />} />
+                  <Route path="/contact" element={<AboutContactPage />} />
+
                   <Route path="/release" element={<NewRelease />} />
                   <Route path="/talent" element={<FindTalent />} />
                   <Route path="/Benefits" element={<Pricing />} />
@@ -106,9 +110,16 @@ function App() {
                   <Route path="/testing" element={<WixAboutPage/>}/>
                   <Route path="/templates/cs-students" element={<CsStudentTemplates />} />
 
+                  {/* SEO ROUTES - ALL MAPPED TO ResumeToPortfolio */}
+                  <Route path="/resume-to-portfolio" element={<ResumeToPortfolio />} />
+                  <Route path="/portfolio-builder-for-students" element={<ResumeToPortfolio />} />
+                  <Route path="/developer-portfolio-builder" element={<ResumeToPortfolio />} />
+                  <Route path="/free-portfolio-website" element={<ResumeToPortfolio />} />
+                  <Route path="/resume-to-website" element={<ResumeToPortfolio />} />
+                  <Route path="/portfolio-templates" element={<ResumeToPortfolio />} />
+
                   {/* ==================================================== */}
-                  {/* 🚫 PUBLIC ROUTES (Only if NOT logged in)             */}
-                  {/* Redirects to /dashboard if user is already logged in */}
+                  {/* 🚫 PUBLIC ROUTES (Only if NOT logged in)            */}
                   {/* ==================================================== */}
                   <Route element={<PublicRoute />}>
                     <Route path="/login" element={<Login />} />
@@ -116,8 +127,7 @@ function App() {
                   </Route>
 
                   {/* ==================================================== */}
-                  {/* 🔒 PROTECTED ROUTES (Only if logged in)               */}
-                  {/* Redirects to /login if user is not logged in          */}
+                  {/* 🔒 PROTECTED ROUTES (Only if logged in)              */}
                   {/* ==================================================== */}
                   <Route element={<ProtectedRoute />}>
                     <Route path="/dashboard" element={<Dashboard />} />
@@ -125,7 +135,6 @@ function App() {
                     <Route path="/profile" element={<UserProfile />} />
                     <Route path="/checkout/:planId" element={<Checkout />} />
                     
-                    {/* Complex Protected Route */}
                     <Route
                       path="/customize/:template" 
                       element={

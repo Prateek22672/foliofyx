@@ -3,39 +3,75 @@
   xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
 
+  <!-- PRIMARY LANDING PAGES (Priority 1.0) -->
   <url>
     <loc>https://foliofyx.in/</loc>
     <priority>1.0</priority>
   </url>
-
   <url>
-    <loc>https://foliofyx.in/templates</loc>
+    <loc>https://foliofyx.in/resume-to-portfolio</loc>
+    <priority>1.0</priority>
+  </url>
+
+  <!-- KEYWORD-SPECIFIC SEO ROUTES (Priority 0.9) -->
+  <!-- These target high-volume "Free" and "Student" searches -->
+  <url>
+    <loc>https://foliofyx.in/free-portfolio-website</loc>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://foliofyx.in/portfolio-builder-for-students</loc>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://foliofyx.in/developer-portfolio-builder</loc>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://foliofyx.in/resume-to-website</loc>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://foliofyx.in/portfolio-templates</loc>
     <priority>0.9</priority>
   </url>
 
+  <!-- SECONDARY CORE PAGES (Priority 0.8) -->
+  <url>
+    <loc>https://foliofyx.in/designs</loc>
+    <priority>0.8</priority>
+  </url>
   <url>
     <loc>https://foliofyx.in/talent</loc>
-    <priority>0.9</priority>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://foliofyx.in/templates/cs-students</loc>
+    <priority>0.8</priority>
   </url>
 
+  <!-- UTILITY PAGES (Priority 0.7) -->
   <url>
     <loc>https://foliofyx.in/about</loc>
-    <priority>0.8</priority>
+    <priority>0.7</priority>
   </url>
-
   <url>
     <loc>https://foliofyx.in/contact</loc>
-    <priority>0.8</priority>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://foliofyx.in/Benefits</loc>
+    <priority>0.7</priority>
   </url>
 
+  <!-- AUTH PAGES (Priority 0.5) -->
   <url>
     <loc>https://foliofyx.in/login</loc>
-    <priority>0.6</priority>
+    <priority>0.5</priority>
   </url>
-
   <url>
     <loc>https://foliofyx.in/signup</loc>
-    <priority>0.6</priority>
+    <priority>0.5</priority>
   </url>
 
 </urlset>

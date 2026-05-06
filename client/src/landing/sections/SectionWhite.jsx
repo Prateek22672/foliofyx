@@ -32,45 +32,45 @@ const Cursor = () => {
 // --- SEO OPTIMIZED DATA ---
 // NOTE: For best results, rename your actual files in the public folder to match the 'fileName' suggestion below.
 const CARDS = [
-  { 
-    id: 1, 
-    title: "The 6-Second Rule", 
-    desc: "Recruiters spend an average of 6 seconds on a resume.", 
-    bg: "bg-[#111]", 
-    text: "text-white", 
+  {
+    id: 1,
+    title: "The 6-Second Rule",
+    desc: "Recruiters spend an average of 6 seconds on a resume.",
+    bg: "bg-[#111]",
+    text: "text-white",
     img: "/image.png", // RECOMMENDATION: Rename file to 'foliofyx-resume-comparison.png'
     altText: "FolioFYX digital portfolio comparison against traditional PDF resumes",
-    tag: "Problem" 
+    tag: "Problem"
   },
-  { 
-    id: 2, 
-    title: "Show, Don't Just Tell", 
-    desc: "Interactive case studies and live demos build trust instantly.", 
-    bg: "bg-[#111]", 
-    text: "text-white", 
+  {
+    id: 2,
+    title: "Show, Don't Just Tell",
+    desc: "Interactive case studies and live demos build trust instantly.",
+    bg: "bg-[#111]",
+    text: "text-white",
     img: "/image2.jpg", // RECOMMENDATION: Rename file to 'foliofyx-interactive-case-study.jpg'
     altText: "Interactive case studies and live demos on a FolioFYX website",
-    tag: "Solution" 
+    tag: "Solution"
   },
-  { 
-    id: 3, 
-    title: "Zero-Code Magic", 
-    desc: "We handle the code, hosting, and design.", 
-    bg: "bg-[#111]", 
-    text: "text-white", 
+  {
+    id: 3,
+    title: "Zero-Code Magic",
+    desc: "We handle the code, hosting, and design.",
+    bg: "bg-[#111]",
+    text: "text-white",
     img: "/image1.png", // RECOMMENDATION: Rename file to 'foliofyx-no-code-builder.png'
     altText: "FolioFYX no-code dashboard for building personal websites",
-    tag: "Speed" 
+    tag: "Speed"
   },
-  { 
-    id: 4, 
-    title: "Always Responsive", 
-    desc: "Your work looks perfect on every device.", 
-    bg: "bg-[#111]", 
-    text: "text-white", 
+  {
+    id: 4,
+    title: "Always Responsive",
+    desc: "Your work looks perfect on every device.",
+    bg: "bg-[#111]",
+    text: "text-white",
     img: "/themes/image_landing.jpg", // RECOMMENDATION: Rename to 'foliofyx-mobile-responsive-templates.jpg'
     altText: "FolioFYX portfolio templates displayed on mobile and desktop devices",
-    tag: "Quality" 
+    tag: "Quality"
   },
 ];
 
@@ -82,7 +82,7 @@ export default function SectionWhite({ handleNavigation, scrollProgress }) {
   const updateMaxX = useCallback(() => {
     if (!trackRef.current) return;
     // We add a small buffer (50px) to ensure the last card is fully cleared
-    const total = trackRef.current.scrollWidth + 50; 
+    const total = trackRef.current.scrollWidth + 50;
     const vw = window.innerWidth;
     setMaxX(total - vw);
   }, []);
@@ -111,9 +111,9 @@ export default function SectionWhite({ handleNavigation, scrollProgress }) {
 
           {/* HEADER */}
           <div className="px-6 md:px-16 mb-6 md:mb-8 shrink-0 ">
-            <motion.span 
-              initial={{ opacity: 0, y: 10 }} 
-              whileInView={{ opacity: 1, y: 0 }} 
+            <motion.span
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.2 }}
               className="inline-block px-4 py-1 absolute right-7 top-10 rounded-full border border-black/10 bg-black/5 text-[10px] md:text-xs font-bold uppercase mb-4"
             >
@@ -121,9 +121,9 @@ export default function SectionWhite({ handleNavigation, scrollProgress }) {
             </motion.span>
 
             <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-4">
-              <motion.h2 
-                initial={{ opacity: 0, y: 20 }} 
-                whileInView={{ opacity: 1, y: 0 }} 
+              <motion.h2
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.8, delay: 0.2 }}
                 className="text-4xl pt-7 sm:text-5xl md:text-8xl font-medium tracking-tighter leading-[0.9]"
@@ -148,11 +148,11 @@ export default function SectionWhite({ handleNavigation, scrollProgress }) {
           <div className="pl-6 md:pl-16 pt-2 overflow-hidden h-[65vh] flex items-center">
             <motion.div
               ref={trackRef}
-              style={{ x }} 
+              style={{ x }}
               className="flex gap-4 md:gap-5 w-max will-change-transform"
             >
               {/* INTRO CARD */}
-              <motion.div 
+              <motion.div
                 whileHover={{ scale: 1.02 }}
                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 // HEIGHT: 55vh Mobile / 60vh Desktop
@@ -206,24 +206,39 @@ export default function SectionWhite({ handleNavigation, scrollProgress }) {
               ))}
 
               {/* CTA CARD */}
-              <motion.div
-                onClick={() => handleNavigation("/create")}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                // HEIGHT: 55vh Mobile / 60vh Desktop
-                className="w-[85vw] sm:w-[280px] md:w-[290px] h-[55vh] md:h-[60vh] bg-[#0d0d82] text-white
-                rounded-[30px] md:rounded-[40px] shrink-0 flex flex-col items-center justify-center text-center cursor-pointer
-                hover:bg-[#0a0a65] transition-all duration-300 shadow-lg hover:shadow-2xl"
+
+              <motion.a
+                href="/create"
+                whileHover={{ scale: 1.02 }}
+                transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                className="w-[85vw] sm:w-[420px] md:w-[520px] h-[55vh] md:h-[60vh]
+  bg-white border border-neutral-200 rounded-[30px] md:rounded-[40px]
+  shrink-0 overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 flex flex-col justify-between p-8"
               >
-                <h3 className="text-3xl md:text-5xl font-bold mb-4">Ready?</h3>
-                <p className="text-white/70 mb-6 max-w-[200px] md:max-w-xs text-xs md:text-sm font-medium">
-                  Join thousands of professionals who switched to FolioFyX.
-                </p>
-                <button className="bg-white text-[#0d0d82] px-6 py-3 md:px-8 md:py-3 rounded-full font-bold text-xs md:text-sm hover:scale-105 transition-transform duration-200 shadow-md">
-                  Build My Portfolio
-                </button>
-              </motion.div>
+                <div>
+                  <span className="text-[10px] md:text-xs uppercase tracking-[0.2em] text-neutral-400 font-bold">
+                    Resume to Portfolio
+                  </span>
+
+                  <h2 className="text-xl md:text-3xl font-semibold mt-5 leading-tight text-black">
+                    Convert Your Resume into a Portfolio Website
+                  </h2>
+
+                  <p className="text-neutral-500 text-sm md:text-base mt-6 leading-relaxed max-w-md">
+                    Upload your resume and instantly generate a professional portfolio website with premium templates, customization, and free hosting.
+                  </p>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-black font-semibold">
+                    Explore Feature
+                  </span>
+
+                  <div className="w-12 h-12 rounded-full bg-black text-white flex items-center justify-center text-xl">
+                    ↗
+                  </div>
+                </div>
+              </motion.a>
               <div className="w-[5vw] shrink-0" />
             </motion.div>
           </div>
