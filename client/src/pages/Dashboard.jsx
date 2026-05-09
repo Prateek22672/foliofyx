@@ -177,7 +177,7 @@ const Dashboard = () => {
               <motion.button
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
-                onClick={() => navigate("/create")}
+                onClick={() => navigate("/designs")}
                 className="flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-full border-2 border-black text-black font-semibold text-sm hover:bg-black hover:text-white transition-all duration-200 shadow-sm"
               >
                 <LayoutTemplate size={17} />

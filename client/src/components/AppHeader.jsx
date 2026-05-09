@@ -71,7 +71,7 @@ const AppHeader = () => {
   // Nav links — swap Home → MyDashboard when logged in (desktop only)
   const baseNavLinks = ['Home', 'Designs', 'Talent', 'Benefits', 'About'];
   const desktopNavLinks = user
-    ? ['MyDashboard', 'Designs', 'Talent', 'Benefits', 'About']
+    ? [ 'Designs', 'Talent', 'Benefits', 'About','MyDashboard']
     : baseNavLinks;
 
   const getPath = (item) => {
@@ -165,7 +165,7 @@ const AppHeader = () => {
                   className="hidden md:flex absolute left-1/2 -translate-x-1/2"
                 >
                   <div className={`
-                    flex items-center h-[34px] p-[3px] rounded-full border transition-colors duration-300
+                    flex items-center h-[38px] p-[3px] rounded-full border transition-colors duration-300
                     ${hasScrolled ? "bg-gray-100/80 border-gray-200" : "bg-white/10 border-white/5"}
                   `}>
                     {desktopNavLinks.map((item) => {

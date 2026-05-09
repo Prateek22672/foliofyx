@@ -101,7 +101,7 @@ const SplashScreen = ({ onFinish, onStartExiting }) => {
             />
           </div>
 
-          <p className="text-gray-400 text-[10px] tracking-[0.4em] uppercase animate-pulse">
+          <p className="text-gray-400 text-[9px] tracking-[0.4em] uppercase animate-pulse">
             Bringing The Best Experience To You...
           </p>
         </div>

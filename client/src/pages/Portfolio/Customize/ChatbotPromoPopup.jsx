@@ -104,7 +104,7 @@ const ChatbotPromoPopup = ({ onClose, onEnable }) => {
                  className="flex justify-end"
                >
                   <div className="bg-blue-50 border border-blue-100 px-4 py-2.5 rounded-2xl rounded-br-none text-xs text-blue-800 font-medium max-w-[90%] flex items-start gap-2 shadow-sm">
-                     <Sparkles size={12} className="mt-0.5 text-blue-500 shrink-0" />
+                     <img src="/iconlogo/ai.png" alt="AI" className="w-4 mt-0 filter " />
                      <span>Yes! {portfolioData.name?.split(' ')[0] || "They"} are currently open to new projects.</span>
                   </div>
                </motion.div>
@@ -133,7 +133,7 @@ const ChatbotPromoPopup = ({ onClose, onEnable }) => {
                         </>
                       ) : (
                         <>
-                          <Sparkles size={16} className="text-purple-400 group-hover:text-purple-300 transition-colors" />
+                          <img src="/iconlogo/ai.png" alt="AI" className="w-4 mt-0 filter invert" />
                           Enable for My Website
                         </>
                       )}

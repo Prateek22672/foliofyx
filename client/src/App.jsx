@@ -44,9 +44,13 @@ import ResumeToPortfolio from "./pages/ResumeToPortfolio";
 function App() {
   const location = useLocation();
   
-  // 1. Splash Screen Logic
-  const [showSplash, setShowSplash] = useState(location.pathname === "/"); 
-  const [isAppReady, setIsAppReady] = useState(!showSplash);
+  /**
+   * 1. UNIVERSAL SPLASH LOGIC
+   * We set showSplash to true by default so it triggers on ANY route refresh.
+   * isAppReady remains false until the splash screen curtain is fully covering the screen.
+   */
+  const [showSplash, setShowSplash] = useState(true); 
+  const [isAppReady, setIsAppReady] = useState(false);
 
   // 2. Hide Header Logic
   const hideHeader =
@@ -70,7 +74,11 @@ function App() {
       <SplashProvider>
         <ChatbotProvider>
 
-          {/* SPLASH SCREEN */}
+          {/* 
+              SPLASH SCREEN 
+              onStartExiting: Called when loading bar is done. Mounts the app behind the curtain.
+              onFinish: Called when sweep-out animation is done. Unmounts the splash component.
+          */}
           {showSplash && (
             <SplashScreen 
               onStartExiting={() => setIsAppReady(true)} 
@@ -78,7 +86,7 @@ function App() {
             />
           )}
 
-          {/* GLOBAL UI ELEMENTS */}
+          {/* GLOBAL UI ELEMENTS - Only show when app is ready underneath */}
           {isAppReady && <CustomCursor />}
           {isAppReady && !hideGlobalWidget && <ChatWidget />}
 
@@ -98,7 +106,6 @@ function App() {
                   <Route path="/demo/:templateKey" element={<DemoView />} />
                   <Route path="/designs" element={<ThemesPage />} />
                   
-                  {/* Both About and Contact point to the same page */}
                   <Route path="/about" element={<AboutContactPage />} />
                   <Route path="/contact" element={<AboutContactPage />} />
 
@@ -110,7 +117,7 @@ function App() {
                   <Route path="/testing" element={<WixAboutPage/>}/>
                   <Route path="/templates/cs-students" element={<CsStudentTemplates />} />
 
-                  {/* SEO ROUTES - ALL MAPPED TO ResumeToPortfolio */}
+                  {/* SEO ROUTES */}
                   <Route path="/resume-to-portfolio" element={<ResumeToPortfolio />} />
                   <Route path="/portfolio-builder-for-students" element={<ResumeToPortfolio />} />
                   <Route path="/developer-portfolio-builder" element={<ResumeToPortfolio />} />
@@ -127,7 +134,7 @@ function App() {
                   </Route>
 
                   {/* ==================================================== */}
-                  {/* 🔒 PROTECTED ROUTES (Only if logged in)              */}
+                  {/* 🔒 PROTECTED ROUTES (Only if logged in)               */}
                   {/* ==================================================== */}
                   <Route element={<ProtectedRoute />}>
                     <Route path="/dashboard" element={<Dashboard />} />
