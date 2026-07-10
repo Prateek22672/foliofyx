@@ -176,12 +176,12 @@ export default function SectionHero({ message, handleNavigation }) {
               </motion.div>
             )}
 
-            <h1 className={`text-5xl sm:text-6xl md:text-8xl font-black leading-[0.9] mb-8 mt-10 ${textColor} tracking-tighter uppercase relative`}>
-              <h2 className={`text-sm md:text-sm mt-4 font-medium tracking-wide ${
+            <p className={`text-sm md:text-sm mt-10 font-medium tracking-wide uppercase ${
   isDarkBg ? "text-white/60" : "text-black/60"
 }`}>
   Resume to Portfolio Website Builder for Students & Developers
-</h2>
+</p>
+            <h1 className={`text-5xl sm:text-6xl md:text-8xl font-black leading-[0.9] mb-8 ${textColor} tracking-tighter uppercase relative`}>
               <div>{fadeWords("BUILD A PORTFOLIO")}</div>
               <div className="mt-2">
                 {fadeWords("THAT GETS YOU HIRED.", shimmerStyle)}
@@ -193,7 +193,7 @@ export default function SectionHero({ message, handleNavigation }) {
             </p>
 
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1, duration: 0.8 }} className="flex flex-col sm:flex-row w-full sm:w-auto gap-5 items-center justify-center">
-              <InteractiveButton text="View Examples" onClick={() => handleNavigation("/templates")} isDarkBg={isDarkBg} isLeftButton={true} />
+              <InteractiveButton text="View Examples" onClick={() => handleNavigation("/designs")} isDarkBg={isDarkBg} isLeftButton={true} />
               <InteractiveButton text="Start Creating" onClick={() => handleNavigation("/create")} isDarkBg={isDarkBg} isLeftButton={false} />
             </motion.div>
           </div>

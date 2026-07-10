@@ -86,18 +86,17 @@ const Signup = () => {
         if (refreshToken) localStorage.setItem("refreshToken", refreshToken);
 
         loginUser(user, accessToken);
-        showPopup("Signup successful 🎉", "success");
-        setTimeout(() => navigate("/dashboard"), 800);
+        navigate("/dashboard", { replace: true });
       } else {
-        showPopup("Signup failed ❌", "error");
+        showPopup("Signup failed. Please try again.", "error");
         setLoading(false);
       }
     } catch (error) {
       console.error("Signup error:", error);
       const serverMessage = error.response?.data?.message;
-      showPopup(serverMessage || "Signup failed ❌", "error");
+      showPopup(serverMessage || "Signup failed. Please try again.", "error");
       setLoading(false);
-    } 
+    }
   };
 
   const handleGoogleSuccess = async (credentialResponse) => {
@@ -113,18 +112,17 @@ const Signup = () => {
          if (refreshToken) localStorage.setItem("refreshToken", refreshToken);
          
          loginUser(user, accessToken);
-         showPopup("Google login successful 🎉", "success");
-         setTimeout(() => navigate("/dashboard"), 400);
+         navigate("/dashboard", { replace: true });
       }
     } catch (err) {
       console.error(err);
-      showPopup("Google Login Failed ❌", "error");
+      showPopup("Google login failed. Please try again.", "error");
       setGoogleLoading(false);
-    } 
+    }
   };
 
   const handleGoogleError = () => {
-    showPopup("Google Login Failed ❌", "error");
+    showPopup("Google login failed. Please try again.", "error");
   };
 
   return (

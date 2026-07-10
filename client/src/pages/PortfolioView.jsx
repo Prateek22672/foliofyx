@@ -7,6 +7,7 @@ import { ChatbotProvider } from "../context/ChatbotContext";
 import ChatWidget from "../chatbot/ChatWidget";
 import { QrCode, Home, AlertCircle } from "lucide-react";
 import FyxCardPopup from "./Portfolio/Customize/FyxCardPopup";
+import CustomSiteRenderer from "./Templates/Custom/CustomSiteRenderer";
 
 // ─────────────────────────────────────────────
 // Utility: get luminance of a hex color (0–1)
@@ -111,6 +112,19 @@ const PortfolioView = () => {
 
   // --- RENDER ---
   const templateName = (portfolioData.template || "modern").toLowerCase();
+
+  // ── CUSTOM BUILDER: render the saved canvas read-only (deploy parity) ──
+  // Custom sites don't use the section-component template system; their layout
+  // lives in portfolioData.customLayout and is rendered by CustomSiteRenderer.
+  if (templateName === "custom") {
+    const firstBg = portfolioData.customLayout?.pages?.[0]?.bgColor || "#ffffff";
+    return (
+      <div style={{ minHeight: "100vh", background: firstBg }}>
+        <CustomSiteRenderer layout={portfolioData.customLayout} />
+      </div>
+    );
+  }
+
   const selected = TEMPLATE_LIST[templateName] || TEMPLATE_LIST.modern;
   const TemplateModule = selected.module;
 

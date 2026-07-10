@@ -84,7 +84,7 @@ const InteractiveLoadingGame = ({ message }) => {
         </motion.button>
         
         <p className="absolute bottom-3 text-[9px] text-neutral-400 font-medium">
-          (Playing speeds up time perception, not the server 😉)
+          (Playing speeds up time perception, not the server)
         </p>
       </div>
     </motion.div>
@@ -98,9 +98,17 @@ const LoginPage = () => {
   // === 1. AUTO-REDIRECT LOGIC ===
   useEffect(() => {
     if (!authLoading && user) {
-      navigate("/dashboard", { replace: true }); 
+      navigate("/dashboard", { replace: true });
     }
   }, [user, authLoading, navigate]);
+
+  // === WARM-UP PING ===
+  // The backend sleeps on free-tier hosting; waking it the moment the login
+  // page mounts means it's usually ready by the time credentials are typed,
+  // instead of the first login request eating the whole cold start.
+  useEffect(() => {
+    axiosInstance.get("/", { timeout: 15000 }).catch(() => {});
+  }, []);
 
   // === MOUSE TRACKING STATE ===
   const mouseX = useMotionValue(0);
@@ -189,8 +197,7 @@ const LoginPage = () => {
         if (refreshToken) localStorage.setItem("refreshToken", refreshToken);
 
         loginUser(user, accessToken);
-        showPopup("Login successful 🎉", "success");
-        setTimeout(() => navigate("/dashboard"), 700);
+        navigate("/dashboard", { replace: true });
       } else {
         throw new Error("No token received");
       }
@@ -215,20 +222,19 @@ const LoginPage = () => {
         if (refreshToken) localStorage.setItem("refreshToken", refreshToken);
 
         loginUser(user, accessToken);
-        showPopup("Google login successful 🎉", "success");
-        setTimeout(() => navigate("/dashboard"), 400);
+        navigate("/dashboard", { replace: true });
       } else {
         throw new Error("Google auth failed");
       }
     } catch (err) {
       console.error("Google login error:", err);
-      showPopup("Google Login Failed ❌", "error");
+      showPopup("Google login failed. Please try again.", "error");
       setGoogleLoading(false);
     }
   };
 
   const handleGoogleError = () => {
-    showPopup("Google Login Failed ❌", "error");
+    showPopup("Google login failed. Please try again.", "error");
   };
 
   return (

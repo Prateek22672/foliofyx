@@ -105,11 +105,14 @@ const Landing = () => {
       {/* ScrollHUD */}
       <ScrollHUD scrollYProgress={scrollYProgress} />
 
-      {/* Main scroll container */}
+      {/* Main scroll container.
+          Height must equal the last timeline keyframe (20 * vh of scroll) plus
+          one viewport, or the page keeps scrolling after the outro settles —
+          a dead zone where nothing moves. 20vh scroll + 100vh viewport = 2100vh. */}
       <div
         ref={containerRef}
         className="relative w-full bg-transparent overflow-x-hidden font-['Wix_Madefor_Text']"
-        style={{ height: "2200vh" }}
+        style={{ height: "2100vh" }}
       >
         <Hero message={message} handleNavigation={handleNavigation} />
 

@@ -4,10 +4,12 @@ import {
   Layers, ArrowRight, X, FileUp, Sparkles, 
   Code, PenTool, Image as ImageIcon 
 } from "lucide-react";
-import { useAuth } from "../../context/AuthContext"; 
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
 export default function SelectionView({ onSelectAI, onSelectControl, onSelectResume }) {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [activeMode, setActiveMode] = useState(null); 
   const [prompt, setPrompt] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -63,11 +65,11 @@ export default function SelectionView({ onSelectAI, onSelectControl, onSelectRes
           How do you want to build?
         </h1>
         <p className="text-gray-400 text-lg font-light max-w-2xl mx-auto">
-          Let AI architect your vision, auto-fill from your Resume, or take full manual control.
+          Let AI architect your vision, auto-fill from your Resume, take full manual control, or recreate a design from a reference.
         </p>
       </motion.div>
 
-      <div className={`w-full transition-all duration-500 grid gap-6 ${activeMode === 'ai' ? 'max-w-4xl grid-cols-1' : 'max-w-6xl grid-cols-1 md:grid-cols-3'}`}>
+      <div className={`w-full transition-all duration-500 grid gap-6 ${activeMode === 'ai' ? 'max-w-4xl grid-cols-1' : 'max-w-6xl grid-cols-1 md:grid-cols-2 lg:grid-cols-4'}`}>
         
         {/* --- CARD 1: AI BUILD --- */}
         <motion.div
@@ -163,6 +165,18 @@ export default function SelectionView({ onSelectAI, onSelectControl, onSelectRes
                                 ))}
                             </motion.div>
                         )}
+
+                        {!isSubmitting && (
+                            <motion.button
+                                initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.9 }}
+                                onClick={(e) => { e.stopPropagation(); navigate("/ai-builder"); }}
+                                className="mt-8 ml-2 flex items-center gap-2 text-sm text-gray-400 hover:text-purple-300 transition-colors"
+                            >
+                                <Sparkles size={15} className="text-purple-400" />
+                                Prefer a conversation? Build turn-by-turn in the AI Chat Builder
+                                <ArrowRight size={14} />
+                            </motion.button>
+                        )}
                     </div>
                </motion.div>
             ) : (
@@ -231,6 +245,34 @@ export default function SelectionView({ onSelectAI, onSelectControl, onSelectRes
               </div>
               <div className="flex justify-end mt-4">
                 <ArrowRight className="text-white opacity-0 group-hover:opacity-100 -translate-x-4 group-hover:translate-x-0 transition-all duration-300" />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* --- CARD 4: FROM A REFERENCE --- */}
+        <AnimatePresence>
+          {activeMode !== 'ai' && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9 }} transition={{ delay: 0.3 }}
+              onClick={() => navigate("/studio/reference")}
+              className="relative group w-full overflow-hidden rounded-3xl border border-white/10 bg-[#0a0a0a] p-8 cursor-pointer hover:border-teal-500/30 hover:bg-teal-900/5 flex flex-col justify-between transition-all duration-500 min-h-[320px]"
+            >
+              <div className="absolute top-6 right-6 px-3 py-1 rounded-full border border-teal-500/30 bg-teal-500/10 text-[10px] font-bold tracking-widest text-white/80 shadow-[0_0_10px_rgba(20,184,166,0.2)]">
+                NEW
+              </div>
+              <div className="absolute top-0 right-0 w-64 h-64 bg-teal-500/10 blur-[80px] rounded-full -translate-y-1/2 translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-teal-900/20 to-black border border-teal-500/30 flex items-center justify-center mb-4">
+                <ImageIcon className="text-teal-400 w-7 h-7" />
+              </div>
+              <div>
+                <h3 className="text-3xl font-medium text-white mb-2 group-hover:text-teal-300 transition-colors">From a Reference</h3>
+                <p className="text-gray-400 text-sm leading-relaxed">
+                  Describe a site or upload a screenshot — we rebuild its layout and colors into editable elements.
+                </p>
+              </div>
+              <div className="flex justify-end mt-4">
+                <ArrowRight className="text-teal-400 opacity-0 group-hover:opacity-100 -translate-x-4 group-hover:translate-x-0 transition-all duration-300" />
               </div>
             </motion.div>
           )}

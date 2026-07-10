@@ -1,7 +1,18 @@
-/* Hide default cursor on Desktop */
+/* Hide default cursor on Desktop — only while the custom cursor is active. */
 @media (pointer: fine) {
-  html, body, a, button {
+  body.custom-cursor-on,
+  body.custom-cursor-on a,
+  body.custom-cursor-on button {
     cursor: none !important;
+  }
+
+  /* Native-cursor zones (e.g. the app header): the OS cursor comes back and
+     the custom dot hides itself (see CustomCursor.jsx). */
+  body.custom-cursor-on [data-native-cursor],
+  body.custom-cursor-on [data-native-cursor] a,
+  body.custom-cursor-on [data-native-cursor] button,
+  body.custom-cursor-on [data-native-cursor] input {
+    cursor: auto !important;
   }
 
   .custom-cursor {

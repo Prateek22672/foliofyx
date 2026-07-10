@@ -1,3 +1,4 @@
+// src/pages/Portfolio/Templates/index.js
 import * as Modern from "./Modern";
 import * as Minimal from "./Minimal";
 import * as StudentBright from "./StudentBright";
@@ -11,7 +12,24 @@ import * as Pulse from "./Pulse";
 import * as Neonix from "./Neonix";
 import * as Canvas from "./Canvas";
 
+// ── NEW ─────────────────────────────────────────────────────────────────────
+import * as Custom from "../../Templates/Custom";
+// ─────────────────────────────────────────────────────────────────────────────
+
 export const TEMPLATE_LIST = {
+
+  // ── NEW: Custom Builder — always first so it's prominent in ThemePopup ──
+  custom: {
+    module:   Custom,
+    label:    "Custom Builder",
+    preview:  "/preview/custom/preview.png", // drop any screenshot here later
+    tags:     ["Custom", "Drag & Drop", "Full Control", "Any Layout", "Wix-style"],
+    themeBg:   "#ffffff",
+    themeFont: "#111827",
+    isCustom:  true,   // flag used by RightPanel + EditorPanel
+  },
+  // ─────────────────────────────────────────────────────────────────────────
+
   pulse: {
     module: Pulse,
     label: "Pulse",
@@ -43,7 +61,6 @@ export const TEMPLATE_LIST = {
     module: Luxe,
     label: "Luxe",
     preview: "/preview/luxe/luxe3.png",
-    // Refined tags for the Boutique Editorial style
     tags: ["Premium", "Editorial", "Boutique", "Minimal", "Clean Layout"],
     themeBg: "#ffffff",
     themeFont: "#111827"

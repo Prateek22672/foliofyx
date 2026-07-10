@@ -61,7 +61,7 @@ const titleY = useTransform(scrollProgress, [15.5, 15.7], [50, 0], { clamp: true
             </h2>
           </div>
           <button 
-            onClick={() => handleNavigation("/templates")}
+            onClick={() => handleNavigation("/designs")}
             className="hidden md:flex items-center gap-2 text-sm font-bold border-b-2 border-black pb-1 text-black hover:text-gray-600 hover:border-gray-600 transition-colors"
           >
             Explore Collections <ArrowRight size={16} />

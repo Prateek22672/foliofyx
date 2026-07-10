@@ -19,7 +19,7 @@ const Footer = () => {
         <div>
           <h3 className="font-bold text-lg mb-4 text-[#0d355c]">Product</h3>
           <ul className="space-y-2 text-sm text-gray-700">
-            <li><Link to="/templates" className="hover:text-[#0d355c] transition-colors duration-200">Portfolio Templates</Link></li>
+            <li><Link to="/designs" className="hover:text-[#0d355c] transition-colors duration-200">Portfolio Templates</Link></li>
             <li><Link to="/create" className="hover:text-[#0d355c] transition-colors duration-200">AI Portfolio Builder</Link></li>
             <li><Link to="/dashboard" className="hover:text-[#0d355c] transition-colors duration-200">Design Studio</Link></li>
             <li><Link to="/studio" className="hover:text-[#0d355c] transition-colors duration-200">FolioFYX Studio</Link></li>

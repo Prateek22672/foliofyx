@@ -1,24 +1,28 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, ChevronRight, ChevronLeft } from "lucide-react";
+import {
+  X, ChevronRight, ChevronLeft, Check,
+  Home, Tag, BarChart3, FolderOpen, Rocket, Archive,
+  Link2, Globe, Pencil, Sparkles, Zap, PartyPopper,
+} from "lucide-react";
 
 // ─── Tutorial steps ───────────────────────────────────────────────────────────
 // `target`      → id of the DOM element to spotlight (null = centred overlay)
 // `fallbackDesc`→ shown when the target element doesn't exist in the DOM yet
 const STEPS = [
   {
-    title: "Welcome to your Studio 👋",
+    title: "Welcome to your Studio",
     desc: "This is your Dashboard — the control centre for all your portfolio websites. Let's take a quick tour so you know exactly what everything does.",
     target: null,
     position: "center",
-    icon: "🏠",
+    icon: Home,
   },
   {
     title: "It's your work, your name",
     desc: "The greeting at the top shows your first name so you always know you're in the right place. Your plan badge (Free / Plus / Max) sits right next to it.",
     target: "plan-badge",
     position: "bottom",
-    icon: "🏷️",
+    icon: Tag,
     fallbackDesc: "Your plan badge (Free / Plus / Max) appears at the top of the dashboard next to your name.",
   },
   {
@@ -26,7 +30,7 @@ const STEPS = [
     desc: "Three stat pills show how many portfolios you've created, your current plan, and how many templates are available — all in one line.",
     target: "stats-strip",
     position: "bottom",
-    icon: "📊",
+    icon: BarChart3,
     fallbackDesc: "A stats strip below your name shows your portfolio count, current plan, and total templates available.",
   },
   {
@@ -34,7 +38,7 @@ const STEPS = [
     desc: "Click 'View Templates' to browse every available design. You can preview desktop and mobile layouts before committing to one.",
     target: "view-templates-btn",
     position: "bottom",
-    icon: "🗂️",
+    icon: FolderOpen,
     fallbackDesc: "The 'View Templates' button (outlined) lets you browse and preview all available designs before picking one.",
   },
   {
@@ -42,7 +46,7 @@ const STEPS = [
     desc: "Ready to build? Hit 'Start Creating' to jump straight into the builder. On the Free plan you get 1 portfolio — once used, this button prompts you to upgrade.",
     target: "create-btn",
     position: "bottom",
-    icon: "✦",
+    icon: Rocket,
     fallbackDesc: "The 'Start Creating' button (solid black) launches the builder. Free plan allows 1 portfolio.",
   },
   {
@@ -50,7 +54,7 @@ const STEPS = [
     desc: "Every portfolio you build appears here as a dark card showing a template preview, your name, your role, and action buttons.",
     target: "first-card",
     position: "top",
-    icon: "🗃️",
+    icon: Archive,
     fallbackDesc: "Once you create a portfolio, it appears here as a dark card with a preview image, your name, role, and action buttons.",
   },
   {
@@ -58,7 +62,7 @@ const STEPS = [
     desc: "Hover (or tap on mobile) a card to reveal two icon buttons in the top bar — a copy icon for the public URL, and a red trash icon to permanently delete the portfolio.",
     target: "card-actions",
     position: "bottom",
-    icon: "🔗",
+    icon: Link2,
     fallbackDesc: "Hovering a portfolio card reveals a copy-link icon and a red delete icon in its top bar.",
   },
   {
@@ -66,7 +70,7 @@ const STEPS = [
     desc: "Opens your portfolio exactly as visitors see it — your published, public-facing page. Great for checking how it looks before sharing.",
     target: "view-btn",
     position: "top",
-    icon: "🌐",
+    icon: Globe,
     fallbackDesc: "'View Live' opens your published portfolio exactly as the world sees it.",
   },
   {
@@ -74,7 +78,7 @@ const STEPS = [
     desc: "Takes you into the full customisation studio — change content, colours, fonts, sections, and even switch the template without losing your data.",
     target: "edit-btn",
     position: "top",
-    icon: "✏️",
+    icon: Pencil,
     fallbackDesc: "'Edit' opens the customisation studio where you can change content, colours, fonts, and templates.",
   },
   {
@@ -82,7 +86,7 @@ const STEPS = [
     desc: "Handpicked templates curated just for you. Click any card to open a full preview with desktop and mobile views before you decide.",
     target: "recommended-section",
     position: "top",
-    icon: "✨",
+    icon: Sparkles,
     fallbackDesc: "Below your portfolios you'll find recommended templates — click any to preview before building.",
   },
   {
@@ -90,15 +94,15 @@ const STEPS = [
     desc: "Each recommendation card has a '+ Use' button. Tap it to jump straight into that template's customisation studio without going through the full picker.",
     target: "recommended-card-0",
     position: "top",
-    icon: "⚡",
+    icon: Zap,
     fallbackDesc: "Each recommended template card has a '+ Use' button to jump straight into customising that design.",
   },
   {
-    title: "You're all set! 🚀",
+    title: "You're all set!",
     desc: "That's the whole Dashboard. Create your first portfolio, personalise it your way, and share it with the world. Go build something great.",
     target: null,
     position: "center",
-    icon: "🎉",
+    icon: PartyPopper,
   },
 ];
 
@@ -124,6 +128,7 @@ const getRect = (id) => {
 // ─── Shared tooltip body ──────────────────────────────────────────────────────
 const TooltipBody = ({ step, hasTarget, onNext, onPrev, onClose, isFirst, isLast, current, total }) => {
   const desc = (!hasTarget && step.fallbackDesc) ? step.fallbackDesc : step.desc;
+  const StepIcon = step.icon;
 
   return (
     <>
@@ -149,8 +154,8 @@ const TooltipBody = ({ step, hasTarget, onNext, onPrev, onClose, isFirst, isLast
 
       {/* Icon + text */}
       <div className="flex gap-3 mb-5">
-        <div className="w-10 h-10 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center text-lg flex-shrink-0">
-          {step.icon}
+        <div className="w-10 h-10 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center text-gray-700 flex-shrink-0">
+          {StepIcon && <StepIcon size={18} />}
         </div>
         <div>
           <h3 className="text-[15px] font-bold text-gray-900 mb-1 leading-tight">{step.title}</h3>
@@ -188,7 +193,7 @@ const TooltipBody = ({ step, hasTarget, onNext, onPrev, onClose, isFirst, isLast
             onClick={onNext}
             className="flex items-center gap-1 px-4 py-2 rounded-xl bg-gray-900 hover:bg-gray-800 text-white text-[12px] font-semibold transition-all active:scale-95"
           >
-            {isLast ? "Done ✓" : "Next"} {!isLast && <ChevronRight size={13} />}
+            {isLast ? "Done" : "Next"} {isLast ? <Check size={13} /> : <ChevronRight size={13} />}
           </button>
         </div>
       </div>

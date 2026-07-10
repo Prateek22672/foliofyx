@@ -272,7 +272,7 @@ const CreatePage = () => {
       setShowResumePreview(true);
     } catch (error) {
       console.error("Parsing failed:", error);
-      setMessage("❌ Failed to analyze resume. Please fill in manually.");
+      setMessage("Failed to analyze resume. Please fill in manually.");
       setViewMode("selection");
     }
   };
@@ -281,7 +281,7 @@ const CreatePage = () => {
     setFormData({ ...confirmedData });
     setShowResumePreview(false);
     setViewMode("wizard");
-    setMessage("✅ Resume loaded! Review your details and proceed.");
+    setMessage("Resume loaded! Review your details and proceed.");
   };
 
   if (loading) return <div className="min-h-screen bg-[#030303]" />;

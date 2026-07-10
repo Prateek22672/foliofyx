@@ -2,6 +2,7 @@
 import React from "react";
 import { LayoutTemplate, X } from "lucide-react";
 import LeftPanel from "../leftpanel/index";
+import CustomEditorPanel from "../../../Customize/customize-editor/custom/CustomEditorPanel";
 
 const EditorPanel = ({
   width,
@@ -14,18 +15,11 @@ const EditorPanel = ({
   formLogic,
   themeBg, setThemeBg,
   themeFont, setThemeFont,
+  customSelectedId,        // ← was missing from destructuring — that caused the crash
 }) => {
-  return (
-    /*
-      The parent in Customize.jsx already controls width with a transition wrapper.
-      This component just fills 100% of that wrapper.
+  const isCustomTemplate = portfolioData?.template === "custom";
 
-      Critical rules:
-      - overflow: hidden on the outer shell — nothing bleeds out
-      - flex flex-col so the scroll area can take flex-1 min-h-0
-      - The scroll div gets overflow-y-auto and min-h-0 (without min-h-0,
-        flex children don't shrink and the div grows past its container)
-    */
+  return (
     <div
       style={{
         width: "100%",
@@ -35,13 +29,15 @@ const EditorPanel = ({
       }}
       className="flex flex-col bg-white border-l border-gray-100 z-30 h-full overflow-hidden shadow-[-4px_0_24px_-8px_rgba(0,0,0,0.04)]"
     >
-      {/* ── Sticky header ── */}
+      {/* Sticky header */}
       <div className="flex-none flex justify-between items-center px-4 py-3 border-b border-gray-100 bg-white/95 backdrop-blur-sm">
         <h3 className="font-semibold text-gray-800 flex items-center gap-2 text-[13px] min-w-0">
           <span className="w-6 h-6 rounded-lg bg-violet-100 flex items-center justify-center shrink-0">
             <LayoutTemplate size={13} className="text-violet-600" />
           </span>
-          <span className="truncate">Editor</span>
+          <span className="truncate">
+            {isCustomTemplate ? "Custom Builder" : "Editor"}
+          </span>
         </h3>
         <button
           type="button"
@@ -53,25 +49,29 @@ const EditorPanel = ({
         </button>
       </div>
 
-      {/* ── Scrollable content ── */}
+      {/* Scrollable content */}
       <div
         className="flex-1 min-h-0 overflow-y-auto overscroll-contain"
         style={{ WebkitOverflowScrolling: "touch" }}
       >
-        <LeftPanel
-          width={width}
-          portfolioData={portfolioData}
-          setPortfolioData={setPortfolioData}
-          handleChange={formLogic.handleChange}
-          handleGenerateBio={handleGenerateBio}
-          handleSave={handleSave}
-          handlePreview={handlePreview}
-          {...formLogic}
-          themeBg={themeBg}
-          setThemeBg={setThemeBg}
-          themeFont={themeFont}
-          setThemeFont={setThemeFont}
-        />
+        {isCustomTemplate ? (
+          <CustomEditorPanel selectedId={customSelectedId} />
+        ) : (
+          <LeftPanel
+            width={width}
+            portfolioData={portfolioData}
+            setPortfolioData={setPortfolioData}
+            handleChange={formLogic.handleChange}
+            handleGenerateBio={handleGenerateBio}
+            handleSave={handleSave}
+            handlePreview={handlePreview}
+            {...formLogic}
+            themeBg={themeBg}
+            setThemeBg={setThemeBg}
+            themeFont={themeFont}
+            setThemeFont={setThemeFont}
+          />
+        )}
       </div>
     </div>
   );

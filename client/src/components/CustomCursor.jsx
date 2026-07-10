@@ -70,9 +70,19 @@ const CustomCursor = () => {
       requestAnimationFrame(animate);
     };
 
+    let overNativeZone = false;
     const onMouseMove = (e) => {
       mouse.current.x = e.clientX;
       mouse.current.y = e.clientY;
+
+      // Inside native-cursor zones (the app header) the OS cursor takes over
+      // (see CustomCursor.css) — fade the custom dot out so they never overlap.
+      const nativeZone = !!e.target.closest("[data-native-cursor]");
+      if (nativeZone !== overNativeZone) {
+        overNativeZone = nativeZone;
+        if (cursorRef.current) cursorRef.current.style.opacity = nativeZone ? "0" : "1";
+      }
+
       detectTheme();
     };
 

@@ -49,7 +49,6 @@ const Dashboard = () => {
           const hasSeen = localStorage.getItem("dashboardTutorialSeen");
           if (!hasSeen) {
             setTimeout(() => setShowTutorial(true), 700);
-            localStorage.setItem("dashboardTutorialSeen", "true");
           }
         }
       } catch (err) {
@@ -66,12 +65,12 @@ const Dashboard = () => {
     try {
       await deletePortfolio(selectedPortfolio._id);
       setPortfolios((prev) => prev.filter((p) => p._id !== selectedPortfolio._id));
-      setMessage("🗑️ Portfolio deleted successfully!");
+      setMessage("Portfolio deleted successfully!");
       setSelectedPortfolio(null);
       setTimeout(() => setMessage(""), 3000);
     } catch (err) {
       console.error("Failed to delete portfolio:", err);
-      setMessage("❌ Failed to delete portfolio. Try again.");
+      setMessage("Failed to delete portfolio. Try again.");
     }
   };
 
@@ -147,7 +146,7 @@ const Dashboard = () => {
               <h1 className="text-4xl md:text-5xl font-bold text-black tracking-tight flex flex-wrap items-center gap-3">
                 Hi, {firstName}
 
-                <span className={`text-[10px] md:text-xs align-middle px-3 py-1 rounded-full uppercase tracking-wider border font-bold
+                <span id="plan-badge" className={`text-[10px] md:text-xs align-middle px-3 py-1 rounded-full uppercase tracking-wider border font-bold
                   ${userPlan === "max"
                     ? "bg-black text-[#D4AF37] border-[#D4AF37]"
                     : userPlan === "plus"
@@ -175,6 +174,7 @@ const Dashboard = () => {
             <div className="flex flex-col sm:flex-row gap-3 shrink-0">
               {/* Browse Templates */}
               <motion.button
+                id="view-templates-btn"
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
                 onClick={() => navigate("/designs")}
@@ -203,7 +203,7 @@ const Dashboard = () => {
           </div>
 
           {/* ── Stats strip ── */}
-          <div className="flex flex-wrap gap-4">
+          <div id="stats-strip" className="flex flex-wrap gap-4">
             {[
               { label: "Portfolios", value: portfolios.length },
               { label: "Plan", value: userPlan.charAt(0).toUpperCase() + userPlan.slice(1) },
@@ -294,7 +294,7 @@ const Dashboard = () => {
 
               <div className="flex gap-3">
                 <button
-                  onClick={() => navigate("/create")}
+                  onClick={handleCreateClick}
                   className="flex items-center gap-2 px-5 py-2.5 rounded-full border-2 border-black text-black text-sm font-semibold hover:bg-black hover:text-white transition-all"
                 >
                   <LayoutTemplate size={15} /> Browse Templates
@@ -338,7 +338,7 @@ const Dashboard = () => {
                       <button
                         onClick={() => {
                           navigator.clipboard.writeText(`${window.location.origin}/portfolio/${p._id}`);
-                          setMessage("✅ Copied link!");
+                          setMessage("Copied link!");
                           setTimeout(() => setMessage(""), 2500);
                         }}
                         className="p-2 text-white/50 hover:text-white hover:bg-white/10 rounded-full transition-colors"
@@ -403,7 +403,7 @@ const Dashboard = () => {
         {/* ════════════════════════════════════
             RECOMMENDED TEMPLATES SECTION
         ════════════════════════════════════ */}
-        <div className="max-w-7xl mx-auto mb-16">
+        <div id="recommended-section" className="max-w-7xl mx-auto mb-16">
 
           {/* Section header */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
@@ -440,6 +440,7 @@ const Dashboard = () => {
               return (
                 <motion.div
                   key={key}
+                  id={i === 0 ? "recommended-card-0" : undefined}
                   variants={cardVariants}
                   whileHover={{ y: -6, transition: { type: "spring", stiffness: 280 } }}
                   className="group relative rounded-[1.75rem] overflow-hidden border border-neutral-100 bg-white shadow-sm hover:shadow-xl hover:shadow-black/10 transition-shadow duration-400 cursor-pointer"
@@ -522,7 +523,12 @@ const Dashboard = () => {
 
       {/* ── Tutorial overlay ── */}
       {showTutorial && (
-        <DashboardTutorial onClose={() => setShowTutorial(false)} />
+        <DashboardTutorial
+          onClose={() => {
+            setShowTutorial(false);
+            localStorage.setItem("dashboardTutorialSeen", "true");
+          }}
+        />
       )}
 
     </div>

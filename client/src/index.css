@@ -3,9 +3,12 @@
 
 
 
-*,
-*::before,
-*::after {
+/* Hide the native cursor ONLY on pages that mount the custom cursor.
+   App.jsx toggles body.custom-cursor-on for the allowlisted pages. */
+body.custom-cursor-on,
+body.custom-cursor-on *,
+body.custom-cursor-on *::before,
+body.custom-cursor-on *::after {
   cursor: none !important;
 }
 
@@ -325,4 +328,21 @@ h1, h2, h3, h4, h5, button {
   transform: translateX(-150%);
   pointer-events: none;
   animation: shine 2.5s infinite linear; 
+}
+
+/* ===============================
+   🖱️ EDITOR PAGE CURSOR RESET
+================================= */
+body.cursor-default-mode *,
+body.cursor-default-mode *::before,
+body.cursor-default-mode *::after {
+  cursor: auto !important;
+}
+body.cursor-default-mode input,
+body.cursor-default-mode textarea {
+  cursor: text !important;
+}
+
+body.cursor-default-mode .custom-cursor {
+  display: none !important;
 }

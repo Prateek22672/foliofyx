@@ -1,0 +1,56 @@
+# ── FolioFYX — full stack (frontend + backend) ───────────────────────────────
+# Usage:
+#   1. Fill in ./server/.env   (see ./server/.env.example)
+#   2. docker compose up --build
+#   3. Frontend → http://localhost:8080   API → http://localhost:5000
+#
+# MongoDB: by default the backend connects to your external MONGO_URI (e.g. Atlas).
+# To run a local Mongo instead, uncomment the `mongo` service and the
+# `MONGO_URI` line under the server environment.
+
+services:
+  server:
+    build:
+      context: ./server
+    container_name: foliofyx-server
+    restart: unless-stopped
+    env_file:
+      - ./server/.env
+    environment:
+      - NODE_ENV=production
+      - PORT=5000
+      # - MONGO_URI=mongodb://mongo:27017/foliofyx   # uncomment if using the local mongo below
+    ports:
+      - "5000:5000"
+    volumes:
+      - server_uploads:/app/uploads
+    # depends_on:
+    #   - mongo
+
+  client:
+    build:
+      context: ./client
+      args:
+        # Where the browser should reach the API. For local Docker this is the
+        # host-published server port (Vite bakes it in at build time).
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:5000}
+    container_name: foliofyx-client
+    restart: unless-stopped
+    depends_on:
+      - server
+    ports:
+      - "8080:80"
+
+  # ── Optional local MongoDB ──────────────────────────────────────────────────
+  # mongo:
+  #   image: mongo:7
+  #   container_name: foliofyx-mongo
+  #   restart: unless-stopped
+  #   volumes:
+  #     - mongo_data:/data/db
+  #   ports:
+  #     - "27017:27017"
+
+volumes:
+  server_uploads:
+  # mongo_data:

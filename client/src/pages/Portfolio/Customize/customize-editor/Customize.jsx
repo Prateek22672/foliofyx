@@ -18,9 +18,8 @@ import EditorPanel from "./EditorPanel";
 import Resizer from "./Resizer";
 import { useCustomizeForm } from "./useCustomizeForm";
 import OnboardingTutorial from "./OnboardingTutorial";
-import StudioFooter from "./StudioFooter";
 
-const SIDEBAR_W = 64; // px — must match the sidebar's w-[64px]
+const SIDEBAR_W = 64;
 
 /* ════════════════════════════════════════
    "Open Editor" hint
@@ -84,6 +83,17 @@ const Customize = () => {
   const [themeFont, setThemeFont] = useState("#FFFFFF");
 
   const [showOnboarding, setShowOnboarding] = useState(false);
+
+  // ── Custom Builder — which canvas element is selected ───────────────
+  const [customSelectedId, setCustomSelectedId] = useState(null);
+  // ─────────────────────────────────────────────────────────────────────────
+
+  // ── Disable custom cursor on editor page ──
+  useEffect(() => {
+    document.body.classList.add("cursor-default-mode");
+    return () => document.body.classList.remove("cursor-default-mode");
+  }, []);
+
   useEffect(() => {
     const seen = localStorage.getItem("fyx_onboarding_seen");
     if (!seen) {
@@ -139,6 +149,14 @@ const Customize = () => {
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
+  // ── reset customSelectedId when template changes away from custom ──
+  useEffect(() => {
+    if (portfolioData?.template !== "custom") {
+      setCustomSelectedId(null);
+    }
+  }, [portfolioData?.template]);
+  // ─────────────────────────────────────────────────────────────────────────
+
   const togglePanel = useCallback(() => {
     setIsPanelOpen((prev) => {
       if (!prev) setRightPanelWidth(35);
@@ -147,9 +165,6 @@ const Customize = () => {
   }, []);
 
   // ── RAF-based drag ──
-  // The drag calculates from the RAW window edge, then we subtract
-  // the sidebar width so the percentage is relative to the workspace,
-  // not the full viewport.
   const processFrame = useCallback(() => {
     const container = containerRef.current;
     if (!container) return;
@@ -244,13 +259,6 @@ const Customize = () => {
   const isDesktop      = windowWidth >= 768;
   const sidebarVisible = isDesktop && !showPreviewMobile && viewMode !== "desktop";
 
-  /*
-    Key fix:
-    The workspace container has `paddingLeft` (or Right) = SIDEBAR_W so content
-    never slides under the fixed sidebar. The editor-panel width is expressed as
-    a percentage of the workspace (container minus sidebar), not the full viewport,
-    so there are NO gaps between the editor panel and the preview area.
-  */
   const workspacePaddingStyle = sidebarVisible
     ? sidebarSide === "left"
       ? { paddingLeft: SIDEBAR_W }
@@ -267,8 +275,6 @@ const Customize = () => {
   } else if (viewMode === "desktop") {
     editorWidthStr = "0%"; isEditorVisible = false;
   } else {
-    // Width is a percentage of the flex container (which already has sidebar
-    // offset via padding), so no extra math needed here.
     editorWidthStr  = isPanelOpen ? `${rightPanelWidth}%` : "0px";
     isEditorVisible = isPanelOpen;
   }
@@ -296,7 +302,7 @@ const Customize = () => {
         }} />
       )}
 
-      {/* Top header — full width, sits above the sidebar */}
+      {/* Top header */}
       <div className="flex-none sticky top-0 z-[600] bg-white border-b border-gray-100">
         <EditHeader
           setViewMode={setViewMode}
@@ -345,11 +351,7 @@ const Customize = () => {
         })}
       </div>
 
-      {/*
-        Fixed sidebar — only on desktop.
-        Rendered OUTSIDE the workspace container so it floats fixed over the page.
-        The workspace container compensates with paddingLeft/Right = SIDEBAR_W.
-      */}
+      {/* Fixed sidebar — desktop */}
       {sidebarVisible && (
         <Sidebar
           isPanelOpen={isPanelOpen}
@@ -362,10 +364,7 @@ const Customize = () => {
         />
       )}
 
-      {/*
-        Mobile bottom bar — Sidebar renders this internally via md:hidden.
-        No extra wrapper needed here; Sidebar.jsx handles it.
-      */}
+      {/* Mobile bottom bar */}
       {!isDesktop && (
         <Sidebar
           isPanelOpen={isPanelOpen}
@@ -378,30 +377,18 @@ const Customize = () => {
         />
       )}
 
-      {/* Open editor hint (desktop only) */}
+      {/* Open editor hint */}
       {!isPanelOpen && !showPreviewMobile && viewMode !== "desktop" && isDesktop && (
         <EditorHint onClick={togglePanel} sidebarSide={sidebarSide} />
       )}
 
-      {/*
-        MAIN WORKSPACE
-        ─────────────────────────────────────────────────────────────
-        padding-left/right = SIDEBAR_W  →  workspace never slides
-        under the fixed sidebar.
-
-        The flex row inside:
-          [preview: flex-1]  [resizer: 4px]  [editor: rightPanelWidth%]
-
-        Because the editor is on the RIGHT and preview takes flex-1,
-        there is zero gap — they are adjacent flex siblings.
-        ─────────────────────────────────────────────────────────────
-      */}
+      {/* MAIN WORKSPACE */}
       <div
         ref={containerRef}
         className="flex flex-1 relative w-full min-w-0 overflow-x-hidden items-stretch"
         style={workspacePaddingStyle}
       >
-        {/* ── PREVIEW (flex-1 = fills all remaining space) ── */}
+        {/* ── PREVIEW ── */}
         <div
           className={`
             flex-1 min-w-0 relative bg-white overflow-x-hidden
@@ -416,7 +403,6 @@ const Customize = () => {
               ${isMobileSim ? "bg-gray-200/80 py-10 flex items-start justify-center" : "bg-white"}
             `}
           >
-            {/* Drag overlay — prevents iframe/canvas from stealing events */}
             {isDragging && (
               <div className="absolute inset-0 bg-transparent z-50 cursor-col-resize" />
             )}
@@ -432,12 +418,16 @@ const Customize = () => {
               {isMobileSim && (
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-28 h-[22px] bg-gray-900 rounded-b-2xl z-50 pointer-events-none" />
               )}
-              <RightPanel portfolioData={portfolioData} />
+
+              <RightPanel
+                portfolioData={portfolioData}
+                onCustomSelect={setCustomSelectedId}
+              />
             </div>
           </div>
         </div>
 
-        {/* ── RESIZER (desktop dual mode only) ── */}
+        {/* ── RESIZER ── */}
         {viewMode === "dual" && isPanelOpen && !showPreviewMobile && isDesktop && (
           <Resizer onMouseDown={startDragging} isDragging={isDragging} />
         )}
@@ -451,7 +441,6 @@ const Customize = () => {
               transition: isDragging ? "none" : "width 0.35s cubic-bezier(0.4, 0, 0.2, 1)",
               willChange: "width",
               overflow: "hidden",
-              // Ensure no gap on the right when sidebar is right-docked
               minWidth: isPanelOpen ? undefined : 0,
             }}
             className="h-full"
@@ -470,11 +459,12 @@ const Customize = () => {
               formLogic={formLogic}
               themeBg={themeBg} setThemeBg={setThemeBg}
               themeFont={themeFont} setThemeFont={setThemeFont}
+              customSelectedId={customSelectedId}
             />
           </div>
         )}
 
-        {/* ── EDITOR PANEL (mobile — full width, behind tab toggle) ── */}
+        {/* ── EDITOR PANEL (mobile) ── */}
         {!showPreviewMobile && !isDesktop && (
           <div className="w-full" style={{ paddingBottom: 72 }}>
             <EditorPanel
@@ -491,17 +481,12 @@ const Customize = () => {
               formLogic={formLogic}
               themeBg={themeBg} setThemeBg={setThemeBg}
               themeFont={themeFont} setThemeFont={setThemeFont}
+              customSelectedId={customSelectedId}
             />
           </div>
         )}
       </div>
- {/* Footer */}
-      <StudioFooter 
-        isMobileSim={isMobileSim} 
-        showPreviewMobile={showPreviewMobile} 
-        windowWidth={windowWidth} 
-      />
-      
+
     </div>
   );
 };

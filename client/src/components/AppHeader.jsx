@@ -97,7 +97,8 @@ const AppHeader = () => {
       </AnimatePresence>
 
       <motion.header
-        layout 
+        layout
+        data-native-cursor
         initial={{ y: -20, opacity: 0, width: "80px", height: "58px", borderRadius: "99px" }}
         animate={{ 
           y: isVisible ? 0 : -90,
@@ -234,7 +235,7 @@ const AppHeader = () => {
                     <>
                       {/* Plus icon button — replaces "Create New" */}
                       <motion.button
-                        onClick={() => handleNavigate("/create", "Opening designs...")}
+                        onClick={() => handleNavigate("/create", "Opening creator...")}
                         whileTap={{ scale: 0.93 }}
                         title="Create new"
                         className={`
@@ -346,7 +347,7 @@ const AppHeader = () => {
                 {user ? (
                   <div className="flex flex-col gap-4">
                     <motion.button
-                      onClick={() => handleNavigate("/templates", "Opening templates...")}
+                      onClick={() => handleNavigate("/create", "Opening creator...")}
                       className="w-full bg-black text-white rounded-full py-3.5 text-[15px] font-medium shadow-lg active:scale-[0.98] transition-transform"
                       whileTap={{ scale: 0.97 }}
                     >

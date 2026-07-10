@@ -52,6 +52,14 @@
 
   <!-- UTILITY PAGES (Priority 0.7) -->
   <url>
+    <loc>https://foliofyx.in/studio</loc>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://foliofyx.in/release</loc>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://foliofyx.in/about</loc>
     <priority>0.7</priority>
   </url>

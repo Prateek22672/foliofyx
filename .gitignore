@@ -1,0 +1,16 @@
+# Dependencies & builds (client has its own .gitignore too — this is defense in depth)
+node_modules/
+dist/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Stray local assets not used by the site
+bg-blue.jpg
+client/public/FYX/newVideo - Trim.mp4
+
+# OS
+Thumbs.db
+.DS_Store

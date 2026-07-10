@@ -162,22 +162,22 @@ axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
     const status = error.response?.status;
+    const reqUrl = error.config?.url || "";
 
-    // 🔥 Handle unauthorized globally
-    if (status === 401) {
-      console.warn("🔒 Unauthorized → redirecting to login");
+    // A 401 from the login/signup endpoints just means wrong credentials —
+    // hard-reloading to /login here used to replay the whole splash screen
+    // on every failed login attempt. Only force-redirect when an
+    // authenticated session actually expires elsewhere in the app.
+    const isAuthCall = /\/auth\/(login|google-login|signup|register|refresh)/.test(reqUrl);
+    const onAuthPage = ["/login", "/signup"].includes(window.location.pathname);
 
+    if (status === 401 && !isAuthCall && !onAuthPage) {
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
-
       window.location.href = "/login";
     }
 
-    // 🔥 Helpful debug log
-    console.error(
-      "❌ API Error:",
-      error.response?.data || error.message
-    );
+    console.error("API Error:", error.response?.data || error.message);
 
     return Promise.reject(error);
   }

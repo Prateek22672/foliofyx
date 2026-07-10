@@ -19,8 +19,10 @@ export default function ScrollHUD({ scrollYProgress }) {
   }, [smoothProgress]);
 
   // ── Determine which section we're in so HUD color stays legible ──
-  // White section ≈ 0.07–0.43 of total scroll (matches Landing.js timeline)
-  const isOnLightSection = progressVal > 0.06 && progressVal < 0.43;
+  // White section ≈ 0.06–0.45 of total scroll (2100vh container). These
+  // hardcoded break values must stay in sync with the scroll timeline
+  // defined in Landing.jsx.
+  const isOnLightSection = progressVal > 0.06 && progressVal < 0.45;
 
   const hudColor       = isOnLightSection ? "#111111" : "#ffffff";
   const trackColor     = isOnLightSection ? "rgba(0,0,0,0.15)" : "rgba(255,255,255,0.2)";

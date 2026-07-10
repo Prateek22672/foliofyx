@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+
+# Private app areas — no value in the index
+Disallow: /dashboard
+Disallow: /customize/
+Disallow: /checkout/
+Disallow: /profile
+Disallow: /studio/reference
+Disallow: /ai
+
+Sitemap: https://foliofyx.in/sitemap.xml

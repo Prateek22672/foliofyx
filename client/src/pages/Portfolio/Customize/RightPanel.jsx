@@ -3,6 +3,7 @@ import React, { useState, useMemo, useRef, useEffect } from "react";
 import { TEMPLATE_LIST } from "../../Portfolio/Templates";
 import DraggableBlock from "../../../components/DraggableBlock";
 import { useElements } from "../../../context/ElementContext";
+import CustomCanvas from "../../Templates/Custom/CustomCanvas";
 
 const sanitizeData = (rawData) => {
   if (!rawData) return {};
@@ -20,39 +21,37 @@ const sanitizeData = (rawData) => {
   };
 };
 
-const RightPanel = ({ portfolioData = {} }) => {
+const RightPanel = ({ portfolioData = {}, onCustomSelect }) => {
   const safeData     = useMemo(() => sanitizeData(portfolioData), [portfolioData]);
   const rawTemplate  = safeData?.template ?? "minimal";
   const templateName = rawTemplate.toLowerCase();
-  const selected     = TEMPLATE_LIST[templateName];
-  const Template     = selected?.module || TEMPLATE_LIST["modern"]?.module;
+  const isCustom     = templateName === "custom";
+
+  const selected = TEMPLATE_LIST[templateName];
   const { elements = [], setElements = () => {} } = useElements() || {};
 
+  // ALL hooks run unconditionally — before any conditional return
   const [order, setOrder] = useState([
     "Header", "Home", "About", "Experience", "Projects", "Contact", "Footer",
   ]);
 
   const outerRef = useRef(null);
   const innerRef = useRef(null);
-  const [scale, setScale]               = useState(1);
+  const [scale, setScale]                 = useState(1);
   const [contentHeight, setContentHeight] = useState(0);
   const [isMobileMode, setIsMobileMode]   = useState(false);
 
   const DESIGN_WIDTH = 1440;
 
   useEffect(() => {
+    if (isCustom) return; // custom canvas manages its own sizing
+
     const update = () => {
       if (!outerRef.current || !innerRef.current) return;
-
-      // Use the outer element's offsetWidth (excludes scrollbar) so the
-      // scale math is always based on the true visible width — this is what
-      // eliminates the right-side gap caused by the scrollbar gutter.
       const availableWidth = outerRef.current.offsetWidth;
       if (availableWidth <= 0) return;
-
       const isSmall = availableWidth < 768;
       setIsMobileMode(isSmall);
-
       const nextScale = isSmall ? 1 : Math.min(1, availableWidth / DESIGN_WIDTH);
       setScale(nextScale);
       setContentHeight(innerRef.current.scrollHeight);
@@ -63,7 +62,14 @@ const RightPanel = ({ portfolioData = {} }) => {
     if (outerRef.current) ro.observe(outerRef.current);
     if (innerRef.current) ro.observe(innerRef.current);
     return () => ro.disconnect();
-  }, [portfolioData, order, elements]);
+  }, [isCustom, portfolioData, order, elements]);
+
+  // Safe to branch here — every hook above has already run
+  if (isCustom) {
+    return <CustomCanvas readOnly={false} onSelect={onCustomSelect} />;
+  }
+
+  const Template = selected?.module || TEMPLATE_LIST["modern"]?.module;
 
   const moveBlock = (from, to) => {
     const updated = [...order];
@@ -93,21 +99,13 @@ const RightPanel = ({ portfolioData = {} }) => {
     return null;
   };
 
-  const bg         = safeData.themeBg      || selected?.defaultBg   || "#ffffff";
-  const fg         = safeData.themeFont    || selected?.defaultFont  || "#111827";
+  const bg         = safeData.themeBg        || selected?.defaultBg  || "#ffffff";
+  const fg         = safeData.themeFont       || selected?.defaultFont || "#111827";
   const fontFamily = safeData.themeFontFamily || "Switzer, sans-serif";
 
   if (!Template) return <div className="text-center p-10 text-gray-500">Loading Template...</div>;
 
   return (
-    /*
-      Outer container:
-      - overflow-x: hidden  → never a horizontal scrollbar
-      - overflow-y: auto    → vertical scroll lives here
-      - NO width: 100% on the inner scaled div leaves a gap on the right;
-        using offsetWidth (above) for scale calculation means the scaled
-        content exactly fills the visible area — zero gap.
-    */
     <div
       ref={outerRef}
       style={{
@@ -117,8 +115,6 @@ const RightPanel = ({ portfolioData = {} }) => {
         overflowX:       "hidden",
         overflowY:       "auto",
         backgroundColor: bg,
-        // Prevent the browser from reserving scrollbar gutter space, which
-        // would create the right-side white gap visible in the screenshot.
         scrollbarGutter: "auto",
       }}
     >
@@ -134,12 +130,8 @@ const RightPanel = ({ portfolioData = {} }) => {
           "--folio-bg":    bg,
           "--folio-fg":    fg,
           "--folio-font":  fontFamily,
-          // Collapse the phantom space the browser adds after a CSS scale().
-          // Without these two negative margins the outer div grows to
-          // DESIGN_WIDTH px wide even though the visible content is smaller,
-          // which is what produced the right-side gap.
-          marginBottom: isMobileMode ? 0 : -(contentHeight   * (1 - scale)),
-          marginRight:  isMobileMode ? 0 : -(DESIGN_WIDTH * (1 - scale)),
+          marginBottom: isMobileMode ? 0 : -(contentHeight * (1 - scale)),
+          marginRight:  isMobileMode ? 0 : -(DESIGN_WIDTH  * (1 - scale)),
           flexShrink:   0,
         }}
       >

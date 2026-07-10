@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Routes, Route, useLocation } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 
 // ✅ Import Guards
 import { PublicRoute, ProtectedRoute } from "./components/RouteGuards";
@@ -8,6 +8,8 @@ import { PublicRoute, ProtectedRoute } from "./components/RouteGuards";
 import Landing from "./landing/Landing";
 import Create from "./pages/create"; 
 import Customize from "./pages/Portfolio/Customize/customize-editor/Customize";
+import ReferenceStudio from "./pages/ReferenceStudio";
+import AIBuilder from "./pages/AIBuilder";
 import Login from "./pages/Auth/Login";
 import Signup from "./pages/Auth/Signup";
 import AppHeader from "./components/AppHeader";
@@ -36,21 +38,35 @@ import { PortfolioProvider } from "./context/PortfolioContext";
 // Global UI
 import SmoothScroll from "./components/SmoothScroll";
 import CustomCursor from "./components/CustomCursor";
-import ChatWidget from "./chatbot/ChatWidget"; 
-import WixAboutPage from "./pages/WixAbout/WixAboutPage";
+import ChatWidget from "./chatbot/ChatWidget";
 import CsStudentTemplates from "./pages/themes/CsStudentTemplates";
 import ResumeToPortfolio from "./pages/ResumeToPortfolio";
 
+// Pages where the lag-dot custom cursor is welcome. Everywhere else keeps the
+// native cursor — the custom one hurts UX on dense editor/dashboard screens.
+const CURSOR_PAGES = ["/", "/about", "/contact", "/talent", "/Benefits", "/create"];
+
 function App() {
   const location = useLocation();
+  const showCursor = CURSOR_PAGES.includes(location.pathname);
+
+  // Hide the native cursor only on pages that use the custom one.
+  useEffect(() => {
+    document.body.classList.toggle("custom-cursor-on", showCursor);
+    return () => document.body.classList.remove("custom-cursor-on");
+  }, [showCursor]);
   
   /**
    * 1. UNIVERSAL SPLASH LOGIC
    * We set showSplash to true by default so it triggers on ANY route refresh.
    * isAppReady remains false until the splash screen curtain is fully covering the screen.
    */
-  const [showSplash, setShowSplash] = useState(true); 
-  const [isAppReady, setIsAppReady] = useState(false);
+  // Auth pages skip the splash entirely — a user heading to log in wants the
+  // form now, not the intro animation.
+  const skipSplash =
+    location.pathname.startsWith("/login") || location.pathname.startsWith("/signup");
+  const [showSplash, setShowSplash] = useState(!skipSplash);
+  const [isAppReady, setIsAppReady] = useState(skipSplash);
 
   // 2. Hide Header Logic
   const hideHeader =
@@ -59,7 +75,8 @@ function App() {
     location.pathname.startsWith("/login") ||
     location.pathname.startsWith("/signup") ||
     location.pathname.startsWith("/customize/") ||
-    location.pathname.startsWith("/create");
+    location.pathname.startsWith("/create") ||
+    location.pathname.startsWith("/ai-builder");
 
   // 3. Hide Chatbot Logic
   const hideGlobalWidget = 
@@ -67,7 +84,8 @@ function App() {
     location.pathname.startsWith("/demo/") ||
     location.pathname.startsWith("/customize/") ||
     location.pathname.startsWith("/login") ||
-    location.pathname.startsWith("/signup");
+    location.pathname.startsWith("/signup") ||
+    location.pathname.startsWith("/ai-builder");
 
   return (
     <PortfolioProvider>
@@ -87,7 +105,8 @@ function App() {
           )}
 
           {/* GLOBAL UI ELEMENTS - Only show when app is ready underneath */}
-          {isAppReady && <CustomCursor />}
+          {/* Custom cursor only on marketing pages (see CURSOR_PAGES) */}
+          {isAppReady && showCursor && <CustomCursor />}
           {isAppReady && !hideGlobalWidget && <ChatWidget />}
 
           {/* MAIN CONTENT */}
@@ -114,8 +133,8 @@ function App() {
                   <Route path="/Benefits" element={<Pricing />} />
                   <Route path="/studio" element={<StudioPage />} />
                   <Route path="/legal" element={<Legal />} />
-                  <Route path="/testing" element={<WixAboutPage/>}/>
                   <Route path="/templates/cs-students" element={<CsStudentTemplates />} />
+                  <Route path="/templates" element={<Navigate to="/designs" replace />} />
 
                   {/* SEO ROUTES */}
                   <Route path="/resume-to-portfolio" element={<ResumeToPortfolio />} />
@@ -143,14 +162,19 @@ function App() {
                     <Route path="/checkout/:planId" element={<Checkout />} />
                     
                     <Route
-                      path="/customize/:template" 
+                      path="/customize/:template"
                       element={
                         <ElementProvider>
                           <Customize />
                         </ElementProvider>
                       }
                     />
+                    <Route path="/studio/reference" element={<ReferenceStudio />} />
+                    <Route path="/ai-builder" element={<AIBuilder />} />
                   </Route>
+
+                  {/* Catch-all: unknown paths go home */}
+                  <Route path="*" element={<Navigate to="/" replace />} />
 
                 </Routes>
               </div>
