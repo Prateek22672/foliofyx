@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, useSpring, useTransform } from "framer-motion";
 
 export default function ScrollHUD({ scrollYProgress }) {
@@ -10,19 +10,30 @@ export default function ScrollHUD({ scrollYProgress }) {
 
   const [percentage, setPercentage] = useState(0);
   const [progressVal, setProgressVal] = useState(0);
+  const lastPct = useRef(-1);
 
   useEffect(() => {
     return smoothProgress.on("change", (v) => {
-      setPercentage(Math.round(v * 100));
-      setProgressVal(v);
+      // Only re-render when the visible integer percentage actually changes —
+      // updating state on every scroll frame re-rendered this component ~60
+      // times a second for the whole scroll and contributed real jank.
+      // (The ring fill and line height are MotionValues and stay 60fps.)
+      const pct = Math.round(v * 100);
+      if (pct !== lastPct.current) {
+        lastPct.current = pct;
+        setPercentage(pct);
+        setProgressVal(v);
+      }
     });
   }, [smoothProgress]);
 
   // ── Determine which section we're in so HUD color stays legible ──
-  // White section ≈ 0.06–0.45 of total scroll (2100vh container). These
-  // hardcoded break values must stay in sync with the scroll timeline
-  // defined in Landing.jsx.
-  const isOnLightSection = progressVal > 0.06 && progressVal < 0.45;
+  // Light-background windows on the 2700vh timeline in Landing.jsx:
+  // White ≈ 0.02–0.39, Themes (light gray) ≈ 0.69–0.85 of total scroll.
+  // These hardcoded break values must stay in sync with that timeline.
+  const isOnLightSection =
+    (progressVal > 0.02 && progressVal < 0.39) ||
+    (progressVal > 0.69 && progressVal < 0.85);
 
   const hudColor       = isOnLightSection ? "#111111" : "#ffffff";
   const trackColor     = isOnLightSection ? "rgba(0,0,0,0.15)" : "rgba(255,255,255,0.2)";
@@ -30,13 +41,13 @@ export default function ScrollHUD({ scrollYProgress }) {
 
   // Derive current label from progress value (avoids useTransform string maps)
   const getLabel = (v) => {
-    if (v < 0.08)  return "Scroll to Explore";
-    if (v < 0.25)  return "The Problem";
-    if (v < 0.43)  return "The Solution";
-    if (v < 0.60)  return "Talent Ecosystem";
-    if (v < 0.78)  return "Find Your Vibe";
-    if (v < 0.93)  return "Ready to Launch?";
-    return "Welcome Aboard";
+    if (v < 0.02)  return "Scroll to Explore";
+    if (v < 0.20)  return "The Problem";
+    if (v < 0.39)  return "The Solution";
+    if (v < 0.54)  return "The Showcase";
+    if (v < 0.69)  return "Talent Ecosystem";
+    if (v < 0.85)  return "Find Your Vibe";
+    return "Ready to Launch?";
   };
 
   const lineHeight = useTransform(smoothProgress, [0, 1], ["0%", "100%"]);

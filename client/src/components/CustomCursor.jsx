@@ -27,9 +27,11 @@ const CustomCursor = () => {
 
   useEffect(() => {
     // 1. IMPROVED PHYSICS (Friction/Lerp)
-    // Higher friction (0.2 - 0.3) makes it feel more "correct" and less "laggy"
+    // Higher friction = tighter tracking. 0.35 keeps a hint of glide but the
+    // dot lands on buttons fast enough to aim with (0.22 lagged too far
+    // behind the real pointer and made small targets hard to hit).
     const lerp = (start, end, factor) => start + (end - start) * factor;
-    const friction = 0.22; 
+    const friction = 0.35;
 
     // 2. EFFICIENT THEME DETECTION
     const detectTheme = throttle(() => {

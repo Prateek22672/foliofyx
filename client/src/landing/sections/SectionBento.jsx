@@ -1,5 +1,5 @@
 import React, { useRef } from "react";
-import { motion, useScroll, useTransform, useSpring } from "framer-motion";
+import { motion, useInView } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 
 // --- SEO OPTIMIZED MOCK DATA ---
@@ -51,23 +51,27 @@ const MobileCard = ({ src, title, subtitle, color, altText }) => (
   </motion.div>
 );
 
-const MarqueeColumn = ({ items, duration, direction = "up", skewStrength = 0 }) => (
+// Pure CSS animation with play-state gating: while the Bento section is
+// parked offscreen the columns are PAUSED (zero main-thread/compositor
+// cost — this was the biggest source of scroll lag on 60Hz machines),
+// and they resume exactly where they left off when the section arrives.
+const MarqueeColumn = ({ items, duration, direction = "up", skewStrength = 0, paused }) => (
   <div className="relative flex flex-col overflow-hidden h-[100vh] md:h-[150vh] mask-gradient">
-    <motion.div
+    <div
       className="flex flex-col gap-4 md:gap-6 will-change-transform"
-      animate={{ y: direction === "up" ? [0, `-${50}%`] : [`-${50}%`, 0] }}
-      transition={{ repeat: Infinity, duration, ease: "linear" }}
       style={{
         backfaceVisibility: "hidden",
         WebkitBackfaceVisibility: "hidden",
-        transformStyle: "preserve-3d",
-        skewY: skewStrength,
+        "--skew": `${skewStrength}deg`,
+        animation: `fyxBentoScroll ${duration}s linear infinite`,
+        animationDirection: direction === "up" ? "normal" : "reverse",
+        animationPlayState: paused ? "paused" : "running",
       }}
     >
       {[...items, ...items].map((item, idx) => (
         <MobileCard key={`${item.id}-${idx}`} {...item} subtitle={item.tag} />
       ))}
-    </motion.div>
+    </div>
   </div>
 );
 
@@ -75,6 +79,8 @@ export default function SectionBento({ scrollProgress }) {
   const containerRef = useRef(null);
   // ── navigate to /themes when "Explore All Templates" is clicked ──
   const navigate = useNavigate();
+  // Pause the marquee columns whenever the section is parked offscreen.
+  const inView = useInView(containerRef, { amount: 0.05 });
 
   return (
     <section
@@ -82,6 +88,12 @@ export default function SectionBento({ scrollProgress }) {
       className="relative w-full bg-[#080808] z-30 rounded-t-[40px] md:rounded-t-[60px] -mt-[40px] md:-mt-[60px] pb-20 border-t border-white/10 shadow-[0_-50px_100px_rgba(0,0,0,0.8)] will-change-transform font-['Switzer']"
       style={{ minHeight: "60vh" }}
     >
+      <style>{`
+        @keyframes fyxBentoScroll {
+          from { transform: translateY(0) skewY(var(--skew, 0deg)); }
+          to   { transform: translateY(-50%) skewY(var(--skew, 0deg)); }
+        }
+      `}</style>
       {/* 1. HEADER */}
       <div className="pt-20 md:pt-24 pb-12 px-6 text-center">
         <motion.div
@@ -109,16 +121,16 @@ export default function SectionBento({ scrollProgress }) {
       <div className="container mx-auto px-4 max-w-[95%] md:max-w-6xl">
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6 h-[70vh] md:h-[100vh] overflow-hidden [mask-image:linear-gradient(to_bottom,transparent,black_15%,black_85%,transparent)]">
           <div>
-            <MarqueeColumn items={TEMPLATES.slice(0, 6)}  duration={45} direction="up"   skewStrength={-2} />
+            <MarqueeColumn items={TEMPLATES.slice(0, 6)}  duration={45} direction="up"   skewStrength={-2} paused={!inView} />
           </div>
           <div>
-            <MarqueeColumn items={TEMPLATES.slice(6, 12)} duration={35} direction="down" skewStrength={2} />
+            <MarqueeColumn items={TEMPLATES.slice(6, 12)} duration={35} direction="down" skewStrength={2} paused={!inView} />
           </div>
           <div className="hidden md:block">
-            <MarqueeColumn items={TEMPLATES.slice(12, 18)} duration={50} direction="up"  skewStrength={-1} />
+            <MarqueeColumn items={TEMPLATES.slice(12, 18)} duration={50} direction="up"  skewStrength={-1} paused={!inView} />
           </div>
           <div className="hidden lg:block">
-            <MarqueeColumn items={TEMPLATES.slice(2, 8)}  duration={40} direction="down" skewStrength={1} />
+            <MarqueeColumn items={TEMPLATES.slice(2, 8)}  duration={40} direction="down" skewStrength={1} paused={!inView} />
           </div>
         </div>
       </div>

@@ -44,17 +44,55 @@ const Landing = () => {
   const scrollProgressMV = useTransform(scrollY, (v) => v / vh);
 
   // ── SCROLL TIMELINE ──────────────────────────────────────────────────────
-  const yWhite = useTransform(scrollY, [0, 1.5 * vh],  ["150vh", "0vh"],  { clamp: true });
-  const yBento = useTransform(scrollY, [0, 9.5 * vh],  ["750vh", "0vh"],  { clamp: true });
-  const yTalent= useTransform(scrollY, [0, 12.5 * vh], ["690vh", "0vh"],  { clamp: true });
-  const yThemes= useTransform(scrollY,
-    [0, 15.5 * vh, 18.5 * vh, 20.0 * vh],
-    ["1500vh", "0vh", "0vh", "-100vh"],
-    { clamp: true }
-  );
-  const yOutro = useTransform(scrollY,
-    [0, 18.5 * vh, 20.0 * vh],
-    ["100vh", "100vh", "-85vh"],
+  // The hero lives in normal document flow, so it scrolls away 1:1 with the
+  // page. White MUST track that exit exactly ([0, 1] at 1:1 speed) or the
+  // black app background peeks through between hero bottom and White top.
+  // After that, sections are sequential: each slides in over 2 viewport-
+  // scrolls above the previous (pinned) one, then dwells so its content and
+  // internal animations fully play out before the next section starts.
+  // Units are viewport-heights of scroll.
+  //
+  //   hero+white  0 – 1    (1:1 — feels like native scrolling into White)
+  //   white strip 1.5 – 8.5 horizontal cards (SectionWhite)
+  //   bento       9 – 11 in, dwell → 13
+  //   talent     13 – 15 in, dwell → 17
+  //   themes     17 – 19 in, internals 19 – 20, dwell → 21
+  //   outro      21 – 23 in, 23 – 25.5 footer reveal (measured), end 26
+  //
+  // Container height below must stay = 100vh + (end × 100vh) = 2700vh.
+  // SectionWhite/SectionThemes internal ranges and ScrollHUD breaks reference
+  // these numbers — keep them in sync.
+  // Parked position is 110vh (not 100vh): Bento (-mt-60px), Talent (-mt-10)
+  // and Themes' rotated marquee all paint slightly ABOVE their own top edge,
+  // so a section parked exactly at the viewport bottom leaks a dark band into
+  // the section before it. The extra 10vh keeps every overhang hidden until
+  // the section's own window. White stays at exactly 100vh — it must remain
+  // glued to the hero's bottom edge (no overhang, 1:1 hand-off).
+  const yWhite = useTransform(scrollY, [0, 1 * vh],       ["100vh", "0vh"], { clamp: true });
+  const yBento = useTransform(scrollY, [9 * vh, 11 * vh], ["110vh", "0vh"], { clamp: true });
+  const yTalent= useTransform(scrollY, [13 * vh, 15 * vh],["110vh", "0vh"], { clamp: true });
+  const yThemes= useTransform(scrollY, [17 * vh, 19 * vh],["110vh", "0vh"], { clamp: true });
+
+  // Outro slides in, then keeps travelling upward by exactly the measured
+  // overflow (footer height) — no magic constants, correct on every viewport.
+  const outroRef = useRef(null);
+  const [outroExtraVh, setOutroExtraVh] = useState(85); // fallback until measured
+  useEffect(() => {
+    const el = outroRef.current;
+    if (!el) return;
+    const measure = () => {
+      const overflow = el.scrollHeight - window.innerHeight;
+      setOutroExtraVh(Math.max(0, (overflow / window.innerHeight) * 100));
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  const yOutro = useTransform(
+    scrollY,
+    [21 * vh, 23 * vh, 25.5 * vh],
+    ["110vh", "0vh", `-${outroExtraVh}vh`],
     { clamp: true }
   );
 
@@ -91,7 +129,15 @@ const Landing = () => {
         {showOfferPopup && (
           <TryMaxPopup
             onClose={() => setShowOfferPopup(false)}
-            onLogin={() => { setShowOfferPopup(false); navigate("/login"); }}
+            onLogin={() => {
+              setShowOfferPopup(false);
+              // Best-UX flow for the Max offer: log in first (the student
+              // check runs on the account email), then land directly on the
+              // Benefits page with the student-verification modal open.
+              sessionStorage.setItem("fyx_post_login", "/Benefits");
+              sessionStorage.setItem("fyx_student_intent", "1");
+              navigate("/login");
+            }}
           />
         )}
       </AnimatePresence>
@@ -106,13 +152,13 @@ const Landing = () => {
       <ScrollHUD scrollYProgress={scrollYProgress} />
 
       {/* Main scroll container.
-          Height must equal the last timeline keyframe (20 * vh of scroll) plus
-          one viewport, or the page keeps scrolling after the outro settles —
-          a dead zone where nothing moves. 20vh scroll + 100vh viewport = 2100vh. */}
+          Height must equal the timeline end (26 viewport-scrolls) plus one
+          viewport, or the page keeps scrolling after the outro settles —
+          a dead zone where nothing moves. 26×100vh + 100vh = 2700vh. */}
       <div
         ref={containerRef}
         className="relative w-full bg-transparent overflow-x-hidden font-['Wix_Madefor_Text']"
-        style={{ height: "2100vh" }}
+        style={{ height: "2700vh" }}
       >
         <Hero message={message} handleNavigation={handleNavigation} />
 
@@ -132,7 +178,7 @@ const Landing = () => {
           <Themes scrollProgress={scrollProgressMV} handleNavigation={handleNavigation} />
         </motion.div>
 
-        <motion.div style={{ position: "fixed", inset: 0, zIndex: 6, y: yOutro }} className="will-change-transform">
+        <motion.div ref={outroRef} style={{ position: "fixed", inset: 0, zIndex: 6, y: yOutro }} className="will-change-transform">
           <Outro handleNavigation={handleNavigation} />
         </motion.div>
       </div>

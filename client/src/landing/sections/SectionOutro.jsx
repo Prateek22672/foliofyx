@@ -15,11 +15,11 @@ export default function SectionOutro({ handleNavigation }) {
       
       {/* Background Decor */}
       <div className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden">
-        <div 
-          className="absolute top-[10%] left-[10%] w-[30vw] h-[30vw] bg-purple-500 rounded-full blur-[120px] opacity-20 mix-blend-screen will-change-transform"
+        <div
+          className="absolute top-[10%] left-[10%] w-[30vw] h-[30vw] bg-purple-500 rounded-full blur-[60px] md:blur-[120px] opacity-20 mix-blend-screen will-change-transform"
         />
-        <div 
-          className="absolute bottom-[20%] right-[10%] w-[40vw] h-[40vw] bg-blue-500 rounded-full blur-[120px] opacity-20 mix-blend-screen will-change-transform"
+        <div
+          className="absolute bottom-[20%] right-[10%] w-[40vw] h-[40vw] bg-blue-500 rounded-full blur-[60px] md:blur-[120px] opacity-20 mix-blend-screen will-change-transform"
         />
       </div>
 
@@ -40,7 +40,7 @@ export default function SectionOutro({ handleNavigation }) {
       </div>
 
       {/* Footer */}
-      <div className="relative z-20 w-full bg-[#0d0d82] pb-10">
+      <div className="relative z-20 w-full bg-[#0d0d82]">
         <Footer />
       </div>
 

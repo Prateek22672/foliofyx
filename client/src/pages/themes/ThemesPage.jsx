@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { SearchX } from "lucide-react";
 import { useSplash } from "../../context/SplashContext";
 import Footer from "../../components/Footer";
 import ThemesLandingHero from "./components/ThemesLandingHero";
@@ -79,7 +80,17 @@ const ThemesPage = () => {
 
   return (
     <>
-      <div className="bg-[#FDFCF8] min-h-screen pb-20">
+      <div className="relative min-h-screen bg-[#FAFAFA] pb-24 text-black selection:bg-black/10">
+
+        {/* Page-level pastel wash so the gallery never reads flat white */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(ellipse 45% 30% at 0% 45%, rgba(233,213,255,0.28), transparent 70%), radial-gradient(ellipse 45% 30% at 100% 70%, rgba(199,210,254,0.25), transparent 70%)",
+          }}
+        />
 
         {/* ── 1. HERO ── */}
         <ThemesLandingHero
@@ -90,47 +101,33 @@ const ThemesPage = () => {
           onPreviewFirst={handlePreviewFirst}
         />
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-10 lg:px-12 -mt-6 sm:-mt-10 relative z-10">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
-          {/* ── 2. CATEGORY TABS ── */}
-          <div className="flex justify-center mb-8 sm:mb-12">
-
-            {/* Tablet+ — single horizontal strip */}
-            <div className="hidden sm:inline-flex bg-white p-1.5 rounded-full shadow-lg border border-gray-100">
-              {CATEGORIES.map((cat) => (
-                <button
-                  key={cat.id}
-                  onClick={() => { setActiveCategory(cat.id); setSearchTerm(""); }}
-                  className={`
-                    px-4 md:px-6 py-2 md:py-2.5 rounded-full text-xs md:text-sm font-medium
-                    transition-all duration-300 whitespace-nowrap
-                    ${activeCategory === cat.id
-                      ? "bg-black text-white shadow-md"
-                      : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"}
-                  `}
-                >
-                  {cat.label}
-                </button>
-              ))}
-            </div>
-
-            {/* Mobile — 2-column grid of pills */}
-            <div className="sm:hidden w-full grid grid-cols-2 gap-2">
-              {CATEGORIES.map((cat) => (
-                <button
-                  key={cat.id}
-                  onClick={() => { setActiveCategory(cat.id); setSearchTerm(""); }}
-                  className={`
-                    py-2.5 px-3 rounded-2xl text-xs font-semibold
-                    transition-all duration-200 text-center border
-                    ${activeCategory === cat.id
-                      ? "bg-black text-white border-black shadow-md"
-                      : "bg-white text-gray-500 border-gray-200 hover:border-gray-400"}
-                  `}
-                >
-                  {cat.label}
-                </button>
-              ))}
+          {/* ── 2. CATEGORY FILTER ROW ── */}
+          <div className="mt-10 mb-10 flex justify-center sm:mt-12 sm:mb-14">
+            <div
+              role="group"
+              aria-label="Filter themes by category"
+              className="flex w-full max-w-full items-center gap-1 overflow-x-auto rounded-full border border-black/10 bg-white p-1.5 shadow-sm sm:w-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            >
+              {CATEGORIES.map((cat) => {
+                const isActive = activeCategory === cat.id;
+                return (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    aria-pressed={isActive}
+                    onClick={() => { setActiveCategory(cat.id); setSearchTerm(""); }}
+                    className={`shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-xs font-medium transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/40 sm:px-6 sm:py-2.5 sm:text-sm ${
+                      isActive
+                        ? "bg-black text-white shadow-md"
+                        : "text-black/50 hover:bg-black/5 hover:text-black"
+                    }`}
+                  >
+                    {cat.label}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
@@ -141,23 +138,18 @@ const ThemesPage = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, height: 0 }}
-                className="
-                  bg-gradient-to-r from-blue-50 to-indigo-50
-                  border border-blue-100 rounded-2xl sm:rounded-3xl
-                  p-5 sm:p-8 mb-8 sm:mb-12
-                  text-center max-w-4xl mx-auto
-                "
+                className="mx-auto mb-10 max-w-4xl rounded-2xl border border-black/10 bg-white p-6 text-center shadow-sm sm:mb-14 sm:rounded-3xl sm:p-8"
               >
-                <span className="text-blue-600 font-bold tracking-widest text-xs uppercase mb-2 block">
+                <span className="mb-2 block text-[11px] font-bold uppercase tracking-[0.2em] text-black/40">
                   Placement Ready
                 </span>
-                <h3 className="text-lg sm:text-2xl font-bold text-gray-900 mb-2">
+                <h3 className="mb-2 text-lg font-semibold tracking-tight text-black sm:text-2xl">
                   Prepping for Placements?
                 </h3>
-                <p className="text-sm sm:text-base text-gray-600 max-w-2xl mx-auto leading-relaxed">
+                <p className="mx-auto max-w-2xl text-sm leading-relaxed text-black/60 sm:text-base">
                   Are you a CSE student confused about how to showcase your projects?
                   FolioFYX has handpicked these themes to highlight your{" "}
-                  <strong>GitHub stats, LeetCode, and Projects</strong>.
+                  <strong className="font-semibold text-black">GitHub stats, LeetCode, and Projects</strong>.
                   Just relax, pick a theme, and get hired.
                 </p>
               </motion.div>
@@ -165,10 +157,19 @@ const ThemesPage = () => {
           </AnimatePresence>
 
           {/* ── 4. THEME GRID — ref attached here ── */}
-          <div ref={gridRef}>
+          <div ref={gridRef} className="scroll-mt-28">
+            <div className="mb-6 flex items-baseline justify-between gap-4">
+              <h2 className="text-sm font-semibold uppercase tracking-[0.16em] text-black/40">
+                {CATEGORIES.find((c) => c.id === activeCategory)?.label ?? "All Themes"}
+              </h2>
+              <p aria-live="polite" className="text-xs font-medium text-black/35">
+                {filteredThemes.length} {filteredThemes.length === 1 ? "template" : "templates"}
+              </p>
+            </div>
+
             <motion.div
               layout
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-5 md:gap-x-8 gap-y-8 md:gap-y-12"
+              className="grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-8 md:gap-y-12 xl:grid-cols-3"
             >
               <AnimatePresence>
                 {filteredThemes.length > 0 ? (
@@ -177,6 +178,7 @@ const ThemesPage = () => {
                       key={theme.id}
                       theme={theme}
                       index={index}
+                      variant="light"
                       handleStart={handleStart}
                       openPreview={setSelectedTheme}
                     />
@@ -185,14 +187,22 @@ const ThemesPage = () => {
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    className="col-span-full py-16 sm:py-20 text-center"
+                    exit={{ opacity: 0 }}
+                    className="col-span-full flex flex-col items-center py-20 text-center sm:py-28"
                   >
-                    <p className="text-gray-400 text-base sm:text-lg">
-                      No themes found. Try a different search.
+                    <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl border border-black/10 bg-black/[0.03]">
+                      <SearchX size={22} aria-hidden="true" className="text-black/40" />
+                    </div>
+                    <p className="text-base font-medium text-black/70 sm:text-lg">
+                      No themes found
+                    </p>
+                    <p className="mt-1 text-sm text-black/40">
+                      Try a different search or category.
                     </p>
                     <button
+                      type="button"
                       onClick={() => { setSearchTerm(""); setActiveCategory("all"); }}
-                      className="mt-4 text-sm font-semibold text-indigo-500 underline underline-offset-2"
+                      className="mt-6 rounded-full border border-black/15 px-5 py-2.5 text-sm font-semibold text-black/80 transition-colors hover:border-black/30 hover:bg-black/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/40"
                     >
                       Clear filters
                     </button>

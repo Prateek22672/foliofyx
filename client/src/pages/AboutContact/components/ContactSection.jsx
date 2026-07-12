@@ -2,52 +2,55 @@ import React, { useState, useRef } from "react";
 import { Send } from "lucide-react";
 import emailjs from '@emailjs/browser';
 
-const ContactSection = ({ showSplash }) => {
+const ContactSection = () => {
   const formRef = useRef();
 
-  const [formData, setFormData] = useState({ 
-    user_name: "", 
-    user_email: "", 
-    message: "" 
+  const [formData, setFormData] = useState({
+    user_name: "",
+    user_email: "",
+    message: ""
   });
-  
+
   const [isSending, setIsSending] = useState(false);
+  const [status, setStatus] = useState(null); // null | "success" | "error"
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    if (status) setStatus(null);
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    setIsSending(true);
 
-    // 🔴 STEP 1: Paste your Template ID and Public Key below
-const SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID;
-const TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
-const PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+    const SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+    const TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+    const PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+
+    // No EmailJS keys configured — fall back to the user's mail client so
+    // the form never dead-ends.
+    if (!SERVICE_ID || !TEMPLATE_ID || !PUBLIC_KEY) {
+      const subject = encodeURIComponent(`FolioFYX enquiry from ${formData.user_name}`);
+      const body = encodeURIComponent(`${formData.message}\n\n— ${formData.user_name} (${formData.user_email})`);
+      window.location.href = `mailto:support@foliofyx.com?subject=${subject}&body=${body}`;
+      return;
+    }
+
+    setIsSending(true);
+    setStatus(null);
 
     emailjs
-      .sendForm(
-        SERVICE_ID,
-        TEMPLATE_ID,
-        formRef.current,
-        PUBLIC_KEY
-      )
+      .sendForm(SERVICE_ID, TEMPLATE_ID, formRef.current, PUBLIC_KEY)
       .then(
-        (result) => {
-          console.log("SUCCESS!", result.text);
+        () => {
           setIsSending(false);
-          
-          showSplash(2500, () => {
-             alert("📨 Message sent successfully!");
-             setFormData({ user_name: "", user_email: "", message: "" });
-          }, "📨 Message Sent!");
+          setStatus("success");
+          setFormData({ user_name: "", user_email: "", message: "" });
         },
         (error) => {
-          console.log("FAILED...", error.text);
+          console.error("EmailJS failed:", error?.text);
           setIsSending(false);
-          alert("❌ Failed to send. Check your Public Key and Template ID.");
+          setStatus("error");
         }
       );
   };
@@ -57,8 +60,8 @@ const PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
       <div className="w-full h-full relative overflow-hidden">
         {/* VIDEO BACKGROUND */}
         <div className="absolute inset-0 w-full h-full">
-            <video autoPlay loop muted playsInline className="w-full h-full object-cover opacity-60">
-                <source src="/v10.mp4" type="video/mp4" />
+            <video autoPlay loop muted playsInline preload="metadata" className="w-full h-full object-cover opacity-60">
+                <source src="/videos/v10.mp4" type="video/mp4" />
             </video>
             <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent"></div>
         </div>
@@ -126,14 +129,29 @@ const PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
                         />
                     </div>
 
-                    <button 
-                        type="submit" 
+                    <button
+                        type="submit"
                         disabled={isSending}
                         className="w-full bg-white text-black font-bold py-4 rounded-2xl hover:bg-neutral-200 transition-all flex items-center justify-center gap-2 group disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      {isSending ? "Sending..." : "Send Message"} 
+                      {isSending ? "Sending..." : "Send Message"}
                       {!isSending && <Send size={18} className="group-hover:translate-x-1 transition-transform" />}
                     </button>
+
+                    {status === "success" && (
+                      <p role="status" className="text-center text-sm text-emerald-300">
+                        Message sent — we'll get back to you shortly.
+                      </p>
+                    )}
+                    {status === "error" && (
+                      <p role="alert" className="text-center text-sm text-red-300">
+                        Something went wrong sending your message. Please try again, or
+                        email us directly at{" "}
+                        <a href="mailto:support@foliofyx.com" className="underline underline-offset-2 text-white">
+                          support@foliofyx.com
+                        </a>.
+                      </p>
+                    )}
                  </form>
             </div>
         </div>

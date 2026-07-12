@@ -23,6 +23,14 @@ const LOADING_MESSAGES = [
   "Finalizing your workspace..."
 ];
 
+// Where to land after auth. A flow (e.g. the "Try Max" student offer) can
+// set fyx_post_login before sending the user here; consumed once.
+const postLoginDest = () => {
+  const dest = sessionStorage.getItem("fyx_post_login");
+  if (dest) sessionStorage.removeItem("fyx_post_login");
+  return dest || "/dashboard";
+};
+
 const Signup = () => {
   const navigate = useNavigate();
   const { loginUser } = useAuth();
@@ -86,7 +94,7 @@ const Signup = () => {
         if (refreshToken) localStorage.setItem("refreshToken", refreshToken);
 
         loginUser(user, accessToken);
-        navigate("/dashboard", { replace: true });
+        navigate(postLoginDest(), { replace: true });
       } else {
         showPopup("Signup failed. Please try again.", "error");
         setLoading(false);
@@ -112,7 +120,7 @@ const Signup = () => {
          if (refreshToken) localStorage.setItem("refreshToken", refreshToken);
          
          loginUser(user, accessToken);
-         navigate("/dashboard", { replace: true });
+         navigate(postLoginDest(), { replace: true });
       }
     } catch (err) {
       console.error(err);

@@ -1,11 +1,15 @@
-import React from "react";
-import { motion } from "framer-motion";
+import React, { useRef } from "react";
+import { motion, useInView } from "framer-motion";
 
 const HeroMarquee = ({ direction, speed, isCenter, controls, startScrolling }) => {
   const moveDir = direction === "left" ? -1 : 1;
+  // Stop animating once the hero has scrolled out of view — these rows used
+  // to keep running for the whole page lifetime and cost real frame budget.
+  const wrapRef = useRef(null);
+  const inView = useInView(wrapRef, { amount: 0 });
 
   return (
-    <div className="relative overflow-hidden flex">
+    <div ref={wrapRef} className="relative overflow-hidden flex">
       <motion.div
         className="flex whitespace-nowrap gap-[2vw]"
         style={{
@@ -23,9 +27,9 @@ const HeroMarquee = ({ direction, speed, isCenter, controls, startScrolling }) =
         animate={
           isCenter
             ? controls
-            : startScrolling 
-              ? { x: [0, moveDir * 1000] } // Scroll only when allowed
-              : { x: 0 } 
+            : startScrolling && inView
+              ? { x: [0, moveDir * 1000] } // Scroll only when allowed AND visible
+              : { x: 0 }
         }
         transition={{
           x: { repeat: Infinity, duration: speed, ease: "linear" },

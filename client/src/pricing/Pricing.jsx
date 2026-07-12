@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { 
@@ -25,6 +25,16 @@ const Pricing = () => {
   const scrollToDeal = () => {
     passSectionRef.current?.scrollIntoView({ behavior: "smooth" });
   };
+
+  // "Try Max" flow: the landing popup sends users through login with this
+  // intent flag — arriving here logged in, the student verification opens
+  // immediately so they can claim the offer without hunting for it.
+  useEffect(() => {
+    if (user && sessionStorage.getItem("fyx_student_intent") === "1") {
+      sessionStorage.removeItem("fyx_student_intent");
+      if (user.plan !== "max") setUnlockModalOpen(true);
+    }
+  }, [user]);
 
   const handleUnlockClick = (forceOpen = false) => {
     if (!forceOpen && user?.plan === 'max') {

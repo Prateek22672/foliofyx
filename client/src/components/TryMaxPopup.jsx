@@ -1,92 +1,97 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { X, Sparkles } from "lucide-react"; // Added Sparkles icon for extra shine effect
+import { X, Check } from "lucide-react";
+
+// Premium "Try Max" offer card: single dark glass panel with a contained
+// aurora glow, benefit list, and a clear CTA pair. `data-native-cursor`
+// hands control back to the OS cursor while the popup is open — the custom
+// landing cursor made small buttons hard to target.
+const PERKS = [
+  "Unlimited projects",
+  "Premium template collection",
+  "AI assistant on every page",
+];
 
 const TryMaxPopup = ({ onClose, onLogin }) => {
   return (
     <motion.div
+      data-native-cursor
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70 backdrop-blur-md p-4"
+      onClick={onClose}
     >
-      {/* CONTAINER FOR THE POPUP & ITS GLOW */}
-      <div className="relative w-full max-w-[400px]">
-        
-        {/* === THE OUTER SHINE GLOW (Behind the card) === */}
-        {/* This blurred div creates the ambient light radiating from the popup */}
-        <div className="absolute -inset-4 bg-gradient-to-tr from-indigo-600/60 via-purple-600/60 to-pink-600/60 rounded-[40px] blur-2xl opacity-70 animate-pulse-slow pointer-events-none" />
-        
-        <motion.div
-          initial={{ scale: 0.9, opacity: 0, y: 20 }}
-          animate={{ scale: 1, opacity: 1, y: 0 }}
-          exit={{ scale: 0.9, opacity: 0, y: 0 }}
-          transition={{ type: "spring", stiffness: 300, damping: 30 }}
-          className="relative w-full overflow-hidden rounded-[32px] shadow-[0_0_50px_-12px_rgb(168_85_247_/_0.5)] border border-white/10"
+      <motion.div
+        initial={{ scale: 0.94, opacity: 0, y: 24 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.96, opacity: 0, y: 12 }}
+        transition={{ type: "spring", stiffness: 280, damping: 26 }}
+        onClick={(e) => e.stopPropagation()}
+        className="relative w-full max-w-[420px] overflow-hidden rounded-[28px] border border-white/10 bg-[#0b0b12] shadow-[0_40px_120px_-20px_rgba(0,0,0,0.9)]"
+      >
+        {/* Contained aurora — glow lives inside the card, not smeared behind it */}
+        <div className="pointer-events-none absolute -top-32 left-1/2 -translate-x-1/2 w-[130%] h-72 bg-[radial-gradient(ellipse_at_center,rgba(124,58,237,0.45),rgba(99,102,241,0.18)_45%,transparent_70%)]" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_85%_15%,rgba(236,72,153,0.12),transparent_45%)]" />
+
+        {/* Close */}
+        <button
+          onClick={onClose}
+          aria-label="Close"
+          className="absolute top-4 right-4 z-20 w-9 h-9 grid place-items-center rounded-full bg-white/5 hover:bg-white/10 text-white/60 hover:text-white border border-white/10 transition-colors"
         >
-          {/* === TOP HALF: SHINING HOLOGRAPHIC GRADIENT === */}
-          <div className="relative h-52 w-full overflow-hidden flex items-center justify-center">
-            {/* Radiant Background Layers */}
-            <div className="absolute inset-0 bg-[conic-gradient(at_top,_var(--tw-gradient-stops))] from-indigo-500 via-purple-500 to-pink-500"></div>
-            {/* A bright spotlight effect on top right */}
-            <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(circle_at_70%_30%,rgba(255,255,255,0.4)_0%,transparent_60%)] mix-blend-overlay"></div>
-            
-            {/* Subtle animated grain/sparkle overlay (optional, removes flatness) */}
-            <div className="absolute inset-0 opacity-20 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] mix-blend-soft-light"></div>
+          <X size={15} />
+        </button>
 
-            {/* Close button */}
-            <button 
-                onClick={onClose}
-                className="absolute top-5 right-5 p-2 bg-black/20 hover:bg-black/40 text-white/80 hover:text-white rounded-full transition-all backdrop-blur-md border border-white/10 group"
+        <div className="relative z-10 px-8 pt-12 pb-8">
+          {/* Brand mark */}
+          <img
+            src="/FYX/BlackClearBGNew.png"
+            alt="FolioFYX"
+            className="w-14 mx-auto mb-6 brightness-200"
+          />
+
+          {/* Headline */}
+          <h2 className="text-center text-[34px] leading-tight font-black tracking-tight text-white mb-2">
+            Try Max, <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-purple-300 to-pink-300">free.</span>
+          </h2>
+          <p className="text-center text-[13.5px] text-neutral-400 leading-relaxed mb-7 max-w-[300px] mx-auto">
+            Log in to see if you qualify for the Max plan —
+            <span className="text-white font-medium"> free for students</span>.
+          </p>
+
+          {/* Perks */}
+          <div className="mx-auto max-w-[300px] space-y-2.5 mb-8">
+            {PERKS.map((perk) => (
+              <div
+                key={perk}
+                className="flex items-center gap-3 rounded-xl border border-white/[0.07] bg-white/[0.03] px-4 py-2.5"
+              >
+                <span className="grid place-items-center w-5 h-5 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex-shrink-0">
+                  <Check size={11} className="text-white" strokeWidth={3} />
+                </span>
+                <span className="text-[13px] text-neutral-200">{perk}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* CTAs */}
+          <div className="flex items-center justify-center gap-3">
+            <button
+              onClick={onClose}
+              className="px-6 py-3 rounded-full text-sm font-medium text-neutral-400 hover:text-white hover:bg-white/5 transition-colors"
             >
-                <X size={16} className="group-hover:rotate-90 transition-transform duration-300" />
+              Maybe later
             </button>
-
-            <div className="text-center relative z-10 px-6">
-                {/* Small glowing icon above text */}
-                <div className="mb-3 flex justify-center">
-                    <div className="p-2  bg-white/0 ">
-                         <img src="/FYX/BlackClearBGNew.png" className="w-18 brightness-200"/>
-                    </div>
-                </div>
-                {/* Main Text with Glow Shadow */}
-                <h2 className="text-4xl font-black text-white tracking-tight drop-shadow-[0_0_15px_rgba(255,255,255,0.6)]">
-                  Try Max, Free
-                </h2>
-            </div>
+            <button
+              onClick={onLogin}
+              className="px-8 py-3 rounded-full text-sm font-bold text-black bg-white hover:shadow-[0_0_36px_rgba(167,139,250,0.45)] hover:scale-[1.03] transition-all"
+            >
+              Log in
+            </button>
           </div>
-
-          {/* === BOTTOM HALF: DARK CONTENT === */}
-          {/* Added a slight gradient sheen to the dark background */}
-          <div className="bg-gradient-to-b from-[#18181b] to-[#0f0f11] p-8 text-center relative">
-             {/* Subtle top border highlight separating sections */}
-             <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
-
-            <p className="text-neutral-400 text-[15px] leading-relaxed mb-8">
-                Log in to see if you qualify for <span className="text-white font-medium drop-shadow-sm">unlimited projects</span>, 
-                premium templates, and AI assistant features with a Max plan — <span className="text-white font-medium drop-shadow-sm">all free for students</span>.
-            </p>
-
-            <div className="flex items-center gap-3 justify-center">
-                <button
-                  onClick={onClose}
-                  className="px-6 py-3 rounded-full text-sm font-medium text-neutral-400 hover:text-white hover:bg-white/5 transition-colors"
-                >
-                  Maybe later
-                </button>
-                {/* SHINING PRIMARY BUTTON */}
-                <button
-                  onClick={onLogin}
-                  className="relative group px-8 py-3 rounded-full text-sm font-bold text-black overflow-hidden transition-all hover:scale-105 hover:shadow-[0_0_30px_rgba(255,255,255,0.5)]"
-                >
-                   {/* Button background that shines on hover */}
-                   <div className="absolute inset-0 bg-white transition-all group-hover:bg-gradient-to-r group-hover:from-white group-hover:via-indigo-100 group-hover:to-white"></div>
-                  <span className="relative z-10">Log in</span>
-                </button>
-            </div>
-          </div>
-        </motion.div>
-      </div>
+        </div>
+      </motion.div>
     </motion.div>
   );
 };

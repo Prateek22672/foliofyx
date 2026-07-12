@@ -1,45 +1,59 @@
-import React from "react";
-import { motion, useTransform } from "framer-motion"; 
+import React, { useRef } from "react";
+import { motion, useTransform, useInView } from "framer-motion";
 import { ArrowRight, LayoutGrid, Zap, Moon, MousePointer2 } from "lucide-react";
 
 // --- OPTIMIZED MARQUEE ---
-const MarqueeRow = ({ text, direction, speed }) => {
+// CSS animation with play-state gating: paused (zero cost) while the section
+// is parked offscreen, resumes in place when it scrolls into view.
+const MarqueeRow = ({ text, direction, speed, paused }) => {
   return (
     <div className="relative flex overflow-hidden -rotate-[5deg] py-4 bg-transparent pointer-events-none select-none opacity-10" style={{ transform: "translateZ(0)" }}>
-      <motion.div
+      <div
         className="flex whitespace-nowrap gap-24 will-change-transform"
-        animate={{ x: direction === "left" ? [0, -1000] : [-1000, 0] }}
-        transition={{ x: { repeat: Infinity, duration: speed, ease: "linear" } }}
-        style={{ backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden" }} 
+        style={{
+          backfaceVisibility: "hidden",
+          WebkitBackfaceVisibility: "hidden",
+          animation: `fyxThemesScroll ${speed}s linear infinite`,
+          animationDirection: direction === "left" ? "normal" : "reverse",
+          animationPlayState: paused ? "paused" : "running",
+        }}
       >
         {[...Array(6)].map((_, i) => (
           <span key={i} className="font-black text-[10vw] leading-none tracking-tighter uppercase text-black">
             {text}
           </span>
         ))}
-      </motion.div>
+      </div>
     </div>
   );
 };
 
 export default function SectionThemes({ scrollProgress, handleNavigation }) {
+  const sectionRef = useRef(null);
+  const inView = useInView(sectionRef, { amount: 0.05 });
   
-  // --- UPDATED ANIMATION TRIGGERS (Start at 11.5) ---
-  
-  // Title fades in: 11.5 -> 11.7
-const titleY = useTransform(scrollProgress, [15.5, 15.7], [50, 0], { clamp: true });
-  const titleOpacity = useTransform(scrollProgress, [15.5, 15.6], [0, 1], { clamp: true });
-  
-  const themesY = useTransform(scrollProgress, [15.5, 16.0], ["30%", "0%"], { clamp: true });
-  const blocksY = useTransform(scrollProgress, [15.7, 16.2], ["40%", "0%"], { clamp: true });
+  // --- ANIMATION TRIGGERS ---
+  // The section is fully in view at 19 on the Landing.jsx timeline; the
+  // internal reveals play right after arrival, well before the outro at 21.
+  const titleY = useTransform(scrollProgress, [19, 19.3], [50, 0], { clamp: true });
+  const titleOpacity = useTransform(scrollProgress, [19, 19.2], [0, 1], { clamp: true });
+
+  const themesY = useTransform(scrollProgress, [19, 19.6], ["30%", "0%"], { clamp: true });
+  const blocksY = useTransform(scrollProgress, [19.3, 19.9], ["40%", "0%"], { clamp: true });
   return (
-    <section className="relative w-full h-screen bg-[#F3F4F6] overflow-hidden flex flex-col justify-center py-8 rounded-t-[60px] shadow-[0_-50px_100px_rgba(0,0,0,0.1)] font-['Switzer'] will-change-transform">
-      
+    <section ref={sectionRef} className="relative w-full h-screen bg-[#F3F4F6] overflow-hidden flex flex-col justify-center py-8 rounded-t-[60px] shadow-[0_-50px_100px_rgba(0,0,0,0.1)] font-['Switzer'] will-change-transform">
+      <style>{`
+        @keyframes fyxThemesScroll {
+          from { transform: translateX(0); }
+          to   { transform: translateX(-1000px); }
+        }
+      `}</style>
+
       {/* BACKGROUND DECOR */}
       <div className="absolute inset-0 flex flex-col justify-center items-center pointer-events-none" style={{ transform: "translateZ(0)" }}>
-        <MarqueeRow text="ESTHETIC" direction="left" speed={60} />
-        <MarqueeRow text="MOTION" direction="right" speed={70} />
-        <MarqueeRow text="LAYOUT" direction="left" speed={50} />
+        <MarqueeRow text="ESTHETIC" direction="left" speed={60} paused={!inView} />
+        <MarqueeRow text="MOTION" direction="right" speed={70} paused={!inView} />
+        <MarqueeRow text="LAYOUT" direction="left" speed={50} paused={!inView} />
       </div>
 
       <div className="relative z-10 w-full max-w-7xl mx-auto px-6 h-full flex flex-col justify-center">
@@ -145,18 +159,20 @@ const ThemeCard = ({ title, tag, img, isDark, onSelect }) => (
             decoding="async"
             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
         />
-        <div className={`absolute inset-0 bg-gradient-to-t ${isDark ? "from-black/90 via-black/20" : "from-black/60 via-transparent"} to-transparent opacity-80`} />
+        {/* Gradient + title only on hover — the preview stays clean otherwise
+            (the always-on labels used to collide with the template content). */}
+        <div className={`absolute inset-0 bg-gradient-to-t ${isDark ? "from-black/90 via-black/20" : "from-black/60 via-transparent"} to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
     </div>
 
-    <div className="absolute bottom-0 left-0 w-full p-8 z-20 flex justify-between items-end transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
+    <div className="absolute bottom-0 left-0 w-full p-8 z-20 flex justify-between items-end opacity-0 translate-y-3 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500">
       <div>
          <h3 className="text-3xl md:text-5xl font-black text-white mb-1">{title}</h3>
          <p className="text-xs md:text-sm text-gray-300 opacity-80 font-medium">
            Professional & Clean
          </p>
       </div>
-      
-      <div className="w-12 h-12 rounded-full bg-white text-black flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-110">
+
+      <div className="w-12 h-12 rounded-full bg-white text-black flex items-center justify-center transition-transform duration-300 hover:scale-110">
          <ArrowRight size={20} />
       </div>
     </div>

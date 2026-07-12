@@ -63,7 +63,6 @@ const STEPS = [
     glow: "rgba(0, 0, 0, 0.08)", // Subtle black glow
     grad: ["#444444", "#000000"], // Sleek dark gradient
     title: "Welcome to FolioFYX",
-    emoji: "✦",
     body: "Your AI-powered portfolio builder. Let's take a quick tour — 30 seconds and you'll know exactly what FolioFyx can do for you.",
     bodyColor: "rgba(0, 0, 0, 1)", // Pure black text intent
     cta: null,
@@ -255,9 +254,12 @@ const LandingTutorial = ({ onNavigate, onFinished }) => {
         <>
           <SwitzerFont />
 
-          {/* BACKDROP — lighter for white card */}
+          {/* BACKDROP — lighter for white card. data-native-cursor restores
+              the OS cursor across the whole overlay: the custom landing
+              cursor made the card's small controls hard to target. */}
           <motion.div
             key="tut-bg"
+            data-native-cursor
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -276,6 +278,7 @@ const LandingTutorial = ({ onNavigate, onFinished }) => {
           <div key="tut-pos" style={wrapperStyle}>
             <motion.div
               key="tut-card"
+              data-native-cursor
               initial={{ opacity: 0, y: 60, scale: 0.93 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 44, scale: 0.95 }}
@@ -286,21 +289,33 @@ const LandingTutorial = ({ onNavigate, onFinished }) => {
               {/* ── CARD SHELL — white ── */}
               <motion.div
                 animate={{
-                  boxShadow: `0 0 0 1px ${cur.accent}18, 0 20px 48px rgba(0,0,0,0.14), 0 2px 8px rgba(0,0,0,0.06), 0 0 40px ${cur.glow}`,
+                  boxShadow: `0 0 0 1px ${cur.accent}18, 0 24px 60px rgba(0,0,0,0.16), 0 2px 8px rgba(0,0,0,0.06), 0 0 40px ${cur.glow}`,
                 }}
                 transition={{ duration: 0.4 }}
                 style={{
                   background: "#ffffff",
                   border: "1px solid rgba(0,0,0,0.08)",
-                  borderRadius: 20,
+                  borderRadius: 24,
                   overflow: "hidden",
+                  position: "relative",
                 }}
               >
-                {/* ACCENT TOP LINE */}
-                <motion.div
-                  animate={{ background: `linear-gradient(90deg, ${cur.grad[0]}, ${cur.grad[1]}60)` }}
-                  transition={{ duration: 0.42 }}
-                  style={{ height: 2.5, width: "100%" }}
+                {/* Soft pastel aurora inside the card so it never reads flat */}
+                <div
+                  aria-hidden="true"
+                  style={{
+                    position: "absolute", inset: 0, pointerEvents: "none",
+                    background:
+                      "radial-gradient(ellipse 60% 45% at 92% 0%, rgba(233,213,255,0.35), transparent 70%), radial-gradient(ellipse 45% 35% at 0% 100%, rgba(199,210,254,0.22), transparent 70%)",
+                  }}
+                />
+
+                {/* BRAND ACCENT TOP LINE */}
+                <div
+                  style={{
+                    height: 3, width: "100%",
+                    background: "linear-gradient(90deg, #6366f1, #a855f7, #ec4899)",
+                  }}
                 />
 
                 {/* ── HEADER ── */}
@@ -368,12 +383,12 @@ const LandingTutorial = ({ onNavigate, onFinished }) => {
                     >
                       {/* Title */}
                       <h2 style={{
-                        fontSize: "clamp(15px, 4vw, 18px)",
-                        fontWeight: 500,
-                        color: "#111",
-                        lineHeight: 1.28,
-                        margin: "0 0 7px",
-                        letterSpacing: "-0.02em",
+                        fontSize: "clamp(17px, 4.4vw, 21px)",
+                        fontWeight: 600,
+                        color: "#0a0a0a",
+                        lineHeight: 1.24,
+                        margin: "0 0 8px",
+                        letterSpacing: "-0.025em",
                         fontFamily: FF,
                       }}>
                         {cur.title}
@@ -466,14 +481,13 @@ const LandingTutorial = ({ onNavigate, onFinished }) => {
                       whileHover={{ scale: 1.04 }}
                       whileTap={{ scale: 0.96 }}
                       onClick={next}
-                      animate={{ background: `linear-gradient(135deg, ${cur.grad[0]}, ${cur.grad[1]})` }}
-                      transition={{ duration: 0.4 }}
                       style={{
-                        display: "flex", alignItems: "center", gap: 5,
-                        padding: "7px 14px", borderRadius: 9,
-                        fontSize: 11.5, fontWeight: 500, color: "#fff",
+                        display: "flex", alignItems: "center", gap: 6,
+                        padding: "9px 18px", borderRadius: 999,
+                        fontSize: 12, fontWeight: 600, color: "#fff",
+                        background: "#0a0a0a",
                         border: "none", cursor: "pointer",
-                        boxShadow: `0 4px 12px ${cur.glow}`,
+                        boxShadow: "0 6px 18px rgba(0,0,0,0.22)",
                         fontFamily: FF,
                       }}
                     >

@@ -12,6 +12,26 @@ body.custom-cursor-on *::after {
   cursor: none !important;
 }
 
+/* Native-cursor zones (app header, popups, tutorial card): the OS cursor
+   comes back for EVERY element inside — this must out-rank the universal
+   `body.custom-cursor-on *` rule above, which matches each element directly
+   (so overriding only the zone root is not enough). The custom dot hides
+   itself over these zones in CustomCursor.jsx. */
+body.custom-cursor-on [data-native-cursor],
+body.custom-cursor-on [data-native-cursor] *,
+body.custom-cursor-on [data-native-cursor] *::before,
+body.custom-cursor-on [data-native-cursor] *::after {
+  cursor: auto !important;
+}
+
+/* Clickables inside native-cursor zones get a proper pointer */
+body.custom-cursor-on [data-native-cursor] a,
+body.custom-cursor-on [data-native-cursor] button,
+body.custom-cursor-on [data-native-cursor] [role="button"],
+body.custom-cursor-on [data-native-cursor] .cursor-pointer {
+  cursor: pointer !important;
+}
+
 /* ✅ Restore text cursor for typing fields */
 input, textarea {
   cursor: text !important;

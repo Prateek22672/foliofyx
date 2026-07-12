@@ -27,25 +27,25 @@ const FAQFooterSection = () => {
               question="How is FolioFYX different?"
               answer="We prioritize aesthetics and engineering equally. No bloat, just beautiful code and beautiful design."
             />
-             <FAQItem
+            <FAQItem
               question="Is it easy to build a website with FolioFYX?"
               answer="Yes! FolioFYX is designed for simplicity. Our intuitive interface helps you create a stunning portfolio in minutes."
+            />
+            <FAQItem
+              question="Is FolioFYX really free for students?"
+              answer="Yes — students qualify for the Max plan at no cost. Log in, head to Benefits, and verify your student email to unlock it."
+            />
+            <FAQItem
+              question="Can I connect my own domain?"
+              answer="Yes. Publish your site, then connect a domain you own — we walk you through the exact DNS records, and verification runs automatically."
             />
           </div>
         </div>
       </section>
 
-      {/* === LOWER SECTION: Footer === */}
-      <div className="w-full bg-white pb-0">
-          <div className="w-full bg-black text-white pt-8 pb-6 rounded-t-[40px] md:rounded-t-[60px]">
-             <div className="max-w-7xl mx-auto px-6">
-                <p className="text-center text-xs text-white/40 uppercase tracking-[0.3em] mb-0">
-                   A <span className="text-white font-bold">PRATEEK™</span> PRODUCT
-                </p>
-                
-             </div>
-          </div>
-      </div>
+      {/* === LOWER SECTION: real site footer (was a one-line strip that
+           didn't match the rest of the site) === */}
+      <Footer />
     </div>
   );
 };

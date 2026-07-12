@@ -94,12 +94,14 @@ export default function SectionWhite({ handleNavigation, scrollProgress }) {
   }, [updateMaxX]);
 
   // --- GPU ANIMATION LOGIC ---
-  // Range [1.5, 9.5] matches Landing.js timeline for proper scroll duration
-  const x = useTransform(scrollProgress, [1.5, 9.5], [0, -maxX], {
+  // Range [1.5, 8.5] matches the Landing.jsx timeline: the section is fully in
+  // view at 1, and the next section (Bento) only starts sliding at 9 — so
+  // the strip completes, last card included, before anything covers it.
+  const x = useTransform(scrollProgress, [1.5, 8.5], [0, -maxX], {
     clamp: true
   });
 
-  const progressBarScale = useTransform(scrollProgress, [1.5, 9.5], [0, 1], {
+  const progressBarScale = useTransform(scrollProgress, [1.5, 8.5], [0, 1], {
     clamp: true
   });
 

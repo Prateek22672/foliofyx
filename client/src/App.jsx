@@ -1,33 +1,35 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, lazy, Suspense } from "react";
 import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 
 // ✅ Import Guards
 import { PublicRoute, ProtectedRoute } from "./components/RouteGuards";
 
-// Pages & Components
+// Eager: the entry page, auth (speed matters), and global chrome.
 import Landing from "./landing/Landing";
-import Create from "./pages/create"; 
-import Customize from "./pages/Portfolio/Customize/customize-editor/Customize";
-import ReferenceStudio from "./pages/ReferenceStudio";
-import AIBuilder from "./pages/AIBuilder";
 import Login from "./pages/Auth/Login";
 import Signup from "./pages/Auth/Signup";
 import AppHeader from "./components/AppHeader";
-import PortfolioView from "./pages/PortfolioView";
-import Dashboard from "./pages/Dashboard";
 import SplashScreen from "./components/SplashScreen";
-import ThemesPage from "./pages/themes/ThemesPage";
-import AboutContactPage from "./pages/AboutContact/AboutContactPage";
-import NewRelease from "./pages/NewRelease";
-import FindTalent from "./pages/FindTalent/FindTalent";
-import StudioPage from "./pages/StudioPage";
-import Checkout from "./pages/Checkout";
-import UserProfile from "./pages/UserProfile";
-import Pricing from "./pricing/Pricing";
-import Legal from "./Legal";
 
-// Demo View
-import DemoView from "./pages/DemoView";
+// Lazy: everything else splits into its own chunk so the initial bundle
+// only carries the landing page — the editor alone was a huge share of
+// the old single 1.6MB chunk that every visitor had to download.
+const Create           = lazy(() => import("./pages/create"));
+const Customize        = lazy(() => import("./pages/Portfolio/Customize/customize-editor/Customize"));
+const ReferenceStudio  = lazy(() => import("./pages/ReferenceStudio"));
+const AIBuilder        = lazy(() => import("./pages/AIBuilder"));
+const PortfolioView    = lazy(() => import("./pages/PortfolioView"));
+const Dashboard        = lazy(() => import("./pages/Dashboard"));
+const ThemesPage       = lazy(() => import("./pages/themes/ThemesPage"));
+const AboutContactPage = lazy(() => import("./pages/AboutContact/AboutContactPage"));
+const NewRelease       = lazy(() => import("./pages/NewRelease"));
+const FindTalent       = lazy(() => import("./pages/FindTalent/FindTalent"));
+const StudioPage       = lazy(() => import("./pages/StudioPage"));
+const Checkout         = lazy(() => import("./pages/Checkout"));
+const UserProfile      = lazy(() => import("./pages/UserProfile"));
+const Pricing          = lazy(() => import("./pricing/Pricing"));
+const Legal            = lazy(() => import("./Legal"));
+const DemoView         = lazy(() => import("./pages/DemoView"));
 
 // Contexts
 import { ElementProvider } from "./context/ElementContext";
@@ -39,8 +41,8 @@ import { PortfolioProvider } from "./context/PortfolioContext";
 import SmoothScroll from "./components/SmoothScroll";
 import CustomCursor from "./components/CustomCursor";
 import ChatWidget from "./chatbot/ChatWidget";
-import CsStudentTemplates from "./pages/themes/CsStudentTemplates";
-import ResumeToPortfolio from "./pages/ResumeToPortfolio";
+const CsStudentTemplates = lazy(() => import("./pages/themes/CsStudentTemplates"));
+const ResumeToPortfolio  = lazy(() => import("./pages/ResumeToPortfolio"));
 
 // Pages where the lag-dot custom cursor is welcome. Everywhere else keeps the
 // native cursor — the custom one hurts UX on dense editor/dashboard screens.
@@ -116,6 +118,13 @@ function App() {
                 
                 {!hideHeader && <AppHeader />}
 
+                <Suspense
+                  fallback={
+                    <div className="min-h-screen bg-black flex items-center justify-center">
+                      <div className="w-8 h-8 rounded-full border-2 border-white/20 border-t-white animate-spin" />
+                    </div>
+                  }
+                >
                 <Routes>
                   {/* ==================================================== */}
                   {/* 🔓 OPEN ROUTES                                     */}
@@ -177,6 +186,7 @@ function App() {
                   <Route path="*" element={<Navigate to="/" replace />} />
 
                 </Routes>
+                </Suspense>
               </div>
             </SmoothScroll>
           )}

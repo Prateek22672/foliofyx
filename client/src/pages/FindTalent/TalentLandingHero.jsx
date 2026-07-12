@@ -1,134 +1,139 @@
-import React, { useState, useEffect } from "react";
-import { motion, useAnimation } from "framer-motion";
-import MarqueeRow from "../themes/components/MarqueeRow";
+import React from "react";
+import { motion } from "framer-motion";
+import { ArrowRight } from "lucide-react";
+
+const containerVariants = {
+  hidden: {},
+  visible: {
+    transition: { staggerChildren: 0.06, delayChildren: 0.2 },
+  },
+};
+
+const wordVariants = {
+  hidden: { opacity: 0, y: 24, filter: "blur(8px)" },
+  visible: {
+    opacity: 1,
+    y: 0,
+    filter: "blur(0px)",
+    transition: { duration: 0.7, ease: [0.2, 0.65, 0.3, 0.9] },
+  },
+};
+
+const fadeUp = (delay = 0) => ({
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.7, delay, ease: "easeOut" },
+});
 
 export default function TalentLandingHero({ handleStart }) {
-  const [showContent, setShowContent] = useState(false);
-
-  const wrapperControls = useAnimation();
-  const centerTextControls = useAnimation();
-
-  // Helper function to animate words fading in (Premium Style)
-  const fadeWords = (text) =>
-    text.split(" ").map((word, index) => (
-      <span
-        key={index}
-        className="inline-block opacity-0 animate-wordFade"
-        style={{ animationDelay: `${index * 80}ms` }}
-      >
-        {word}&nbsp;
-      </span>
-    ));
-
-  // The "Effect" Sequence
-  useEffect(() => {
-    const sequence = async () => {
-      // 1. Initial State: Zoomed In & Tilted
-      await wrapperControls.set({ scale: 4, rotate: 10, opacity: 0 });
-
-      // 2. Animation: Zoom Out to Normal
-      wrapperControls.start({
-        scale: 1,
-        rotate: 0,
-        opacity: 1,
-        transition: { duration: 1.8, ease: [0.16, 1, 0.3, 1] },
-      });
-
-      // 3. Text Animation: Moves from center to being a "Background Title"
-      centerTextControls.start({
-        y: "-12vh", // Move up
-        scale: 1.2, // Keep it large
-        opacity: 0.05, // Fade it out to be a watermark
-        filter: "blur(2px)", // Subtle blur for depth
-        transition: { duration: 2, ease: "easeInOut", delay: 0.2 },
-      });
-
-      // 4. Reveal Foreground Content
-      setTimeout(() => setShowContent(true), 1200);
-    };
-
-    sequence();
-  }, [wrapperControls, centerTextControls]);
+  const headline = "Discover world-class creatives";
 
   return (
-    <div className="relative flex flex-col items-center justify-center text-center bg-white overflow-hidden min-h-[75vh] pt-20">
-      
-      {/* --- BACKGROUND ANIMATION LAYER --- */}
-      <motion.div
-        className="absolute inset-0 flex flex-col justify-center items-center z-0 pointer-events-none"
-        animate={wrapperControls}
-      >
-        {/* Top Marquee (Subtle Gray) */}
-        <div className="opacity-20 grayscale">
-           <MarqueeRow direction="left" verticalDir={-1} speed={20} />
-        </div>
+    <div className="relative flex flex-col items-center justify-center text-center overflow-hidden min-h-[85vh] pt-24 pb-32 bg-white">
 
-        {/* THE BIG ANIMATED TEXT */}
-        <div className="relative z-10 py-10">
-          <motion.h1
-            animate={centerTextControls}
-            className="text-[12vw] font-black tracking-tighter text-black uppercase leading-none select-none whitespace-nowrap"
-          >
-            FIND TALENT
-          </motion.h1>
-        </div>
-
-        {/* Bottom Marquee (Subtle Gray) */}
-        <div className="opacity-20 grayscale">
-           <MarqueeRow direction="right" verticalDir={1} speed={25} />
-        </div>
-      </motion.div>
-
-      {/* --- FOREGROUND CONTENT LAYER --- */}
-      {showContent && (
+      {/* --- BACKGROUND LAYER --- */}
+      <div aria-hidden="true" className="absolute inset-0 pointer-events-none">
+        {/* Soft pastel aurora wash */}
+        <div
+          className="absolute left-[6%] top-[4%] w-[48vw] h-[48vw] max-w-[640px] max-h-[640px] rounded-full blur-[110px]"
+          style={{
+            background:
+              "radial-gradient(ellipse at center, rgba(233,213,255,0.5) 0%, transparent 70%)",
+          }}
+        />
+        <div
+          className="absolute right-[2%] top-[26%] w-[44vw] h-[44vw] max-w-[560px] max-h-[560px] rounded-full blur-[120px]"
+          style={{
+            background:
+              "radial-gradient(ellipse at center, rgba(251,207,232,0.4) 0%, transparent 70%)",
+          }}
+        />
+        <div
+          className="absolute left-1/2 bottom-[-12%] -translate-x-1/2 w-[56vw] h-[38vw] max-w-[760px] max-h-[500px] rounded-full blur-[130px]"
+          style={{
+            background:
+              "radial-gradient(ellipse at center, rgba(199,210,254,0.4) 0%, transparent 70%)",
+          }}
+        />
+        {/* Fine grid */}
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage:
+              "linear-gradient(rgba(0,0,0,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px)",
+            backgroundSize: "72px 72px",
+            maskImage:
+              "radial-gradient(ellipse 80% 60% at 50% 40%, black 30%, transparent 75%)",
+            WebkitMaskImage:
+              "radial-gradient(ellipse 80% 60% at 50% 40%, black 30%, transparent 75%)",
+          }}
+        />
+        {/* Watermark */}
         <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, ease: "easeOut" }}
-          // ✅ ADDED pb-24: Creates space at the bottom so button clears the Search Bar
-          className="relative z-20 w-full max-w-4xl mx-auto px-6 pb-24"
+          initial={{ opacity: 0, scale: 1.06 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 2, ease: [0.16, 1, 0.3, 1] }}
+          className="absolute left-1/2 top-[8%] -translate-x-1/2 -rotate-6 flex flex-col items-center select-none"
         >
-          {/* Badge */}
-          <div className="mb-6 flex justify-center">
-            <span className="px-4 py-1.5 rounded-full border border-gray-200 bg-white/50 backdrop-blur-sm text-xs font-bold uppercase tracking-widest text-gray-500 shadow-sm">
-              The FolioFYX Network
-            </span>
-          </div>
-
-          {/* Main Title */}
-          <h2 className="text-5xl md:text-7xl font-bold text-gray-900 leading-[1.1] mb-6 tracking-tight">
-            {fadeWords("Discover World-Class Creatives")}
-          </h2>
-
-          {/* Subtitle */}
-          <p className="text-xl text-gray-500 font-light max-w-2xl mx-auto mb-10 leading-relaxed">
-            Connect with verified developers, designers, and innovators. 
-            Build your team with the best portfolios on the web.
-          </p>
-
-          {/* CTA Button */}
-          <motion.button
-            onClick={handleStart}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="px-10 py-4 bg-black text-white rounded-full font-bold text-lg shadow-2xl hover:shadow-black/20 transition-all"
-          >
-            Get Hired
-          </motion.button>
-
+          <span className="text-[15vw] font-['Syne'] font-black uppercase tracking-tighter leading-[0.9] whitespace-nowrap text-black/[0.04]">
+            Find Talent
+          </span>
+          <span className="text-[15vw] font-['Syne'] font-black uppercase tracking-tighter leading-[0.9] whitespace-nowrap text-black/[0.04]">
+            Find Talent
+          </span>
         </motion.div>
-      )}
+      </div>
 
-      {/* Animation Styles */}
-      <style>{`
-        @keyframes wordFade {
-          0% { opacity: 0; transform: translateY(20px); filter: blur(8px); }
-          100% { opacity: 1; transform: translateY(0); filter: blur(0); }
-        }
-        .animate-wordFade {
-          animation: wordFade 0.8s cubic-bezier(0.2, 0.65, 0.3, 0.9) forwards;
-        }
-      `}</style>
+      {/* --- FOREGROUND CONTENT --- */}
+      <div className="relative z-10 w-full max-w-4xl mx-auto px-6">
+
+        {/* Badge */}
+        <motion.div {...fadeUp(0)} className="mb-8 flex justify-center">
+          <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-black/10 bg-black/[0.03] text-[11px] font-semibold uppercase tracking-[0.25em] text-gray-500">
+            <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" aria-hidden="true" />
+            The FolioFYX Network
+          </span>
+        </motion.div>
+
+        {/* Headline */}
+        <motion.h1
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="text-5xl md:text-7xl font-black text-black leading-[1.05] mb-6 tracking-tighter font-['Syne']"
+        >
+          {headline.split(" ").map((word, i) => (
+            <motion.span key={i} variants={wordVariants} className="inline-block">
+              {word}
+              {i < headline.split(" ").length - 1 && <span>&nbsp;</span>}
+            </motion.span>
+          ))}
+        </motion.h1>
+
+        {/* Subline */}
+        <motion.p
+          {...fadeUp(0.5)}
+          className="text-lg md:text-xl text-gray-500 font-light max-w-2xl mx-auto mb-10 leading-relaxed"
+        >
+          Connect with verified developers, designers, and innovators. Build
+          your team with the best portfolios on the web.
+        </motion.p>
+
+        {/* CTA */}
+        <motion.div {...fadeUp(0.7)} className="flex justify-center">
+          <button
+            onClick={handleStart}
+            className="group inline-flex items-center gap-2.5 px-8 py-4 bg-black text-white rounded-full font-semibold text-base shadow-[0_16px_48px_-12px_rgba(0,0,0,0.35)] hover:bg-gray-900 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+          >
+            Get hired
+            <ArrowRight
+              size={18}
+              className="transition-transform group-hover:translate-x-0.5"
+            />
+          </button>
+        </motion.div>
+
+      </div>
     </div>
   );
 }

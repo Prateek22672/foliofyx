@@ -1,71 +1,76 @@
 import React from "react";
-import { Search, RefreshCcw, Filter } from "lucide-react";
+import { Search, RefreshCcw, Filter, X } from "lucide-react";
 import { motion } from "framer-motion";
+
+const QUICK_TAGS = ["React", "HTML", "CSS", "Node.js", "UI/UX"];
 
 export default function SearchSection({ search, setSearch, reload }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
-      className="w-full max-w-4xl mx-auto pb-10 px-4"
+      className="w-full max-w-3xl mx-auto"
     >
-      <div className="flex flex-col md:flex-row md:items-center gap-4">
-        
-        {/* LEFT: Input + Tags */}
-        <div className="flex-1">
-          {/* Search Bar */}
-          <div className="flex items-center gap-3 bg-white rounded-full px-4 py-3 shadow-sm border border-gray-100">
-            <Search size={18} className="text-gray-400" />
+      {/* Search bar */}
+      <div className="flex items-center gap-3 bg-black/[0.03] rounded-full pl-5 pr-2 py-2 border border-black/10 transition-colors focus-within:border-black focus-within:bg-white focus-within:ring-2 focus-within:ring-black/10">
+        <Search size={18} className="text-gray-400 shrink-0" aria-hidden="true" />
 
-            <input
-              type="text"
-              placeholder="Search talent by skills..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="bg-transparent flex-1 outline-none text-gray-700 placeholder-gray-400 text-sm"
-            />
+        <input
+          type="text"
+          placeholder="Search by name, role, or skill"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          aria-label="Search talent"
+          className="bg-transparent flex-1 outline-none text-black placeholder-gray-400 text-sm py-2 min-w-0"
+        />
 
-            {/* Desktop icons */}
-            <div className="hidden sm:flex items-center gap-2">
-              <button
-                onClick={reload}
-                className="p-2 rounded-full bg-gray-50 hover:bg-gray-100 transition"
-              >
-                <RefreshCcw size={16} />
-              </button>
-              <button className="p-2 rounded-full bg-gray-50 hover:bg-gray-100 transition">
-                <Filter size={16} />
-              </button>
-            </div>
-          </div>
+        {search && (
+          <button
+            onClick={() => setSearch("")}
+            aria-label="Clear search"
+            className="p-2 rounded-full text-gray-400 hover:text-black hover:bg-black/5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black"
+          >
+            <X size={14} />
+          </button>
+        )}
 
-          {/* TAGS */}
-          <div className="flex gap-3 flex-wrap mt-3 justify-center md:justify-start">
-            {["React", "HTML", "CSS", "Node.js", "UI/UX"].map((tag) => (
-              <button
-                key={tag}
-                onClick={() => setSearch(tag)}
-                className="px-3 py-1.5 bg-white border border-gray-100 rounded-full text-xs shadow-sm hover:bg-gray-50 transition"
-              >
-                {tag}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Mobile icons */}
-        <div className="flex items-center gap-3 ml-auto sm:hidden">
+        <div className="flex items-center gap-1.5">
           <button
             onClick={reload}
-            className="p-2 rounded-full bg-white border border-gray-100 shadow-sm"
+            aria-label="Refresh talent list"
+            className="p-2.5 rounded-full text-gray-500 hover:text-black hover:bg-black/5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black"
           >
-            <RefreshCcw size={16} />
+            <RefreshCcw size={15} />
           </button>
-          <button className="p-2 rounded-full bg-white border border-gray-100 shadow-sm">
-            <Filter size={16} />
+          <button
+            aria-label="Filter results"
+            className="p-2.5 rounded-full text-gray-500 hover:text-black hover:bg-black/5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black"
+          >
+            <Filter size={15} />
           </button>
         </div>
+      </div>
+
+      {/* Quick tags */}
+      <div className="flex gap-2 flex-wrap mt-4 justify-center">
+        {QUICK_TAGS.map((tag) => {
+          const isActive = search === tag;
+          return (
+            <button
+              key={tag}
+              onClick={() => setSearch(isActive ? "" : tag)}
+              aria-pressed={isActive}
+              className={`px-3.5 py-1.5 rounded-full text-xs font-medium border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black ${
+                isActive
+                  ? "bg-black text-white border-black"
+                  : "bg-black/5 text-gray-600 border-transparent hover:border-black/20 hover:text-black"
+              }`}
+            >
+              {tag}
+            </button>
+          );
+        })}
       </div>
     </motion.div>
   );

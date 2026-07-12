@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useSplash } from "../../context/SplashContext";
 
 // Components
 import StudioHeroSection from "./components/StudioHeroSection";
@@ -10,7 +9,6 @@ import ContactSection from "./components/ContactSection";
 import FAQFooterSection from "./components/FAQFooterSection";
 
 const AboutContactPage = () => {
-  const { showSplash } = useSplash();
   const navigate = useNavigate();
   const containerRef = useRef(null);
   const [vh, setVh] = useState(window.innerHeight);
@@ -49,18 +47,18 @@ const AboutContactPage = () => {
       className="relative w-full bg-black font-['Wix_Madefor_Text']"
       // Removed fixed height. Let content dictate height.
     >
-      {/* 0. HERO: Base Layer (z-0) */}
+      {/* Sticky sections stack in DOM order — keep this sequence. */}
+      {/* 0. HERO: Base Layer */}
       <StudioHeroSection navigate={navigate} />
 
-            {/* 2. FOUNDER: Slides over Manifesto (z-20) */}
-      <FounderSection onScrollToContact={handleScrollToContact} />
-
-      {/* 1. MANIFESTO: Slides over Hero (z-10) */}
+      {/* 1. MANIFESTO: slides over the hero */}
       <ManifestoSection />
 
+      {/* 2. FOUNDER: slides over the manifesto */}
+      <FounderSection onScrollToContact={handleScrollToContact} />
 
-      {/* 3. CONTACT: Slides over Founder (z-30) */}
-      <ContactSection showSplash={showSplash} />
+      {/* 3. CONTACT: slides over the founder */}
+      <ContactSection />
 
       {/* 4. FOOTER: Slides over Contact (z-40) */}
       <FAQFooterSection />

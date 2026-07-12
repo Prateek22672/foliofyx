@@ -91,14 +91,22 @@ const InteractiveLoadingGame = ({ message }) => {
   );
 };
 
+// Where to land after auth. A flow (e.g. the "Try Max" student offer) can
+// set fyx_post_login before sending the user here; consumed once.
+const postLoginDest = () => {
+  const dest = sessionStorage.getItem("fyx_post_login");
+  if (dest) sessionStorage.removeItem("fyx_post_login");
+  return dest || "/dashboard";
+};
+
 const LoginPage = () => {
   const navigate = useNavigate();
-  const { loginUser, user, loading: authLoading } = useAuth(); 
+  const { loginUser, user, loading: authLoading } = useAuth();
 
   // === 1. AUTO-REDIRECT LOGIC ===
   useEffect(() => {
     if (!authLoading && user) {
-      navigate("/dashboard", { replace: true });
+      navigate(postLoginDest(), { replace: true });
     }
   }, [user, authLoading, navigate]);
 
@@ -197,7 +205,7 @@ const LoginPage = () => {
         if (refreshToken) localStorage.setItem("refreshToken", refreshToken);
 
         loginUser(user, accessToken);
-        navigate("/dashboard", { replace: true });
+        navigate(postLoginDest(), { replace: true });
       } else {
         throw new Error("No token received");
       }
@@ -222,7 +230,7 @@ const LoginPage = () => {
         if (refreshToken) localStorage.setItem("refreshToken", refreshToken);
 
         loginUser(user, accessToken);
-        navigate("/dashboard", { replace: true });
+        navigate(postLoginDest(), { replace: true });
       } else {
         throw new Error("Google auth failed");
       }
