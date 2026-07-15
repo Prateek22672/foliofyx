@@ -69,14 +69,15 @@ const AppHeader = () => {
   const iconColor = isGlass ? "#171717" : "#FFFFFF"; 
 
   // Nav links — swap Home → MyDashboard when logged in (desktop only)
-  const baseNavLinks = ['Home', 'Designs', 'Talent', 'Benefits', 'About'];
+  const baseNavLinks = ['Home', 'AI Builder', 'Designs', 'Talent', 'Benefits', 'About'];
   const desktopNavLinks = user
-    ? [ 'Designs', 'Talent', 'Benefits', 'About','MyDashboard']
+    ? ['AI Builder', 'Designs', 'Talent', 'Benefits', 'About', 'MyDashboard']
     : baseNavLinks;
 
   const getPath = (item) => {
     if (item === 'Home') return '/';
     if (item === 'MyDashboard') return '/dashboard';
+    if (item === 'AI Builder') return '/ai-builder';
     return `/${item.toLowerCase()}`;
   };
 

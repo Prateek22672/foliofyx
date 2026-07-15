@@ -3,7 +3,7 @@
 // Message shape: { id, role: "user"|"assistant", content, kind?: "error"|"link", url? }
 
 import React, { useEffect, useRef, useState } from "react";
-import { Sparkles, SendHorizonal, RotateCcw, ExternalLink } from "lucide-react";
+import { SendHorizonal, RotateCcw, ExternalLink } from "lucide-react";
 
 const SUGGESTIONS = [
   "A portfolio for a freelance photographer with a dark, cinematic feel",
@@ -13,13 +13,13 @@ const SUGGESTIONS = [
 ];
 
 const palette = {
-  panelBg: "rgba(15, 15, 26, 0.72)",
-  border: "rgba(148, 163, 184, 0.14)",
-  userBubble: "linear-gradient(135deg, #6366f1, #7c3aed)",
-  botBubble: "rgba(30, 32, 50, 0.85)",
+  panelBg: "rgba(8, 8, 8, 0.85)",
+  border: "rgba(255, 255, 255, 0.10)",
+  userBubble: "#ffffff",
+  botBubble: "rgba(255, 255, 255, 0.06)",
   errorBubble: "rgba(127, 29, 29, 0.35)",
   errorBorder: "rgba(248, 113, 113, 0.4)",
-  dim: "#94a3b8",
+  dim: "#8a8a8a",
 };
 
 function Bubble({ msg }) {
@@ -50,7 +50,7 @@ function Bubble({ msg }) {
             : isUser
             ? "none"
             : `1px solid ${palette.border}`,
-          color: isError ? "#fecaca" : "#e2e8f0",
+          color: isError ? "#fecaca" : isUser ? "#0a0a0a" : "#e5e5e5",
         }}
       >
         {msg.content}
@@ -66,9 +66,9 @@ function Bubble({ msg }) {
               marginTop: 8,
               padding: "6px 10px",
               borderRadius: 8,
-              background: "rgba(99, 102, 241, 0.18)",
-              border: "1px solid rgba(99, 102, 241, 0.45)",
-              color: "#c7d2fe",
+              background: "rgba(255, 255, 255, 0.10)",
+              border: "1px solid rgba(255, 255, 255, 0.30)",
+              color: "#ffffff",
               fontSize: 13,
               textDecoration: "none",
               maxWidth: "100%",
@@ -90,7 +90,7 @@ function TypingDots() {
     width: 6,
     height: 6,
     borderRadius: "50%",
-    background: "#a5b4fc",
+    background: "#ffffff",
     animation: `fyxDotBounce 1.1s ${delay}s infinite ease-in-out`,
   });
   return (
@@ -166,19 +166,11 @@ export default function ChatPanel({ messages, sending, onSend, onNewChat, isMobi
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div
-            style={{
-              width: 30,
-              height: 30,
-              borderRadius: 9,
-              display: "grid",
-              placeItems: "center",
-              background: "linear-gradient(135deg, #6366f1, #7c3aed)",
-              animation: "fyxGlowPulse 3s infinite ease-in-out",
-            }}
-          >
-            <Sparkles size={16} color="#fff" />
-          </div>
+          <img
+            src="/logow.png"
+            alt="FolioFYX"
+            style={{ height: 26, width: "auto", objectFit: "contain" }}
+          />
           <div>
             <div style={{ fontSize: 14, fontWeight: 600, letterSpacing: 0.2 }}>AI Builder</div>
             <div style={{ fontSize: 11, color: palette.dim }}>
@@ -241,7 +233,7 @@ export default function ChatPanel({ messages, sending, onSend, onNewChat, isMobi
                     padding: "10px 14px",
                     borderRadius: 10,
                     border: `1px solid ${palette.border}`,
-                    background: "rgba(30, 32, 50, 0.5)",
+                    background: "rgba(255, 255, 255, 0.04)",
                     color: "#cbd5e1",
                     fontSize: 13,
                     cursor: "pointer",
@@ -269,7 +261,7 @@ export default function ChatPanel({ messages, sending, onSend, onNewChat, isMobi
             padding: "10px 10px 10px 14px",
             borderRadius: 14,
             border: `1px solid ${palette.border}`,
-            background: "rgba(20, 22, 38, 0.9)",
+            background: "rgba(18, 18, 18, 0.95)",
           }}
         >
           <textarea
@@ -305,10 +297,8 @@ export default function ChatPanel({ messages, sending, onSend, onNewChat, isMobi
               placeItems: "center",
               cursor: sending || !draft.trim() ? "default" : "pointer",
               background:
-                sending || !draft.trim()
-                  ? "rgba(99, 102, 241, 0.25)"
-                  : "linear-gradient(135deg, #6366f1, #7c3aed)",
-              color: "#fff",
+                sending || !draft.trim() ? "rgba(255, 255, 255, 0.15)" : "#ffffff",
+              color: sending || !draft.trim() ? "#9a9a9a" : "#0a0a0a",
               flexShrink: 0,
             }}
           >

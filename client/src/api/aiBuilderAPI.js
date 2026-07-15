@@ -2,7 +2,11 @@
 // Calls our OWN backend for AI section generation.
 // The Groq API key lives only on the server — never in this bundle.
 
-const BASE = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const BASE =
+  import.meta.env.VITE_API_URL ||
+  (import.meta.env.MODE === "development"
+    ? "http://localhost:5000"
+    : "https://foliofyx-backend.onrender.com");
 const API = `${BASE}/api/ai-builder`;
 
 function getHeaders() {

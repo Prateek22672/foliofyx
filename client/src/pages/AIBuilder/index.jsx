@@ -226,7 +226,7 @@ export default function AIBuilder() {
     width: "100%",
     overflow: "hidden",
     background:
-      "radial-gradient(1200px 600px at 80% -10%, rgba(99,102,241,0.14), transparent 60%), radial-gradient(900px 500px at -10% 110%, rgba(124,58,237,0.10), transparent 60%), #0a0a12",
+      "radial-gradient(1200px 600px at 80% -10%, rgba(255,255,255,0.05), transparent 60%), radial-gradient(900px 500px at -10% 110%, rgba(255,255,255,0.04), transparent 60%), #050505",
     color: "#e2e8f0",
     fontFamily: "Outfit, system-ui, sans-serif",
   };

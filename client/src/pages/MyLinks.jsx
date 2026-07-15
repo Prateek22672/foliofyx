@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { getAllPortfolios } from "../api/portfolioAPI";
 import { getUserCustomWebsites } from "../api/customWebsiteAPI";
+import DomainModal from "./AIBuilder/DomainModal";
 import Footer from "../components/Footer";
 
 const ROOT = "foliofyx.in";
@@ -90,6 +91,8 @@ const MyLinks = () => {
   const [portfolios, setPortfolios] = useState([]);
   const [sites, setSites] = useState([]);
   const [loading, setLoading] = useState(true);
+  // Site id whose domain-connect modal is open (null = closed).
+  const [domainSiteId, setDomainSiteId] = useState(null);
 
   useEffect(() => {
     let alive = true;
@@ -273,7 +276,19 @@ const MyLinks = () => {
                       {s.title || "My website"}{" "}
                       <span className="ml-1 text-xs font-normal text-black/40">Studio site</span>
                     </h3>
-                    <StatusChip ok={s.status === "published"} />
+                    <div className="flex items-center gap-2">
+                      {s.status === "published" && (
+                        <button
+                          type="button"
+                          onClick={() => setDomainSiteId(s._id)}
+                          className="inline-flex items-center gap-1.5 rounded-full border border-black/15 px-3.5 py-1.5 text-xs font-semibold text-black hover:bg-black hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/40"
+                        >
+                          <Globe size={12} />
+                          {s.customDomain?.name ? "Manage domain" : "Connect domain"}
+                        </button>
+                      )}
+                      <StatusChip ok={s.status === "published"} />
+                    </div>
                   </div>
                   <div className="space-y-2">
                     {s.publishedUrl && <UrlRow url={s.publishedUrl} active={s.status === "published"} />}
@@ -325,7 +340,13 @@ const MyLinks = () => {
           <div className="mt-6 flex flex-wrap gap-3">
             <button
               type="button"
-              onClick={() => navigate("/ai-builder")}
+              onClick={() => {
+                // Connect right here when a published site exists; otherwise
+                // send them to the builder to create and publish one first.
+                const published = sites.find((s) => s.status === "published");
+                if (published) setDomainSiteId(published._id);
+                else navigate("/ai-builder");
+              }}
               className="inline-flex items-center gap-2 rounded-full bg-black px-6 py-3 text-sm font-semibold text-white hover:scale-[1.02] transition-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/40"
             >
               <Globe size={15} />
@@ -340,6 +361,11 @@ const MyLinks = () => {
           </div>
         </motion.div>
       </motion.main>
+
+      {/* Direct domain-connect flow, same modal the AI Builder uses */}
+      {domainSiteId && (
+        <DomainModal siteId={domainSiteId} onClose={() => setDomainSiteId(null)} />
+      )}
 
       <Footer />
     </div>

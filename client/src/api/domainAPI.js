@@ -1,7 +1,11 @@
 // client/src/api/domainAPI.js
 // Custom-domain (DNS) connection for published custom websites.
 
-const BASE = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const BASE =
+  import.meta.env.VITE_API_URL ||
+  (import.meta.env.MODE === "development"
+    ? "http://localhost:5000"
+    : "https://foliofyx-backend.onrender.com");
 const API = `${BASE}/api/domains`;
 
 function getHeaders() {

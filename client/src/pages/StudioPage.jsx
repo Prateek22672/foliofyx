@@ -602,6 +602,60 @@ const GoldStudioPage = () => {
 
       </div>
 
+      {/* === YOUR ADDRESS ON THE WEB — many users don't know these exist === */}
+      <section className="relative z-20 max-w-5xl mx-auto px-6 py-24 border-t border-[#D4AF37]/10">
+        <div className="text-center mb-12">
+          <p className="text-[#D4AF37]/80 uppercase tracking-[0.3em] text-[10px] md:text-xs font-bold mb-4">
+            Included with every site
+          </p>
+          <h2 className="text-3xl md:text-5xl font-bold text-white tracking-tight">
+            Your site. Your address.
+          </h2>
+          <p className="text-neutral-500 mt-4 max-w-xl mx-auto text-sm md:text-base font-light">
+            Every FolioFYX site comes with real, shareable web addresses —
+            most people never realise how much is included for free.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {[
+            {
+              title: "Username link",
+              sample: "foliofyx.in/portfolio/you",
+              text: "Claim your name once and your portfolio gets a clean, memorable link.",
+            },
+            {
+              title: "Free subdomain",
+              sample: "you.foliofyx.in",
+              text: "Publish a Studio site and it goes live on its own subdomain with HTTPS. Zero setup.",
+            },
+            {
+              title: "Your own domain",
+              sample: "yourname.com",
+              text: "Connect a domain you own - we hand you the exact DNS records and verify automatically.",
+            },
+          ].map((item) => (
+            <div
+              key={item.title}
+              className="rounded-2xl border border-white/10 bg-neutral-900/40 p-6 hover:border-[#D4AF37]/40 transition-colors"
+            >
+              <h3 className="text-white font-bold mb-1">{item.title}</h3>
+              <p className="font-mono text-[12.5px] text-[#D4AF37]/80 mb-3">{item.sample}</p>
+              <p className="text-neutral-500 text-sm font-light leading-relaxed">{item.text}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-10 text-center">
+          <button
+            onClick={() => navigate("/links")}
+            className="inline-flex items-center gap-2 bg-white text-black font-bold px-8 py-3.5 rounded-full hover:bg-[#D4AF37] transition-colors text-sm"
+          >
+            See your links & connect a domain
+          </button>
+        </div>
+      </section>
+
       {/* === 4. TERMS AND CONDITIONS SECTION === */}
       <TermsAndConditions />
       

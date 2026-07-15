@@ -176,6 +176,23 @@ export default function SectionHero({ message, handleNavigation }) {
               </motion.div>
             )}
 
+            {/* New AI Chat Builder highlight */}
+            <motion.button
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6, duration: 0.7 }}
+              onClick={() => handleNavigation("/ai-builder", "Opening AI Builder...")}
+              className={`group flex items-center gap-2 rounded-full border px-4 py-1.5 text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.18em] transition-colors ${
+                isDarkBg
+                  ? "border-white/20 bg-white/10 text-white hover:bg-white hover:text-black"
+                  : "border-black/15 bg-black text-white hover:bg-black/80"
+              }`}
+            >
+              <span className={`h-1.5 w-1.5 rounded-full ${isDarkBg ? "bg-white" : "bg-emerald-400"}`} />
+              New — Chat with AI, get a website
+              <span className="transition-transform group-hover:translate-x-0.5">&rarr;</span>
+            </motion.button>
+
             <p className={`text-sm md:text-sm mt-10 font-medium tracking-wide uppercase ${
   isDarkBg ? "text-white/60" : "text-black/60"
 }`}>

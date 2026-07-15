@@ -28,13 +28,14 @@ function toolbarBtn(kind, disabled) {
     return {
       ...base,
       border: "none",
-      background: "linear-gradient(135deg, #6366f1, #7c3aed)",
-      color: "#fff",
+      background: "#ffffff",
+      color: "#0a0a0a",
+      fontWeight: 600,
     };
   return {
     ...base,
     border: `1px solid ${border}`,
-    background: "rgba(30, 32, 50, 0.6)",
+    background: "rgba(255, 255, 255, 0.05)",
     color: "#cbd5e1",
   };
 }
@@ -141,9 +142,9 @@ export default function PreviewPane({
                 fontSize: 11,
                 padding: "3px 9px",
                 borderRadius: 999,
-                background: "rgba(99, 102, 241, 0.16)",
-                border: "1px solid rgba(99, 102, 241, 0.35)",
-                color: "#c7d2fe",
+                background: "rgba(255, 255, 255, 0.08)",
+                border: "1px solid rgba(255, 255, 255, 0.25)",
+                color: "#ffffff",
                 whiteSpace: "nowrap",
               }}
             >

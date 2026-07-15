@@ -1,7 +1,11 @@
 // client/src/api/referenceAPI.js
 // Client for the "Design from Reference" backend (/api/reference).
 
-const BASE = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const BASE =
+  import.meta.env.VITE_API_URL ||
+  (import.meta.env.MODE === "development"
+    ? "http://localhost:5000"
+    : "https://foliofyx-backend.onrender.com");
 const API = `${BASE}/api/reference`;
 
 // Analysis runs several AI calls; give it room but never hang forever.

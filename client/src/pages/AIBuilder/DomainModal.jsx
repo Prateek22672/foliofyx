@@ -64,7 +64,7 @@ function CopyValue({ value }) {
         padding: "4px 8px",
         borderRadius: 6,
         border: `1px solid ${border}`,
-        background: "rgba(20, 22, 38, 0.8)",
+        background: "rgba(18, 18, 18, 0.9)",
         color: copied ? "#34d399" : "#cbd5e1",
         fontSize: 12,
         fontFamily: "ui-monospace, monospace",
@@ -205,11 +205,11 @@ export default function DomainModal({ siteId, onClose }) {
                 borderRadius: 9,
                 display: "grid",
                 placeItems: "center",
-                background: "rgba(99, 102, 241, 0.18)",
-                border: "1px solid rgba(99, 102, 241, 0.4)",
+                background: "rgba(255, 255, 255, 0.08)",
+                border: "1px solid rgba(255, 255, 255, 0.25)",
               }}
             >
-              <Globe size={16} color="#a5b4fc" />
+              <Globe size={16} color="#d4d4d4" />
             </div>
             <div style={{ fontSize: 16, fontWeight: 600 }}>Custom domain</div>
           </div>
@@ -259,7 +259,7 @@ export default function DomainModal({ siteId, onClose }) {
                   padding: "10px 13px",
                   borderRadius: 10,
                   border: `1px solid ${border}`,
-                  background: "rgba(20, 22, 38, 0.9)",
+                  background: "rgba(18, 18, 18, 0.95)",
                   color: "#e2e8f0",
                   fontSize: 14,
                   outline: "none",
@@ -272,8 +272,8 @@ export default function DomainModal({ siteId, onClose }) {
                   padding: "10px 16px",
                   borderRadius: 10,
                   border: "none",
-                  background: "linear-gradient(135deg, #6366f1, #7c3aed)",
-                  color: "#fff",
+                  background: "#ffffff",
+                  color: "#0a0a0a",
                   fontSize: 13.5,
                   fontWeight: 500,
                   cursor: busy || !domainInput.trim() ? "default" : "pointer",
@@ -300,7 +300,7 @@ export default function DomainModal({ siteId, onClose }) {
                 padding: "12px 14px",
                 borderRadius: 11,
                 border: `1px solid ${border}`,
-                background: "rgba(20, 22, 38, 0.6)",
+                background: "rgba(18, 18, 18, 0.7)",
                 marginBottom: 14,
                 flexWrap: "wrap",
               }}
@@ -354,9 +354,9 @@ export default function DomainModal({ siteId, onClose }) {
                             letterSpacing: 0.6,
                             padding: "2px 8px",
                             borderRadius: 5,
-                            background: "rgba(99, 102, 241, 0.16)",
-                            border: "1px solid rgba(99, 102, 241, 0.35)",
-                            color: "#c7d2fe",
+                            background: "rgba(255, 255, 255, 0.08)",
+                            border: "1px solid rgba(255, 255, 255, 0.25)",
+                            color: "#ffffff",
                           }}
                         >
                           {r.type}
@@ -376,7 +376,7 @@ export default function DomainModal({ siteId, onClose }) {
             )}
 
             {verifyMsg && (
-              <p style={{ fontSize: 12.5, color: "#a5b4fc", lineHeight: 1.55, marginBottom: 12 }}>{verifyMsg}</p>
+              <p style={{ fontSize: 12.5, color: "#d4d4d4", lineHeight: 1.55, marginBottom: 12 }}>{verifyMsg}</p>
             )}
 
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
@@ -389,8 +389,8 @@ export default function DomainModal({ siteId, onClose }) {
                   padding: "10px 14px",
                   borderRadius: 10,
                   border: "none",
-                  background: "linear-gradient(135deg, #6366f1, #7c3aed)",
-                  color: "#fff",
+                  background: "#ffffff",
+                  color: "#0a0a0a",
                   fontSize: 13.5,
                   fontWeight: 500,
                   cursor: busy ? "default" : "pointer",
@@ -456,7 +456,10 @@ export default function DomainModal({ siteId, onClose }) {
           </div>
         )}
       </div>
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      <style>{`
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes fyxFadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+      `}</style>
     </div>
   );
 }

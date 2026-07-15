@@ -83,7 +83,12 @@ export default function SelectionView({ onSelectAI, onSelectControl, onSelectRes
           `}
         >
           {activeMode !== 'ai' && (
-            <div className="absolute top-0 right-0 w-40 h-40 bg-purple-600/20 blur-[80px] rounded-full -translate-y-1/2 translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-700 pointer-events-none" />
+            <>
+              <div className="absolute top-0 right-0 w-40 h-40 bg-purple-600/20 blur-[80px] rounded-full -translate-y-1/2 translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-700 pointer-events-none" />
+              <div className="absolute top-6 right-6 px-3 py-1 rounded-full border border-purple-500/30 bg-purple-500/10 text-[10px] font-bold tracking-widest text-white/80 shadow-[0_0_10px_rgba(168,85,247,0.2)]">
+                NEW CHAT MODE
+              </div>
+            </>
           )}
 
           <AnimatePresence mode="wait">
