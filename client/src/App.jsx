@@ -30,6 +30,7 @@ const UserProfile      = lazy(() => import("./pages/UserProfile"));
 const Pricing          = lazy(() => import("./pricing/Pricing"));
 const Legal            = lazy(() => import("./Legal"));
 const DemoView         = lazy(() => import("./pages/DemoView"));
+const MyLinks          = lazy(() => import("./pages/MyLinks"));
 
 // Contexts
 import { ElementProvider } from "./context/ElementContext";
@@ -180,6 +181,7 @@ function App() {
                     />
                     <Route path="/studio/reference" element={<ReferenceStudio />} />
                     <Route path="/ai-builder" element={<AIBuilder />} />
+                    <Route path="/links" element={<MyLinks />} />
                   </Route>
 
                   {/* Catch-all: unknown paths go home */}

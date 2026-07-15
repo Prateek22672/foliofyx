@@ -220,7 +220,16 @@ function PropertyPanel({ selectedId, onDelete, onDuplicate }) {
         </p>
         <div style={{ marginTop: 16, padding: "10px 12px", background: "#f8fafc", borderRadius: 10, border: "1px solid #e5e7eb", textAlign: "left" }}>
           <p style={{ fontSize: 10, fontWeight: 700, color: "#64748b", marginBottom: 6 }}>KEYBOARD SHORTCUTS</p>
-          {[["Delete", "Remove element"], ["Ctrl+D", "Duplicate"], ["Ctrl+Z", "Undo"], ["Esc", "Deselect"]].map(([k, v]) => (
+          {[
+            ["Arrows", "Nudge 1px (Shift: 10px)"],
+            ["Delete", "Remove element"],
+            ["Ctrl+D", "Duplicate"],
+            ["Ctrl+Z", "Undo"],
+            ["Ctrl+Shift+Z", "Redo"],
+            ["Ctrl+]", "Bring forward"],
+            ["Ctrl+[", "Send backward"],
+            ["Esc", "Deselect"],
+          ].map(([k, v]) => (
             <div key={k} style={{ display: "flex", justifyContent: "space-between", marginBottom: 3 }}>
               <code style={{ fontSize: 10, background: "#f1f5f9", padding: "1px 5px", borderRadius: 4, color: "#374151" }}>{k}</code>
               <span style={{ fontSize: 10, color: "#9ca3af" }}>{v}</span>

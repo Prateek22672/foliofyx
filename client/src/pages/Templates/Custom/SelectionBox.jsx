@@ -20,11 +20,15 @@ const HANDLE_POS = {
 
 export function SelectionBox({
   element,
+  showDims = false, // true while dragging/resizing — shows the W x H chip
   onResizeStart,   // (e, element, handle) => void
   onDelete,        // () => void
   onDuplicate,     // () => void
   onToggleLock,    // () => void
 }) {
+  const dimW = Math.round(Number(element.width) || 0);
+  const dimH = element.height === "auto" ? "auto" : Math.round(Number(element.height) || 0);
+
   return (
     <div
       style={{
@@ -55,7 +59,33 @@ export function SelectionBox({
         />
       ))}
 
-      {/* Toolbar above the element */}
+      {/* Dimensions chip — visible while dragging/resizing */}
+      {showDims && (
+        <div
+          style={{
+            position: "absolute",
+            bottom: -28,
+            left: "50%",
+            transform: "translateX(-50%)",
+            background: "#6366f1",
+            color: "#ffffff",
+            fontSize: 10,
+            fontWeight: 600,
+            fontVariantNumeric: "tabular-nums",
+            padding: "2px 8px",
+            borderRadius: 5,
+            whiteSpace: "nowrap",
+            pointerEvents: "none",
+            zIndex: 12,
+            boxShadow: "0 2px 8px rgba(0,0,0,0.25)",
+          }}
+        >
+          {dimW} × {dimH} px
+        </div>
+      )}
+
+      {/* Toolbar above the element (hidden mid-drag so it stays out of the way) */}
+      {!showDims && (
       <div
         style={{
           position: "absolute",
@@ -92,6 +122,7 @@ export function SelectionBox({
           <Trash2 size={12} />
         </ToolBtn>
       </div>
+      )}
     </div>
   );
 }

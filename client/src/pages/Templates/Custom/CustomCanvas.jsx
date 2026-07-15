@@ -97,33 +97,124 @@ export function CustomCanvas({ readOnly = false, onSelect }) {
     mutateElements((els) => els.map((el) => el.id === id ? { ...el, ...patch } : el));
   }, [mutateElements]);
 
+  // ── History throttling ──
+  // Bursts of repeated actions (arrow-key nudges, held z-order keys) push ONE
+  // snapshot per 500ms burst instead of flooding the 60-slot ring buffer.
+  const historyBurstRef = useRef({ key: null, t: 0 });
+  const pushHistoryThrottled = useCallback((key, snapshot) => {
+    const now = Date.now();
+    const b = historyBurstRef.current;
+    if (b.key !== key || now - b.t > 500) pushHistory(snapshot);
+    historyBurstRef.current = { key, t: now };
+  }, [pushHistory]);
+
   // ── Drag ──
+  // Snapshot the layout at mousedown; push it to history on the FIRST actual
+  // move/resize of that drag (so a plain click never pushes) — previously
+  // drags were not undoable at all.
+  const dragHistoryRef = useRef({ snapshot: null, pushed: false });
+  const [interacting, setInteracting] = useState(false);
+
+  const commitDragHistory = useCallback(() => {
+    const d = dragHistoryRef.current;
+    if (d.snapshot && !d.pushed) { pushHistory(d.snapshot); d.pushed = true; }
+  }, [pushHistory]);
+
   const { startMove, startResize } = useCanvasDrag({
     scale,
     elements: activePage?.elements ?? [],
-    onMove:   (id, pos) => updateElement(id, pos),
-    onResize: (id, geo) => updateElement(id, geo),
-    onDragEnd: () => {},
+    onMove:   (id, pos) => { commitDragHistory(); setInteracting(true); updateElement(id, pos); },
+    onResize: (id, geo) => { commitDragHistory(); setInteracting(true); updateElement(id, geo); },
+    onDragEnd: () => {
+      dragHistoryRef.current = { snapshot: null, pushed: false };
+      setInteracting(false);
+    },
   });
+
+  const handleMoveStart = useCallback((e, el) => {
+    dragHistoryRef.current = { snapshot: layout, pushed: false };
+    startMove(e, el);
+  }, [layout, startMove]);
+
+  const handleResizeStart = useCallback((e, el, handle) => {
+    dragHistoryRef.current = { snapshot: layout, pushed: false };
+    startResize(e, el, handle);
+  }, [layout, startResize]);
 
   // ── Keyboard shortcuts ──
   useEffect(() => {
     if (readOnly) return;
     const handler = (e) => {
-      const tag = document.activeElement?.tagName;
-      if (tag === "INPUT" || tag === "TEXTAREA" || document.activeElement?.isContentEditable) return;
-      if ((e.metaKey || e.ctrlKey) && e.key === "z") { e.preventDefault(); undo(); }
-      if ((e.metaKey || e.ctrlKey) && e.key === "y") { e.preventDefault(); redo(); }
-      if ((e.key === "Delete" || e.key === "Backspace") && selectedId) {
+      // Never hijack keys while typing in the side-panel inputs or inline edits
+      const active = document.activeElement;
+      const tag = active?.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || active?.isContentEditable) return;
+
+      const mod = e.metaKey || e.ctrlKey;
+      const key = e.key.toLowerCase();
+
+      // Undo / redo — work regardless of selection
+      if (mod && key === "z" && !e.shiftKey) { e.preventDefault(); undo(); return; }
+      if (mod && (key === "y" || (key === "z" && e.shiftKey))) { e.preventDefault(); redo(); return; }
+
+      if (!selectedId) return;
+      const el = activePage?.elements?.find((x) => x.id === selectedId);
+      if (!el) return;
+
+      // Arrow nudge — 1px, Shift = 10px (throttled history: one push per burst)
+      const NUDGE = {
+        ArrowLeft: [-1, 0], ArrowRight: [1, 0],
+        ArrowUp:   [0, -1], ArrowDown:  [0, 1],
+      };
+      if (NUDGE[e.key]) {
+        if (el.locked) return;
+        e.preventDefault();
+        const step = e.shiftKey ? 10 : 1;
+        const [dx, dy] = NUDGE[e.key];
+        pushHistoryThrottled("nudge", layout);
+        updateElement(selectedId, {
+          x: Math.max(0, (Number(el.x) || 0) + dx * step),
+          y: Math.max(0, (Number(el.y) || 0) + dy * step),
+        });
+        return;
+      }
+
+      // Delete
+      if (e.key === "Delete" || e.key === "Backspace") {
         e.preventDefault();
         pushHistory(layout);
-        mutateElements((els) => els.filter((el) => el.id !== selectedId));
+        mutateElements((els) => els.filter((x) => x.id !== selectedId));
         deselect();
+        return;
+      }
+
+      // Duplicate — Ctrl/Cmd+D
+      if (mod && key === "d") {
+        e.preventDefault();
+        pushHistory(layout);
+        const dup = { ...el, id: nanoid(8), x: (Number(el.x) || 0) + 16, y: (Number(el.y) || 0) + 16 };
+        mutateElements((els) => [...els, dup]);
+        select(dup.id);
+        return;
+      }
+
+      // Z-order — Ctrl/Cmd+] bring forward, Ctrl/Cmd+[ send backward
+      if (mod && (e.key === "]" || e.key === "[")) {
+        e.preventDefault();
+        const delta = e.key === "]" ? 1 : -1;
+        const next = Math.min(999, Math.max(0, (Number(el.zIndex) || 1) + delta));
+        if (next === (Number(el.zIndex) || 1)) return;
+        pushHistoryThrottled("zorder", layout);
+        updateElement(selectedId, { zIndex: next });
       }
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [readOnly, selectedId, layout, undo, redo, pushHistory, mutateElements, deselect]);
+  }, [
+    readOnly, selectedId, layout, activePage,
+    undo, redo, pushHistory, pushHistoryThrottled,
+    mutateElements, updateElement, deselect, select,
+  ]);
 
   // ── Drop from ElementLibrary ──
   const onDrop = useCallback((e) => {
@@ -195,14 +286,14 @@ export function CustomCanvas({ readOnly = false, onSelect }) {
                 height:    el.height === "auto" ? undefined : el.height,
                 cursor:    el.locked || readOnly ? "default" : "grab",
                 userSelect:"none",
-                zIndex:    isSelected ? 5 : 1,
+                zIndex:    el.zIndex ?? 1,
                 visibility:el.visible === false ? "hidden" : "visible",
               }}
               onClick={(e) => { e.stopPropagation(); if (!readOnly) select(el.id); }}
               onDoubleClick={(e) => { e.stopPropagation(); if (!readOnly) setEditingId(el.id); }}
               onMouseDown={(e) => {
                 if (readOnly || el.locked || isEditing) return;
-                if (e.button === 0) startMove(e, el);
+                if (e.button === 0) handleMoveStart(e, el);
               }}
             >
               <ElementRenderer
@@ -222,7 +313,8 @@ export function CustomCanvas({ readOnly = false, onSelect }) {
               {isSelected && (
                 <SelectionBox
                   element={el}
-                  onResizeStart={startResize}
+                  showDims={interacting}
+                  onResizeStart={handleResizeStart}
                   onDelete={() => {
                     pushHistory(layout);
                     mutateElements((els) => els.filter((e) => e.id !== el.id));

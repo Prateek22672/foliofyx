@@ -29,7 +29,7 @@ const COLUMNS = [
     links: [
       { label: "Design Collections", to: "/designs" },
       { label: "Find Talent", to: "/talent" },
-      { label: "Become a Creator", to: "/create" },
+      { label: "My Links & Domains", to: "/links" },
       { label: "New Releases", to: "/release" },
       { label: "About FolioFYX", to: "/about" },
     ],

@@ -2,7 +2,7 @@
 // Handles pointer-based drag-to-move and resize for canvas elements.
 // Used inside CustomCanvas.jsx.
 
-import { useRef, useCallback } from "react";
+import { useRef, useCallback, useEffect } from "react";
 import { useGridSnap } from "./useGridSnap";
 
 /**
@@ -18,37 +18,19 @@ export function useCanvasDrag({ scale = 1, onMove, onResize, onDragEnd, elements
 
   const state = useRef(null); // { mode, id, startX, startY, origEl, handle }
 
-  const startMove = useCallback((e, element) => {
-    if (element.locked) return;
-    e.stopPropagation();
-    e.preventDefault();
-    state.current = {
-      mode: "move",
-      id: element.id,
-      startX: e.clientX,
-      startY: e.clientY,
-      origEl: { ...element },
-    };
-    bindGlobalEvents();
-  }, []); // eslint-disable-line
-
-  const startResize = useCallback((e, element, handle) => {
-    e.stopPropagation();
-    e.preventDefault();
-    state.current = {
-      mode: "resize",
-      id: element.id,
-      startX: e.clientX,
-      startY: e.clientY,
-      origEl: { ...element },
-      handle, // 'nw'|'n'|'ne'|'e'|'se'|'s'|'sw'|'w'
-    };
-    bindGlobalEvents();
-  }, []); // eslint-disable-line
+  // Keep the latest props in a ref so the window listeners (which are bound
+  // once and must stay referentially stable to unbind) never read stale values.
+  // Previously the []-dep callbacks captured the FIRST render's scale/elements,
+  // so drags used a stale scale after the canvas rescaled and snapped against
+  // outdated element positions.
+  const latest = useRef({ scale, elements, onMove, onResize, onDragEnd, snapToElements });
+  latest.current = { scale, elements, onMove, onResize, onDragEnd, snapToElements };
 
   const onMouseMove = useCallback((e) => {
     const s = state.current;
     if (!s) return;
+
+    const { scale, elements, onMove, onResize, snapToElements } = latest.current;
 
     const dx = (e.clientX - s.startX) / scale;
     const dy = (e.clientY - s.startY) / scale;
@@ -64,13 +46,16 @@ export function useCanvasDrag({ scale = 1, onMove, onResize, onDragEnd, elements
 
     if (s.mode === "resize") {
       const { handle, origEl } = s;
-      let { x, y, width, height } = origEl;
       const MIN = 40;
+      // Guard "auto" heights — Math.max(MIN, "auto" + dy) is NaN.
+      const origW = Number(origEl.width) || MIN;
+      const origH = origEl.height === "auto" ? MIN : (Number(origEl.height) || MIN);
+      let x = origEl.x, y = origEl.y, width = origW, height = origH;
 
-      if (handle.includes("e")) width  = Math.max(MIN, origEl.width  + dx);
-      if (handle.includes("s")) height = Math.max(MIN, origEl.height + dy);
-      if (handle.includes("w")) { const w = Math.max(MIN, origEl.width - dx); x = origEl.x + (origEl.width - w); width = w; }
-      if (handle.includes("n")) { const h = Math.max(MIN, origEl.height - dy); y = origEl.y + (origEl.height - h); height = h; }
+      if (handle.includes("e")) width  = Math.max(MIN, origW + dx);
+      if (handle.includes("s")) height = Math.max(MIN, origH + dy);
+      if (handle.includes("w")) { const w = Math.max(MIN, origW - dx); x = origEl.x + (origW - w); width = w; }
+      if (handle.includes("n")) { const h = Math.max(MIN, origH - dy); y = origEl.y + (origH - h); height = h; }
 
       onResize(s.id, {
         x: Math.round(x / 8) * 8,
@@ -79,29 +64,63 @@ export function useCanvasDrag({ scale = 1, onMove, onResize, onDragEnd, elements
         height: Math.round(height / 8) * 8,
       });
     }
-  }, [scale, elements, onMove, onResize, snapToElements]);
+  }, []);
 
   const onMouseUp = useCallback(() => {
     if (state.current) {
-      onDragEnd?.();
+      latest.current.onDragEnd?.();
       state.current = null;
     }
-    unbindGlobalEvents();
-  }, [onDragEnd]); // eslint-disable-line
-
-  function bindGlobalEvents() {
-    window.addEventListener("mousemove", onMouseMove);
-    window.addEventListener("mouseup",   onMouseUp);
-    document.body.style.userSelect = "none";
-    document.body.style.cursor    = "grabbing";
-  }
-
-  function unbindGlobalEvents() {
     window.removeEventListener("mousemove", onMouseMove);
     window.removeEventListener("mouseup",   onMouseUp);
     document.body.style.userSelect = "";
     document.body.style.cursor    = "";
-  }
+  }, [onMouseMove]);
+
+  const bindGlobalEvents = useCallback(() => {
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mouseup",   onMouseUp);
+    document.body.style.userSelect = "none";
+    document.body.style.cursor    = "grabbing";
+  }, [onMouseMove, onMouseUp]);
+
+  const startMove = useCallback((e, element) => {
+    if (element.locked) return;
+    e.stopPropagation();
+    e.preventDefault();
+    state.current = {
+      mode: "move",
+      id: element.id,
+      startX: e.clientX,
+      startY: e.clientY,
+      origEl: { ...element },
+    };
+    bindGlobalEvents();
+  }, [bindGlobalEvents]);
+
+  const startResize = useCallback((e, element, handle) => {
+    e.stopPropagation();
+    e.preventDefault();
+    state.current = {
+      mode: "resize",
+      id: element.id,
+      startX: e.clientX,
+      startY: e.clientY,
+      origEl: { ...element },
+      handle, // 'nw'|'n'|'ne'|'e'|'se'|'s'|'sw'|'w'
+    };
+    bindGlobalEvents();
+  }, [bindGlobalEvents]);
+
+  // Clean up if the component unmounts mid-drag — otherwise the window
+  // listeners leak and the body keeps the "grabbing" cursor forever.
+  useEffect(() => () => {
+    state.current = null;
+    window.removeEventListener("mousemove", onMouseMove);
+    window.removeEventListener("mouseup",   onMouseUp);
+    document.body.style.userSelect = "";
+    document.body.style.cursor    = "";
+  }, [onMouseMove, onMouseUp]);
 
   return { startMove, startResize };
 }

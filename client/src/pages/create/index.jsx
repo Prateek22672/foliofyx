@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { Sparkles, Code, Palette, Cpu, FileJson, ScanLine } from "lucide-react";
+import { Sparkles, Code, Palette, Cpu, FileJson, ScanLine, AlertTriangle, RefreshCw } from "lucide-react";
 
 import Background from "./Background";
 import SelectionView from "./SelectionView";
@@ -44,6 +44,43 @@ const ResumeLoadingOverlay = () => (
       <p className="text-gray-400 font-mono text-xs tracking-widest uppercase">
         AI is extracting all data from your resume...
       </p>
+    </div>
+  </motion.div>
+);
+
+const ResumeErrorOverlay = ({ message, onRetry, onManual, onBack }) => (
+  <motion.div
+    initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+    className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-[#030303]/95 backdrop-blur-md px-6"
+  >
+    <div className="flex flex-col items-center text-center max-w-md">
+      <div className="w-14 h-14 rounded-full bg-red-500/10 border border-red-500/30 flex items-center justify-center mb-6">
+        <AlertTriangle className="w-6 h-6 text-red-400" />
+      </div>
+      <h3 className="text-2xl font-medium text-white mb-3">Resume Analysis Failed</h3>
+      <p className="text-gray-400 text-sm leading-relaxed mb-8">
+        {message || "We could not extract data from that file."}
+      </p>
+      <div className="flex flex-col sm:flex-row items-center gap-3">
+        <button
+          onClick={onRetry}
+          className="flex items-center gap-2 px-6 py-3 rounded-full bg-white text-black font-bold text-sm hover:scale-[1.03] active:scale-[0.97] transition-all"
+        >
+          <RefreshCw size={14} /> Try Again
+        </button>
+        <button
+          onClick={onManual}
+          className="px-6 py-3 rounded-full border border-white/20 text-gray-200 text-sm font-medium hover:bg-white/10 hover:text-white transition-all"
+        >
+          Fill In Manually
+        </button>
+      </div>
+      <button
+        onClick={onBack}
+        className="mt-6 text-gray-500 hover:text-white transition-colors text-[10px] font-bold uppercase tracking-widest"
+      >
+        Back to Options
+      </button>
     </div>
   </motion.div>
 );
@@ -170,8 +207,13 @@ const CreatePage = () => {
   const [showResumePreview, setShowResumePreview] = useState(false);
   const [message, setMessage] = useState("");
   const [aiPrompt, setAiPrompt] = useState("");
+  const [resumeError, setResumeError] = useState("");
+  const lastResumeFile = React.useRef(null);
   const [formData, setFormData] = useState({
-    name: "", role: "", bio: "", experience: "", skills: [],
+    // experience must be an ARRAY of { company, role, period, desc } —
+    // WizardForm, ResumePreviewModal and the parsed resume payload all use
+    // that shape (it was previously initialised as "").
+    name: "", role: "", bio: "", experience: [], skills: [],
     education: "", projects: [], linkedin: "", github: "",
     email: "", cvLink: ""
   });
@@ -264,6 +306,9 @@ const CreatePage = () => {
   const handleControlStart = () => setViewMode("wizard");
 
   const handleResumeUpload = async (file) => {
+    if (!file) return;
+    lastResumeFile.current = file;
+    setResumeError("");
     setViewMode("resume-loading");
     try {
       const data = await parseResumeFile(file);
@@ -271,14 +316,32 @@ const CreatePage = () => {
       setViewMode("selection");
       setShowResumePreview(true);
     } catch (error) {
+      // Surface the actual API error with a clear retry path — no silent
+      // fallback into the empty wizard.
       console.error("Parsing failed:", error);
-      setMessage("Failed to analyze resume. Please fill in manually.");
+      setResumeError(error.message || "Failed to analyze resume.");
+      setViewMode("resume-error");
+    }
+  };
+
+  const handleResumeRetry = () => {
+    if (lastResumeFile.current) {
+      handleResumeUpload(lastResumeFile.current);
+    } else {
       setViewMode("selection");
     }
   };
 
   const handleResumeConfirm = (confirmedData) => {
-    setFormData({ ...confirmedData });
+    // Everything the parser returns lands in the builder form: identity,
+    // links, education, skills[], experience[], projects[].
+    setFormData((prev) => ({
+      ...prev,
+      ...confirmedData,
+      skills: Array.isArray(confirmedData.skills) ? confirmedData.skills : [],
+      experience: Array.isArray(confirmedData.experience) ? confirmedData.experience : [],
+      projects: Array.isArray(confirmedData.projects) ? confirmedData.projects : [],
+    }));
     setShowResumePreview(false);
     setViewMode("wizard");
     setMessage("Resume loaded! Review your details and proceed.");
@@ -308,6 +371,15 @@ const CreatePage = () => {
 
           {viewMode === "ai-loading" && <AILoadingOverlay key="ai-loading" prompt={aiPrompt} />}
           {viewMode === "resume-loading" && <ResumeLoadingOverlay key="resume-loading" />}
+          {viewMode === "resume-error" && (
+            <ResumeErrorOverlay
+              key="resume-error"
+              message={resumeError}
+              onRetry={handleResumeRetry}
+              onManual={() => { setResumeError(""); setViewMode("wizard"); }}
+              onBack={() => { setResumeError(""); setViewMode("selection"); }}
+            />
+          )}
           {viewMode === "success" && <SuccessView key="success" />}
         </AnimatePresence>
       </div>

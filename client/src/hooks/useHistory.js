@@ -21,8 +21,14 @@ export function useHistory(setValue) {
     if (!past.current.length) return;
     const prev = past.current[past.current.length - 1];
     past.current = past.current.slice(0, -1);
+    // React may invoke updaters twice (StrictMode) — guard the side effect so
+    // the redo stack doesn't get a duplicate snapshot.
+    let captured = false;
     setValue((cur) => {
-      future.current = [JSON.parse(JSON.stringify(cur)), ...future.current.slice(0, MAX - 1)];
+      if (!captured) {
+        captured = true;
+        future.current = [JSON.parse(JSON.stringify(cur)), ...future.current.slice(0, MAX - 1)];
+      }
       return prev;
     });
   }, [setValue]);
@@ -31,8 +37,12 @@ export function useHistory(setValue) {
     if (!future.current.length) return;
     const next = future.current[0];
     future.current = future.current.slice(1);
+    let captured = false;
     setValue((cur) => {
-      past.current = [...past.current.slice(-(MAX - 1)), JSON.parse(JSON.stringify(cur))];
+      if (!captured) {
+        captured = true;
+        past.current = [...past.current.slice(-(MAX - 1)), JSON.parse(JSON.stringify(cur))];
+      }
       return next;
     });
   }, [setValue]);
