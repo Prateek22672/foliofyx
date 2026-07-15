@@ -5,10 +5,11 @@ import React, { useState } from "react";
 import {
   AlignLeft, AlignCenter, AlignRight, AlignJustify,
   Lock, Unlock, Trash2, Copy, Eye, EyeOff,
-  ChevronDown, ChevronRight,
+  MousePointerClick, Link2, Unlink,
 } from "lucide-react";
 import { usePortfolio } from "../../../../context/PortfolioContext";
-import { defaultCustomLayout, EL } from "../../../Templates/Custom/constants";
+import { EL } from "../../../Templates/Custom/constants";
+import { T, inputStyle, iconBtn, Section, Row, Seg, NumberInput, ColorPicker } from "./ui";
 
 const FONTS = [
   "inherit", "Inter", "DM Sans", "Syne", "Playfair Display",
@@ -35,130 +36,6 @@ const BLEND_MODES = [
 
 function getLayout(pd) { return pd?.customLayout ?? { pages: [], activePage: null }; }
 
-// ── Small UI atoms ───────────────────────────────────────────────────────────
-const inputStyle = {
-  width: "100%", padding: "5px 8px",
-  border: "1px solid #e5e7eb", borderRadius: 7,
-  fontSize: 12, color: "#374151", outline: "none",
-  background: "#fafafa", boxSizing: "border-box",
-};
-
-function Section({ title, children, defaultOpen = true }) {
-  const [open, setOpen] = useState(defaultOpen);
-  return (
-    <div style={{ borderBottom: "1px solid #f3f4f6" }}>
-      <button
-        type="button"
-        onClick={() => setOpen(o => !o)}
-        style={{
-          width: "100%", display: "flex", alignItems: "center",
-          justifyContent: "space-between", padding: "8px 14px",
-          background: "none", border: "none", cursor: "pointer",
-        }}
-      >
-        <span style={{ fontSize: 10, fontWeight: 700, color: "#6b7280", textTransform: "uppercase", letterSpacing: "0.07em" }}>
-          {title}
-        </span>
-        {open ? <ChevronDown size={12} color="#9ca3af" /> : <ChevronRight size={12} color="#9ca3af" />}
-      </button>
-      {open && (
-        <div style={{ padding: "0 14px 12px", display: "flex", flexDirection: "column", gap: 10 }}>
-          {children}
-        </div>
-      )}
-    </div>
-  );
-}
-
-function Row({ label, children }) {
-  return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-      <label style={{ fontSize: 10, fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.06em" }}>
-        {label}
-      </label>
-      {children}
-    </div>
-  );
-}
-
-function NumberInput({ value, onChange, min, max, step = 1, suffix = "", placeholder = "" }) {
-  return (
-    <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-      <input
-        type="number"
-        value={value ?? ""}
-        min={min} max={max} step={step}
-        placeholder={placeholder}
-        onChange={(e) => onChange(parseFloat(e.target.value))}
-        style={{ ...inputStyle, flex: 1 }}
-      />
-      {suffix && <span style={{ fontSize: 11, color: "#9ca3af", flexShrink: 0 }}>{suffix}</span>}
-    </div>
-  );
-}
-
-function ColorPicker({ value, onChange, allowTransparent = false }) {
-  return (
-    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-      <input
-        type="color"
-        value={value && value !== "transparent" ? value : "#ffffff"}
-        onChange={(e) => onChange(e.target.value)}
-        style={{ width: 32, height: 32, borderRadius: 6, border: "1px solid #e5e7eb", cursor: "pointer", padding: 2, flexShrink: 0 }}
-      />
-      <input
-        type="text"
-        value={value || ""}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={allowTransparent ? "transparent" : "#000000"}
-        style={{ ...inputStyle, flex: 1, fontFamily: "monospace", fontSize: 11 }}
-      />
-      {allowTransparent && (
-        <button
-          type="button"
-          onClick={() => onChange("transparent")}
-          title="Set transparent"
-          style={{
-            padding: "3px 6px", borderRadius: 5, border: "1px solid #e5e7eb",
-            background: value === "transparent" ? "#f0f0ff" : "#fafafa",
-            fontSize: 9, color: "#6366f1", cursor: "pointer", flexShrink: 0,
-          }}
-        >
-          None
-        </button>
-      )}
-    </div>
-  );
-}
-
-function AlignButtons({ value, onChange }) {
-  const opts = [
-    { val: "left",    Icon: AlignLeft    },
-    { val: "center",  Icon: AlignCenter  },
-    { val: "right",   Icon: AlignRight   },
-    { val: "justify", Icon: AlignJustify },
-  ];
-  return (
-    <div style={{ display: "flex", gap: 4 }}>
-      {opts.map(({ val, Icon }) => (
-        <button
-          key={val} type="button"
-          onClick={() => onChange(val)}
-          style={{
-            flex: 1, padding: 6, border: "1px solid",
-            borderColor: value === val ? "#6366f1" : "#e5e7eb",
-            borderRadius: 6,
-            background: value === val ? "#f0f0ff" : "#fafafa",
-            display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer",
-          }}
-        >
-          <Icon size={13} color={value === val ? "#6366f1" : "#9ca3af"} />
-        </button>
-      ))}
-    </div>
-  );
-}
-
 function SpacingGrid({ value = {}, onChange }) {
   const sides = ["top", "right", "bottom", "left"];
   const [linked, setLinked] = useState(true);
@@ -178,7 +55,7 @@ function SpacingGrid({ value = {}, onChange }) {
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 4, marginBottom: 4 }}>
         {sides.map(side => (
           <div key={side}>
-            <div style={{ fontSize: 9, color: "#9ca3af", textAlign: "center", marginBottom: 2, textTransform: "capitalize" }}>{side}</div>
+            <div style={{ fontSize: 9, color: T.textFaint, textAlign: "center", marginBottom: 2, textTransform: "capitalize" }}>{side}</div>
             <input
               type="number"
               value={value[side] ?? 0}
@@ -192,12 +69,15 @@ function SpacingGrid({ value = {}, onChange }) {
       <button
         type="button"
         onClick={() => setLinked(l => !l)}
+        title={linked ? "Edit sides individually" : "Link all sides"}
         style={{
-          fontSize: 10, color: linked ? "#6366f1" : "#9ca3af",
+          display: "inline-flex", alignItems: "center", gap: 4,
+          fontSize: 10, color: linked ? T.accentText : T.textFaint,
           background: "none", border: "none", cursor: "pointer", padding: 0,
         }}
       >
-        {linked ? "🔗 Linked" : "🔓 Individual"}
+        {linked ? <Link2 size={10} /> : <Unlink size={10} />}
+        {linked ? "Linked" : "Individual"}
       </button>
     </div>
   );
@@ -212,14 +92,17 @@ function PropertyPanel({ selectedId, onDelete, onDuplicate }) {
 
   if (!selectedId || !element) {
     return (
-      <div style={{ padding: 24, textAlign: "center", color: "#9ca3af" }}>
-        <div style={{ fontSize: 40, marginBottom: 12 }}>↖</div>
-        <p style={{ fontSize: 13, fontWeight: 700, color: "#374151" }}>No element selected</p>
-        <p style={{ fontSize: 11, lineHeight: 1.6, marginTop: 6 }}>
+      <div style={{ padding: 24, textAlign: "center", color: T.textFaint }}>
+        <MousePointerClick size={28} color={T.textFaint} style={{ marginBottom: 12 }} />
+        <p style={{ fontSize: 13, fontWeight: 700, color: T.text }}>No element selected</p>
+        <p style={{ fontSize: 11, lineHeight: 1.6, marginTop: 6, color: T.textDim }}>
           Click any element on the canvas to edit its style, content, and layout here.
         </p>
-        <div style={{ marginTop: 16, padding: "10px 12px", background: "#f8fafc", borderRadius: 10, border: "1px solid #e5e7eb", textAlign: "left" }}>
-          <p style={{ fontSize: 10, fontWeight: 700, color: "#64748b", marginBottom: 6 }}>KEYBOARD SHORTCUTS</p>
+        <div style={{
+          marginTop: 16, padding: "10px 12px", background: T.input,
+          borderRadius: 8, border: `1px solid ${T.border}`, textAlign: "left",
+        }}>
+          <p style={{ fontSize: 10, fontWeight: 700, color: T.textDim, marginBottom: 6, letterSpacing: "0.06em" }}>KEYBOARD SHORTCUTS</p>
           {[
             ["Arrows", "Nudge 1px (Shift: 10px)"],
             ["Delete", "Remove element"],
@@ -231,8 +114,8 @@ function PropertyPanel({ selectedId, onDelete, onDuplicate }) {
             ["Esc", "Deselect"],
           ].map(([k, v]) => (
             <div key={k} style={{ display: "flex", justifyContent: "space-between", marginBottom: 3 }}>
-              <code style={{ fontSize: 10, background: "#f1f5f9", padding: "1px 5px", borderRadius: 4, color: "#374151" }}>{k}</code>
-              <span style={{ fontSize: 10, color: "#9ca3af" }}>{v}</span>
+              <code style={{ fontSize: 10, background: T.panelAlt, border: `1px solid ${T.borderSoft}`, padding: "1px 5px", borderRadius: 4, color: T.text }}>{k}</code>
+              <span style={{ fontSize: 10, color: T.textFaint }}>{v}</span>
             </div>
           ))}
         </div>
@@ -281,8 +164,7 @@ function PropertyPanel({ selectedId, onDelete, onDuplicate }) {
 
   const { styles = {}, type } = element;
 
-  const isText    = ![EL?.IMAGE, EL?.DIVIDER, EL?.SPACER, EL?.VIDEO].includes(type);
-  const isMedia   = [EL?.IMAGE, EL?.VIDEO].includes(type);
+  const isText = ![EL?.IMAGE, EL?.DIVIDER, EL?.SPACER, EL?.VIDEO].includes(type);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%", overflowY: "auto" }}>
@@ -290,31 +172,32 @@ function PropertyPanel({ selectedId, onDelete, onDuplicate }) {
       {/* ── Element header / toolbar ─────────────────────────────────────── */}
       <div style={{
         display: "flex", alignItems: "center", gap: 6,
-        padding: "8px 14px", borderBottom: "1px solid #f3f4f6",
-        background: "#fafafa", flexShrink: 0,
+        padding: "8px 16px", borderBottom: `1px solid ${T.border}`,
+        background: T.panelAlt, flexShrink: 0,
+        position: "sticky", top: 0, zIndex: 2,
       }}>
         <span style={{
-          fontSize: 11, fontWeight: 700, color: "#374151", textTransform: "capitalize", flex: 1,
-          background: "#f0f0ff", padding: "2px 8px", borderRadius: 6, border: "1px solid #c7d2fe",
+          fontSize: 11, fontWeight: 700, color: T.accentText, textTransform: "capitalize", flex: 1,
+          background: T.accentSoft, padding: "2px 8px", borderRadius: 6, border: `1px solid ${T.accentBorder}`,
         }}>
           {type}
         </span>
-        <button type="button" onClick={() => onDuplicate?.(selectedId)} title="Duplicate"
+        <button type="button" onClick={() => onDuplicate?.(selectedId)} title="Duplicate element"
           style={iconBtn}><Copy size={13} /></button>
         <button type="button"
           onClick={() => patchElement({ visible: element.visible === false })}
-          title={element.visible === false ? "Show" : "Hide"}
+          title={element.visible === false ? "Show element" : "Hide element"}
           style={iconBtn}>
-          {element.visible === false ? <EyeOff size={13} color="#ef4444" /> : <Eye size={13} />}
+          {element.visible === false ? <EyeOff size={13} color={T.danger} /> : <Eye size={13} />}
         </button>
         <button type="button"
           onClick={() => patchElement({ locked: !element.locked })}
-          title={element.locked ? "Unlock" : "Lock"}
+          title={element.locked ? "Unlock element" : "Lock element"}
           style={iconBtn}>
-          {element.locked ? <Lock size={13} color="#ef4444" /> : <Unlock size={13} />}
+          {element.locked ? <Lock size={13} color={T.danger} /> : <Unlock size={13} />}
         </button>
-        <button type="button" onClick={() => onDelete?.(selectedId)} title="Delete"
-          style={{ ...iconBtn, color: "#ef4444" }}><Trash2 size={13} /></button>
+        <button type="button" onClick={() => onDelete?.(selectedId)} title="Delete element"
+          style={{ ...iconBtn, color: T.danger }}><Trash2 size={13} /></button>
       </div>
 
       {/* ── POSITION & SIZE ────────────────────────────────────────────────── */}
@@ -322,7 +205,7 @@ function PropertyPanel({ selectedId, onDelete, onDuplicate }) {
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
           {[["X", "x", 0], ["Y", "y", 0], ["W", "width", 40], ["H", "height", 20]].map(([lbl, key, mn]) => (
             <div key={key}>
-              <label style={{ fontSize: 10, color: "#9ca3af" }}>{lbl}</label>
+              <label style={{ fontSize: 10, color: T.textFaint }}>{lbl}</label>
               <NumberInput
                 value={element[key] === "auto" ? "" : element[key]}
                 min={mn}
@@ -336,7 +219,7 @@ function PropertyPanel({ selectedId, onDelete, onDuplicate }) {
           <NumberInput value={element.zIndex ?? 1} min={0} max={999} onChange={v => patchElement({ zIndex: v })} />
         </Row>
         <Row label="Rotation">
-          <NumberInput value={styles.rotate ?? 0} min={-360} max={360} onChange={v => patchStyles({ rotate: v })} suffix="°" />
+          <NumberInput value={styles.rotate ?? 0} min={-360} max={360} onChange={v => patchStyles({ rotate: v })} suffix="deg" />
         </Row>
       </Section>
 
@@ -345,7 +228,7 @@ function PropertyPanel({ selectedId, onDelete, onDuplicate }) {
         <Section title="Typography">
           <Row label="Font Family">
             <select value={styles.fontFamily || "inherit"} onChange={e => patchStyles({ fontFamily: e.target.value })} style={inputStyle}>
-              {FONTS.map(f => <option key={f} value={f}>{f === "inherit" ? "— Theme Font —" : f}</option>)}
+              {FONTS.map(f => <option key={f} value={f}>{f === "inherit" ? "Theme Font" : f}</option>)}
             </select>
           </Row>
 
@@ -367,7 +250,16 @@ function PropertyPanel({ selectedId, onDelete, onDuplicate }) {
           </Row>
 
           <Row label="Align">
-            <AlignButtons value={styles.textAlign || "left"} onChange={v => patchStyles({ textAlign: v })} />
+            <Seg
+              value={styles.textAlign || "left"}
+              onChange={v => patchStyles({ textAlign: v })}
+              options={[
+                { value: "left",    node: <AlignLeft size={13} />,    title: "Align left" },
+                { value: "center",  node: <AlignCenter size={13} />,  title: "Align center" },
+                { value: "right",   node: <AlignRight size={13} />,   title: "Align right" },
+                { value: "justify", node: <AlignJustify size={13} />, title: "Justify" },
+              ]}
+            />
           </Row>
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
@@ -380,38 +272,28 @@ function PropertyPanel({ selectedId, onDelete, onDuplicate }) {
           </div>
 
           <Row label="Text Transform">
-            <div style={{ display: "flex", gap: 4 }}>
-              {["none","uppercase","lowercase","capitalize"].map(t => (
-                <button key={t} type="button" onClick={() => patchStyles({ textTransform: t })}
-                  style={{
-                    flex: 1, padding: "4px 2px", borderRadius: 5, border: "1px solid",
-                    borderColor: (styles.textTransform || "none") === t ? "#6366f1" : "#e5e7eb",
-                    background: (styles.textTransform || "none") === t ? "#f0f0ff" : "#fafafa",
-                    fontSize: 9, fontWeight: 700, color: (styles.textTransform || "none") === t ? "#4f46e5" : "#9ca3af",
-                    cursor: "pointer", textTransform: t,
-                  }}
-                >
-                  {t === "none" ? "Aa" : t === "uppercase" ? "AA" : t === "lowercase" ? "aa" : "Aa"}
-                </button>
-              ))}
-            </div>
+            <Seg
+              value={styles.textTransform || "none"}
+              onChange={v => patchStyles({ textTransform: v })}
+              options={[
+                { value: "none",       node: "Aa", title: "None" },
+                { value: "uppercase",  node: "AA", title: "Uppercase" },
+                { value: "lowercase",  node: "aa", title: "Lowercase" },
+                { value: "capitalize", node: "Aa", title: "Capitalize" },
+              ]}
+            />
           </Row>
 
           <Row label="Font Style">
-            <div style={{ display: "flex", gap: 4 }}>
-              {[["normal","N"],["italic","I"],["oblique","O"]].map(([val, sym]) => (
-                <button key={val} type="button" onClick={() => patchStyles({ fontStyle: val })}
-                  style={{
-                    flex: 1, padding: "5px 0", borderRadius: 5, border: "1px solid",
-                    borderColor: (styles.fontStyle || "normal") === val ? "#6366f1" : "#e5e7eb",
-                    background: (styles.fontStyle || "normal") === val ? "#f0f0ff" : "#fafafa",
-                    fontSize: 12, fontStyle: val, fontWeight: 700,
-                    color: (styles.fontStyle || "normal") === val ? "#4f46e5" : "#9ca3af",
-                    cursor: "pointer",
-                  }}
-                >{sym}</button>
-              ))}
-            </div>
+            <Seg
+              value={styles.fontStyle || "normal"}
+              onChange={v => patchStyles({ fontStyle: v })}
+              options={[
+                { value: "normal",  node: "N", title: "Normal" },
+                { value: "italic",  node: <em>I</em>, title: "Italic" },
+                { value: "oblique", node: <em>O</em>, title: "Oblique" },
+              ]}
+            />
           </Row>
 
           <Row label="Text Shadow">
@@ -431,21 +313,15 @@ function PropertyPanel({ selectedId, onDelete, onDuplicate }) {
       {![EL?.DIVIDER, EL?.SPACER].includes(type) && (
         <Section title="Background" defaultOpen={false}>
           <Row label="BG Type">
-            <div style={{ display: "flex", gap: 4 }}>
-              {["solid","gradient","none"].map(t => (
-                <button key={t} type="button"
-                  onClick={() => patchStyles({ bgType: t, bgColor: t === "none" ? "transparent" : (styles.bgColor || "#ffffff") })}
-                  style={{
-                    flex: 1, padding: "5px 0", borderRadius: 5, border: "1px solid",
-                    borderColor: (styles.bgType || "solid") === t ? "#6366f1" : "#e5e7eb",
-                    background: (styles.bgType || "solid") === t ? "#f0f0ff" : "#fafafa",
-                    fontSize: 10, fontWeight: 700,
-                    color: (styles.bgType || "solid") === t ? "#4f46e5" : "#9ca3af",
-                    cursor: "pointer", textTransform: "capitalize",
-                  }}
-                >{t}</button>
-              ))}
-            </div>
+            <Seg
+              value={styles.bgType || "solid"}
+              onChange={t => patchStyles({ bgType: t, bgColor: t === "none" ? "transparent" : (styles.bgColor || "#ffffff") })}
+              options={[
+                { value: "solid",    node: "Solid" },
+                { value: "gradient", node: "Gradient" },
+                { value: "none",     node: "None" },
+              ]}
+            />
           </Row>
 
           {(styles.bgType !== "gradient" && styles.bgType !== "none") && (
@@ -464,7 +340,7 @@ function PropertyPanel({ selectedId, onDelete, onDuplicate }) {
               </Row>
               <Row label="Direction">
                 <select value={styles.gradientDir || "135deg"} onChange={e => patchStyles({ gradientDir: e.target.value })} style={inputStyle}>
-                  {[["90deg","→ Left to Right"],["270deg","← Right to Left"],["180deg","↓ Top to Bottom"],["0deg","↑ Bottom to Top"],["135deg","↘ Diagonal"],["45deg","↗ Diagonal"]].map(([v,l]) =>
+                  {[["90deg","Left to Right"],["270deg","Right to Left"],["180deg","Top to Bottom"],["0deg","Bottom to Top"],["135deg","Diagonal TL-BR"],["45deg","Diagonal BL-TR"]].map(([v,l]) =>
                     <option key={v} value={v}>{l}</option>
                   )}
                 </select>
@@ -518,7 +394,7 @@ function PropertyPanel({ selectedId, onDelete, onDuplicate }) {
                 const keys = ["borderTopLeftRadius","borderTopRightRadius","borderBottomRightRadius","borderBottomLeftRadius"];
                 return (
                   <div key={corner}>
-                    <div style={{ fontSize: 9, color: "#9ca3af", textAlign: "center", marginBottom: 2 }}>{corner}</div>
+                    <div style={{ fontSize: 9, color: T.textFaint, textAlign: "center", marginBottom: 2 }}>{corner}</div>
                     <input
                       type="number" min={0} max={200}
                       value={styles[keys[i]] ?? styles.borderRadius ?? 0}
@@ -563,9 +439,9 @@ function PropertyPanel({ selectedId, onDelete, onDuplicate }) {
               type="range" min={0} max={100}
               value={Math.round((styles.opacity ?? 1) * 100)}
               onChange={e => patchStyles({ opacity: parseFloat(e.target.value) / 100 })}
-              style={{ flex: 1 }}
+              style={{ flex: 1, accentColor: T.accent }}
             />
-            <span style={{ fontSize: 11, color: "#374151", minWidth: 32, textAlign: "right" }}>
+            <span style={{ fontSize: 11, color: T.text, minWidth: 32, textAlign: "right" }}>
               {Math.round((styles.opacity ?? 1) * 100)}%
             </span>
           </div>
@@ -714,11 +590,5 @@ function PropertyPanel({ selectedId, onDelete, onDuplicate }) {
     </div>
   );
 }
-
-const iconBtn = {
-  background: "none", border: "1px solid #e5e7eb", borderRadius: 6,
-  padding: 5, cursor: "pointer", display: "flex", alignItems: "center",
-  color: "#6b7280", transition: "all 0.15s",
-};
 
 export default PropertyPanel;

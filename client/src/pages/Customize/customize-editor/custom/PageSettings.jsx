@@ -1,10 +1,11 @@
 // src/pages/Customize/customize-editor/custom/PageSettings.jsx
 // Per-page settings: background, overlay, SEO, scroll behavior.
 
-import React, { useState } from "react";
-import { Upload, X, ChevronDown, ChevronRight } from "lucide-react";
+import React from "react";
+import { Upload, X, FileText } from "lucide-react";
 import { usePortfolio } from "../../../../context/PortfolioContext";
 import { defaultCustomLayout } from "../../../Templates/Custom/constants";
+import { T, inputStyle, Section, Row, Seg } from "./ui";
 
 function getLayout(pd) {
   return pd?.customLayout ?? defaultCustomLayout();
@@ -31,52 +32,10 @@ const OVERLAY_PRESETS = [
   { label: "Forest gradient",  value: "linear-gradient(135deg,rgba(16,185,129,0.5),rgba(20,184,166,0.4))" },
 ];
 
-function Section({ title, children, defaultOpen = true }) {
-  const [open, setOpen] = useState(defaultOpen);
-  return (
-    <div style={{ borderBottom: "1px solid #f3f4f6" }}>
-      <button
-        type="button"
-        onClick={() => setOpen(o => !o)}
-        style={{
-          width: "100%", display: "flex", alignItems: "center",
-          justifyContent: "space-between", padding: "8px 14px",
-          background: "none", border: "none", cursor: "pointer",
-        }}
-      >
-        <span style={{ fontSize: 10, fontWeight: 700, color: "#6b7280", textTransform: "uppercase", letterSpacing: "0.07em" }}>
-          {title}
-        </span>
-        {open ? <ChevronDown size={12} color="#9ca3af" /> : <ChevronRight size={12} color="#9ca3af" />}
-      </button>
-      {open && (
-        <div style={{ padding: "0 14px 14px", display: "flex", flexDirection: "column", gap: 12 }}>
-          {children}
-        </div>
-      )}
-    </div>
-  );
-}
-
-function Row({ label, hint, children }) {
-  return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <label style={{ fontSize: 10, fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.07em" }}>
-          {label}
-        </label>
-        {hint && <span style={{ fontSize: 9, color: "#c4b5fd" }}>{hint}</span>}
-      </div>
-      {children}
-    </div>
-  );
-}
-
-const inputStyle = {
-  width: "100%", padding: "6px 10px",
-  border: "1px solid #e5e7eb", borderRadius: 7,
-  fontSize: 12, outline: "none", background: "#fafafa",
-  boxSizing: "border-box",
+const colorSwatchStyle = {
+  width: 30, height: 30, borderRadius: 6,
+  border: `1px solid ${T.border}`, cursor: "pointer",
+  padding: 2, background: T.input, flexShrink: 0,
 };
 
 function PageSettings() {
@@ -85,8 +44,8 @@ function PageSettings() {
   const activePage  = layout.pages?.find(p => p.id === layout.activePage);
 
   if (!activePage) return (
-    <div style={{ padding: 24, textAlign: "center", color: "#9ca3af" }}>
-      <div style={{ fontSize: 32, marginBottom: 8 }}>📄</div>
+    <div style={{ padding: 24, textAlign: "center", color: T.textFaint }}>
+      <FileText size={26} style={{ marginBottom: 8 }} />
       <p style={{ fontSize: 13 }}>No page selected</p>
     </div>
   );
@@ -122,14 +81,14 @@ function PageSettings() {
     <div style={{ display: "flex", flexDirection: "column", height: "100%", overflowY: "auto" }}>
 
       {/* Page badge */}
-      <div style={{ padding: "10px 14px 4px", flexShrink: 0 }}>
+      <div style={{ padding: "12px 16px 6px", flexShrink: 0 }}>
         <div style={{
           display: "inline-flex", alignItems: "center", gap: 6,
           padding: "4px 10px", borderRadius: 20,
-          background: "#f0f0ff", border: "1px solid #c7d2fe",
-          fontSize: 11, fontWeight: 700, color: "#4f46e5",
+          background: T.accentSoft, border: `1px solid ${T.accentBorder}`,
+          fontSize: 11, fontWeight: 700, color: T.accentText,
         }}>
-          📄 {activePage.name}
+          <FileText size={11} /> {activePage.name}
         </div>
       </div>
 
@@ -138,22 +97,16 @@ function PageSettings() {
 
         {/* BG Type tabs */}
         <Row label="Type">
-          <div style={{ display: "flex", gap: 4 }}>
-            {["solid", "gradient", "image", "transparent"].map(t => (
-              <button
-                key={t}
-                type="button"
-                onClick={() => patch({ bgType: t })}
-                style={{
-                  flex: 1, padding: "5px 2px", borderRadius: 6, border: "1px solid",
-                  borderColor: bgType === t ? "#6366f1" : "#e5e7eb",
-                  background: bgType === t ? "#f0f0ff" : "#fafafa",
-                  fontSize: 9, fontWeight: 700, textTransform: "capitalize",
-                  color: bgType === t ? "#4f46e5" : "#9ca3af", cursor: "pointer",
-                }}
-              >{t}</button>
-            ))}
-          </div>
+          <Seg
+            value={bgType}
+            onChange={t => patch({ bgType: t })}
+            options={[
+              { value: "solid",       node: "Solid" },
+              { value: "gradient",    node: "Gradient" },
+              { value: "image",       node: "Image" },
+              { value: "transparent", node: "Clear", title: "Transparent" },
+            ]}
+          />
         </Row>
 
         {/* Solid */}
@@ -164,9 +117,10 @@ function PageSettings() {
                 type="color"
                 value={bg}
                 onChange={e => patch({ bgColor: e.target.value })}
-                style={{ width: 36, height: 36, borderRadius: 8, border: "1px solid #e5e7eb", cursor: "pointer", padding: 2 }}
+                title="Pick color"
+                style={colorSwatchStyle}
               />
-              <input type="text" value={bg} onChange={e => patch({ bgColor: e.target.value })} style={{ ...inputStyle, flex: 1, fontFamily: "monospace" }} />
+              <input type="text" value={bg} onChange={e => patch({ bgColor: e.target.value })} style={{ ...inputStyle, flex: 1, fontFamily: "ui-monospace, monospace" }} />
             </div>
             {/* Quick palette */}
             <div style={{ display: "flex", gap: 4, flexWrap: "wrap", marginTop: 4 }}>
@@ -176,7 +130,8 @@ function PageSettings() {
                   onClick={() => patch({ bgColor: c })}
                   title={c}
                   style={{
-                    width: 22, height: 22, borderRadius: 5, border: bg === c ? "2px solid #6366f1" : "1px solid #e5e7eb",
+                    width: 22, height: 22, borderRadius: 5,
+                    border: bg === c ? `2px solid ${T.accent}` : `1px solid ${T.border}`,
                     background: c, cursor: "pointer", flexShrink: 0,
                   }}
                 />
@@ -191,20 +146,20 @@ function PageSettings() {
             <Row label="From">
               <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
                 <input type="color" value={activePage.gradFrom || "#6366f1"} onChange={e => patch({ gradFrom: e.target.value })}
-                  style={{ width: 32, height: 32, borderRadius: 6, border: "1px solid #e5e7eb", cursor: "pointer", padding: 2 }} />
-                <input type="text" value={activePage.gradFrom || "#6366f1"} onChange={e => patch({ gradFrom: e.target.value })} style={{ ...inputStyle, flex: 1, fontFamily: "monospace", fontSize: 11 }} />
+                  title="Pick color" style={colorSwatchStyle} />
+                <input type="text" value={activePage.gradFrom || "#6366f1"} onChange={e => patch({ gradFrom: e.target.value })} style={{ ...inputStyle, flex: 1, fontFamily: "ui-monospace, monospace", fontSize: 11 }} />
               </div>
             </Row>
             <Row label="To">
               <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
                 <input type="color" value={activePage.gradTo || "#ec4899"} onChange={e => patch({ gradTo: e.target.value })}
-                  style={{ width: 32, height: 32, borderRadius: 6, border: "1px solid #e5e7eb", cursor: "pointer", padding: 2 }} />
-                <input type="text" value={activePage.gradTo || "#ec4899"} onChange={e => patch({ gradTo: e.target.value })} style={{ ...inputStyle, flex: 1, fontFamily: "monospace", fontSize: 11 }} />
+                  title="Pick color" style={colorSwatchStyle} />
+                <input type="text" value={activePage.gradTo || "#ec4899"} onChange={e => patch({ gradTo: e.target.value })} style={{ ...inputStyle, flex: 1, fontFamily: "ui-monospace, monospace", fontSize: 11 }} />
               </div>
             </Row>
             <Row label="Direction">
               <select value={activePage.gradDir || "135deg"} onChange={e => patch({ gradDir: e.target.value })} style={inputStyle}>
-                {[["90deg","→ Left to Right"],["270deg","← Right to Left"],["180deg","↓ Top to Bottom"],["0deg","↑ Bottom to Top"],["135deg","↘ Diagonal TL→BR"],["45deg","↗ Diagonal BL→TR"],["225deg","↙ Diagonal"],["315deg","↖ Diagonal"]].map(([v,l]) =>
+                {[["90deg","Left to Right"],["270deg","Right to Left"],["180deg","Top to Bottom"],["0deg","Bottom to Top"],["135deg","Diagonal TL-BR"],["45deg","Diagonal BL-TR"],["225deg","Diagonal TR-BL"],["315deg","Diagonal BR-TL"]].map(([v,l]) =>
                   <option key={v} value={v}>{l}</option>
                 )}
               </select>
@@ -227,7 +182,7 @@ function PageSettings() {
                     style={{
                       width: 28, height: 28, borderRadius: 6,
                       background: `linear-gradient(135deg, ${from}, ${to})`,
-                      border: (activePage.gradFrom === from && activePage.gradTo === to) ? "2px solid #6366f1" : "1px solid #e5e7eb",
+                      border: (activePage.gradFrom === from && activePage.gradTo === to) ? `2px solid ${T.accent}` : `1px solid ${T.border}`,
                       cursor: "pointer",
                     }}
                   />
@@ -243,11 +198,12 @@ function PageSettings() {
             <Row label="Image">
               {bgImage ? (
                 <div style={{ position: "relative" }}>
-                  <img src={bgImage} alt="bg" style={{ width: "100%", height: 80, objectFit: "cover", borderRadius: 8, border: "1px solid #e5e7eb" }} />
+                  <img src={bgImage} alt="bg" style={{ width: "100%", height: 80, objectFit: "cover", borderRadius: 8, border: `1px solid ${T.border}` }} />
                   <button
                     type="button"
                     onClick={() => patch({ bgImage: null })}
-                    style={{ position: "absolute", top: 6, right: 6, background: "#fff", border: "1px solid #e5e7eb", borderRadius: 6, padding: 3, cursor: "pointer", display: "flex" }}
+                    title="Remove image"
+                    style={{ position: "absolute", top: 6, right: 6, background: T.panel, border: `1px solid ${T.border}`, color: T.text, borderRadius: 6, padding: 3, cursor: "pointer", display: "flex" }}
                   >
                     <X size={12} />
                   </button>
@@ -255,8 +211,8 @@ function PageSettings() {
               ) : (
                 <label style={{
                   display: "flex", flexDirection: "column", alignItems: "center", gap: 6,
-                  padding: 16, border: "2px dashed #e5e7eb", borderRadius: 10,
-                  cursor: "pointer", color: "#9ca3af", fontSize: 12, background: "#fafafa",
+                  padding: 16, border: `2px dashed ${T.border}`, borderRadius: 10,
+                  cursor: "pointer", color: T.textDim, fontSize: 12, background: T.input,
                 }}>
                   <Upload size={18} />
                   Click to upload
@@ -293,9 +249,9 @@ function PageSettings() {
                   type="checkbox"
                   checked={!!activePage.bgParallax}
                   onChange={e => patch({ bgParallax: e.target.checked })}
-                  style={{ width: 14, height: 14, cursor: "pointer" }}
+                  style={{ width: 14, height: 14, cursor: "pointer", accentColor: T.accent }}
                 />
-                <span style={{ fontSize: 11, color: "#374151" }}>Enable parallax scrolling</span>
+                <span style={{ fontSize: 11, color: T.text }}>Enable parallax scrolling</span>
               </div>
             </Row>
           </>
@@ -314,8 +270,8 @@ function PageSettings() {
           <Row label="Custom Overlay Color">
             <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
               <input type="color" value={overlay.match(/#[0-9a-f]{3,6}/i)?.[0] || "#000000"} onChange={e => patch({ bgOverlay: e.target.value })}
-                style={{ width: 32, height: 32, borderRadius: 6, border: "1px solid #e5e7eb", cursor: "pointer", padding: 2 }} />
-              <input type="text" value={overlay} onChange={e => patch({ bgOverlay: e.target.value })} style={{ ...inputStyle, flex: 1, fontFamily: "monospace", fontSize: 11 }} />
+                title="Pick color" style={colorSwatchStyle} />
+              <input type="text" value={overlay} onChange={e => patch({ bgOverlay: e.target.value })} style={{ ...inputStyle, flex: 1, fontFamily: "ui-monospace, monospace", fontSize: 11 }} />
             </div>
           </Row>
         )}
@@ -332,19 +288,20 @@ function PageSettings() {
                 onClick={() => patch({ bgPattern: value })}
                 style={{
                   display: "flex", alignItems: "center", gap: 8,
-                  padding: "6px 10px", borderRadius: 7, border: "1px solid",
-                  borderColor: pattern === value ? "#6366f1" : "#e5e7eb",
-                  background: pattern === value ? "#f0f0ff" : "#fafafa",
+                  padding: "6px 10px", borderRadius: 6,
+                  border: `1px solid ${pattern === value ? T.accentBorder : T.border}`,
+                  background: pattern === value ? T.accentSoft : T.input,
                   cursor: "pointer", textAlign: "left",
                 }}
               >
                 <div style={{
                   width: 28, height: 20, borderRadius: 4, flexShrink: 0,
-                  background: value !== "none" ? value : "#fff",
+                  background: "#ffffff",
+                  backgroundImage: value !== "none" ? value : undefined,
                   backgroundSize: value === BG_PATTERNS[1].value ? "16px 16px" : value === BG_PATTERNS[2].value ? "25px 25px" : "20px 20px",
-                  border: "1px solid #e5e7eb",
+                  border: `1px solid ${T.border}`,
                 }} />
-                <span style={{ fontSize: 11, fontWeight: 600, color: pattern === value ? "#4f46e5" : "#374151" }}>{label}</span>
+                <span style={{ fontSize: 11, fontWeight: 600, color: pattern === value ? T.accentText : T.textDim }}>{label}</span>
               </button>
             ))}
           </div>
@@ -377,7 +334,7 @@ function PageSettings() {
             type="text"
             value={activePage.slug || "/"}
             onChange={e => patch({ slug: e.target.value })}
-            style={{ ...inputStyle, fontFamily: "monospace" }}
+            style={{ ...inputStyle, fontFamily: "ui-monospace, monospace" }}
             placeholder="/about"
           />
         </Row>
@@ -402,9 +359,9 @@ function PageSettings() {
               type="checkbox"
               checked={!!activePage.hiddenFromNav}
               onChange={e => patch({ hiddenFromNav: e.target.checked })}
-              style={{ width: 14, height: 14, cursor: "pointer" }}
+              style={{ width: 14, height: 14, cursor: "pointer", accentColor: T.accent }}
             />
-            <span style={{ fontSize: 11, color: "#374151" }}>Don't show in navigation</span>
+            <span style={{ fontSize: 11, color: T.text }}>Don't show in navigation</span>
           </div>
         </Row>
       </Section>

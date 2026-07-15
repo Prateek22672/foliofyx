@@ -11,7 +11,7 @@ const Resizer = ({ onMouseDown, isDragging }) => {
         hidden md:flex flex-none items-center justify-center
         w-[10px] h-auto select-none cursor-col-resize relative
         transition-colors duration-150 group z-20
-        ${isDragging ? "bg-violet-500/20" : "bg-transparent hover:bg-violet-100/60"}
+        ${isDragging ? "bg-violet-500/20" : "bg-transparent hover:bg-violet-500/10"}
       `}
     >
       {/* Center grip track */}
@@ -20,7 +20,7 @@ const Resizer = ({ onMouseDown, isDragging }) => {
           w-[3px] h-16 rounded-full transition-all duration-200
           ${isDragging
             ? "bg-violet-500 shadow-[0_0_12px_rgba(139,92,246,0.6)] scale-y-110"
-            : "bg-gray-200 group-hover:bg-violet-400 group-hover:scale-y-105"
+            : "bg-white/15 group-hover:bg-violet-400 group-hover:scale-y-105"
           }
         `}
       />
@@ -32,7 +32,7 @@ const Resizer = ({ onMouseDown, isDragging }) => {
             key={i}
             className={`
               w-[3px] h-[3px] rounded-full transition-colors duration-200
-              ${isDragging ? "bg-violet-300" : "bg-gray-300 group-hover:bg-violet-300"}
+              ${isDragging ? "bg-violet-300" : "bg-white/30 group-hover:bg-violet-300"}
             `}
           />
         ))}

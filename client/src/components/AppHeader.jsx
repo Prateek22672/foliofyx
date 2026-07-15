@@ -191,7 +191,7 @@ const AppHeader = () => {
                             onClick={() => handleNavigate(path)}
                             className={`
                               relative z-10 h-full px-4 flex items-center justify-center gap-1.5
-                              text-[13px] font-medium tracking-wide transition-colors duration-200 rounded-full
+                              text-[13px] font-medium tracking-wide transition-colors duration-200 rounded-full whitespace-nowrap
                               ${hasScrolled 
                                 ? (isActive ? "text-black" : "text-gray-500 hover:text-gray-900")
                                 : (isActive ? "text-white" : "text-white/60 hover:text-white")

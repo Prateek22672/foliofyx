@@ -31,15 +31,16 @@ const EditorHint = ({ onClick, sidebarSide }) => {
       className={`
         hidden md:flex fixed bottom-8 ${posClass} z-[400]
         items-center gap-3
-        bg-white border border-gray-200 shadow-2xl
-        px-4 py-3 rounded-2xl cursor-pointer
-        hover:shadow-3xl hover:-translate-y-0.5 active:translate-y-0
+        bg-[#0f0f0f] border border-white/10 shadow-2xl shadow-black/50
+        px-4 py-3 rounded-xl cursor-pointer
+        hover:border-white/20 hover:-translate-y-0.5 active:translate-y-0
         transition-all duration-200 group
         animate-in fade-in slide-in-from-bottom-2 duration-500
       `}
       onClick={onClick}
       role="button"
       tabIndex={0}
+      title="Open the editor panel"
       onKeyDown={(e) => e.key === "Enter" && onClick()}
     >
       <span className="relative flex h-2.5 w-2.5 flex-none">
@@ -47,11 +48,11 @@ const EditorHint = ({ onClick, sidebarSide }) => {
         <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-violet-500" />
       </span>
       <div className="flex flex-col">
-        <span className="text-[12px] font-semibold text-gray-900 leading-tight">Open Editor</span>
-        <span className="text-[10px] text-gray-400 leading-tight">Click to edit your content</span>
+        <span className="text-[12px] font-semibold text-white leading-tight">Open Editor</span>
+        <span className="text-[10px] text-neutral-500 leading-tight">Click to edit your content</span>
       </div>
-      <div className="w-7 h-7 rounded-xl bg-violet-50 flex items-center justify-center group-hover:bg-violet-100 transition-colors flex-none">
-        <Edit3 size={13} className="text-violet-600" />
+      <div className="w-7 h-7 rounded-lg bg-violet-500/15 flex items-center justify-center group-hover:bg-violet-500/25 transition-colors flex-none">
+        <Edit3 size={13} className="text-violet-400" />
       </div>
     </div>
   );
@@ -283,9 +284,9 @@ const Customize = () => {
 
   if (!portfolioData) {
     return (
-      <div className="bg-gray-50 min-h-screen flex items-center justify-center">
-        <div className="flex flex-col items-center gap-3 text-gray-400">
-          <div className="w-8 h-8 border-2 border-gray-200 border-t-violet-500 rounded-full animate-spin" />
+      <div className="bg-[#171717] min-h-screen flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3 text-neutral-500">
+          <div className="w-8 h-8 border-2 border-white/10 border-t-violet-500 rounded-full animate-spin" />
           <span className="text-sm font-medium">Loading workspace…</span>
         </div>
       </div>
@@ -293,7 +294,7 @@ const Customize = () => {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50 text-gray-900 relative overflow-x-hidden overflow-y-auto">
+    <div className="flex flex-col min-h-screen bg-[#171717] text-neutral-200 relative overflow-x-hidden overflow-y-auto">
 
       {showOnboarding && (
         <OnboardingTutorial onComplete={() => {
@@ -303,7 +304,7 @@ const Customize = () => {
       )}
 
       {/* Top header */}
-      <div className="flex-none sticky top-0 z-[600] bg-white border-b border-gray-100">
+      <div className="flex-none sticky top-0 z-[600] bg-[#0f0f0f] border-b border-white/10">
         <EditHeader
           setViewMode={setViewMode}
           viewMode={viewMode}
@@ -326,7 +327,7 @@ const Customize = () => {
       )}
 
       {/* Mobile tab toggle */}
-      <div className="md:hidden flex-none flex justify-between items-center px-4 py-2.5 bg-white border-b border-gray-100 sticky top-[56px] z-40">
+      <div className="md:hidden flex-none flex justify-between items-center px-4 py-2.5 bg-[#0f0f0f] border-b border-white/10 sticky top-[56px] z-40">
         {["Editor", "Preview"].map((tab) => {
           const isPreview = tab === "Preview";
           const active    = isPreview ? showPreviewMobile : !showPreviewMobile;
@@ -336,12 +337,12 @@ const Customize = () => {
               type="button"
               onClick={() => setShowPreviewMobile(isPreview)}
               className={`
-                flex-1 py-2 rounded-xl text-xs font-semibold transition-all mx-1
+                flex-1 py-2 rounded-lg text-xs font-semibold transition-all mx-1
                 ${active
                   ? isPreview
                     ? "bg-violet-600 text-white shadow-md"
-                    : "bg-gray-900 text-white shadow-md"
-                  : "text-gray-400 bg-gray-50"
+                    : "bg-white text-black shadow-md"
+                  : "text-neutral-500 bg-white/5"
                 }
               `}
             >
@@ -400,7 +401,7 @@ const Customize = () => {
           <div
             className={`
               h-full w-full transition-colors duration-300
-              ${isMobileSim ? "bg-gray-200/80 py-10 flex items-start justify-center" : "bg-white"}
+              ${isMobileSim ? "bg-[#171717] py-10 flex items-start justify-center" : "bg-white"}
             `}
           >
             {isDragging && (
